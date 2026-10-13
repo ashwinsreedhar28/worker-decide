@@ -1,0 +1,24 @@
+[project]
+name = "worker-decide"
+version = "0.0.1"
+description = "Runpod Serverless worker for SystemOne decision models (Clef, Typical)"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["ruff>=0.6", "pytest>=8"]
+# The oracle environment is pinned separately in requirements-oracle.txt
+# (torch/transformers versions are tied to the model card's tested pair).
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["fixtures"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "B", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
