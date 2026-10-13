@@ -17,10 +17,12 @@ Usage:
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 REQ = ROOT / "fixtures" / "requests"
+sys.path.insert(0, str(Path(__file__).resolve().parent))  # coverage_records lives next to this file
 IMG = REQ / "images"
 
 # The model card's example record: three question types in one request.
@@ -359,6 +361,86 @@ def make_images() -> list[dict]:
         },
         "vision: no text, pure shape/color",
     )
+
+    # 4. exact 448x448 grid, 5. oversized 2048x1536, 6. two images in one request
+    im = Image.new("RGB", (448, 448), (30, 30, 40))
+    d = ImageDraw.Draw(im)
+    d.rectangle((40, 40, 408, 200), fill=(255, 200, 0))
+    d.text((60, 90), "STOP", font=ImageFont.truetype(bold.path, 72), fill="black")
+    im.save(IMG / "sign448.png")
+
+    im = Image.new("RGB", (2048, 1536), "white")
+    d = ImageDraw.Draw(im)
+    big = ImageFont.truetype(bold.path, 160)
+    d.text((120, 200), "GATE B12", font=big, fill="black")
+    d.text((120, 500), "BOARDING 14:05", font=big, fill=(200, 0, 0))
+    d.text(
+        (120, 800), "FLIGHT DL 448 TO ATL", font=ImageFont.truetype(mono.path, 110), fill="black"
+    )
+    im.save(IMG / "board2048.png")
+
+    pair(
+        "sign448",
+        "sign448.png",
+        {"task": "Look at the sign."},
+        {
+            "word": {
+                "type": "choice",
+                "instructions": "Which word is on the sign?",
+                "criteria": {"stop": None, "go": None, "exit": None, "none": "No word"},
+            },
+            "color": {
+                "type": "choice",
+                "instructions": "Background color of the sign",
+                "criteria": {"yellow": None, "red": None, "blue": None},
+            },
+        },
+        "vision: image exactly at the 448 grid (no resize ambiguity)",
+    )
+    pair(
+        "board2048",
+        "board2048.png",
+        {"task": "Read the departures board."},
+        {
+            "gate": {
+                "type": "choice",
+                "instructions": "Which gate?",
+                "criteria": {"B12": None, "B21": None, "A12": None, "unknown": None},
+            },
+            "boarding_before_1430": {
+                "type": "noul",
+                "instructions": "Does boarding start before 14:30?",
+            },
+        },
+        "vision: oversized 2048x1536 input; processor downscales, token count stays bounded",
+    )
+    recs.append(
+        {
+            "id": "img_two",
+            "source": {
+                "kind": "image",
+                "targets": "vision: two images in one request, questions index them",
+            },
+            "request": {
+                "state": {"task": "Two attachments: the first is a receipt, the second a chart."},
+                "questions": {
+                    "first_is_receipt": {
+                        "type": "noul",
+                        "instructions": "Is the first attachment a receipt?",
+                    },
+                    "chart_best_quarter": {
+                        "type": "choice",
+                        "instructions": "In the chart, which quarter has the highest bar?",
+                        "criteria": {"Q1": None, "Q2": None, "Q3": None, "Q4": None},
+                    },
+                },
+            },
+            "images": [
+                "fixtures/requests/images/receipt.png",
+                "fixtures/requests/images/chart.png",
+            ],
+        }
+    )
     return recs
 
 
@@ -369,11 +451,15 @@ def write_jsonl(path: Path, recs: list[dict]) -> None:
 
 
 def main() -> None:
+    import coverage_records
+
     edge = edge_records()
     write_jsonl(REQ / "edge.jsonl", edge)
+    cov = coverage_records.records()
+    write_jsonl(REQ / "coverage.jsonl", cov)
     imgs = make_images()
     write_jsonl(REQ / "images.jsonl", imgs)
-    for r in edge + imgs:
+    for r in edge + cov + imgs:
         chars = len(json.dumps(r["request"]["state"]))
         print(f"{r['id']:<22} state_chars={chars:>6}  {r['source']['targets']}")
 

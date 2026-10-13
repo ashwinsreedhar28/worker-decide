@@ -2,11 +2,13 @@
 
 import importlib.util
 import json
+import sys
 from pathlib import Path
 
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
 spec = importlib.util.spec_from_file_location(
     "make_fixtures", ROOT / "scripts" / "make_fixtures.py"
 )
@@ -55,3 +57,29 @@ def test_image_records_have_twins_and_files():
             assert (ROOT / rel).exists(), rel
         twin = next(t for t in recs if t["id"] == r["id"].removesuffix("_textonly"))
         assert twin["request"] == r["request"]
+
+
+def test_coverage_records_hit_hosted_limits():
+    import coverage_records as cr
+
+    recs = {r["id"]: r for r in cr.records()}
+    q = lambda rid, name: recs[rid]["request"]["questions"][name]  # noqa: E731
+    assert len(q("intent77", "intent")["criteria"]) == 77
+    assert len(q("opts255", "sku")["criteria"]) == 255
+    assert len(recs["q64"]["request"]["questions"]) == 64
+    assert len(q("score10", "frustration")["criteria"]) == 10
+    assert recs["schema_overflow"]["expect_error"] == "schema requires"
+    assert q("empty_instructions", "needs_shipping_help")["instructions"] == ""
+    assert isinstance(recs["list_state"]["request"]["state"], list)
+    assert "none" in q("moderation", "category")["criteria"]
+    assert recs["near_dup_a"]["request"]["state"] != recs["near_dup_b"]["request"]["state"]
+
+
+def test_all_request_ids_unique_across_files():
+    import json
+
+    ids = []
+    for path in (ROOT / "fixtures" / "requests").glob("*.jsonl"):
+        ids += [json.loads(line)["id"] for line in path.read_text().splitlines() if line]
+    assert len(ids) == len(set(ids))
+    assert len(ids) == 87, len(ids)
