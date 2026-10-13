@@ -1,19 +1,12 @@
 """make_fixtures.py is deterministic and each edge record targets what it says."""
 
-import importlib.util
 import json
-import sys
 from pathlib import Path
 
+import make_fixtures as mf
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "scripts"))
-spec = importlib.util.spec_from_file_location(
-    "make_fixtures", ROOT / "scripts" / "make_fixtures.py"
-)
-mf = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(mf)
 
 pytestmark = pytest.mark.skipif(
     not (ROOT / "fixtures" / "requests" / "pulse50.jsonl").exists(),
