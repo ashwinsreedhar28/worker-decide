@@ -1,19 +1,29 @@
 #!/usr/bin/env python3
-"""Run the fixture requests through a worker over HTTP and write a parity run directory.
+"""Run the fixture requests through a worker over HTTP and gate the answers.
 
 Posts every record in the request files to `POST <base>/v1/decide` with `X-Decide-Debug: 1`,
 turns each reply into a record in the oracle schema (request_sha, encoding, per-question
-logits/probs, response, error, timing) and writes it to RUN_DIR, then runs the parity gate
-against a reference directory. Image records are sent with their PNGs inline as base64 data
-URLs; `request_sha` is computed locally from the fixture body, so a worker that hashes
-differently fails the request gate.
+logits/probs, response, error, timing) and writes it to RUN_DIR. Image records are sent with
+their PNGs inline as base64 data URLs; `request_sha` is computed locally from the fixture body,
+so a worker that hashes differently fails the request gate.
+
+Two gates, with different jobs (decided Oct 14, after an A40 failed a same-dtype gate against
+the H100 bf16 run while being closer to fp32 than the H100 was):
+
+- correctness, any GPU (default, always on): against the fp32 truth. Argmax must agree where
+  the fp32 margin exceeds the near-tie window (2 x max-dp); max |dp| <= 0.025, mean of record
+  means <= 0.0025. Set from measured bf16 noise on two architectures (H100 worst 0.0211, A40
+  0.0163); provisional until an Ada run confirms it.
+- regression, same GPU as the reference (opt-in, --regression DIR): against a bf16 run made on
+  the same architecture, at 0.005 / 0.001. It catches code changes, not hardware: two bf16 runs
+  on different GPUs disagree by up to ~0.03 while each stays within the correctness bar.
 
     python scripts/parity_http.py http://127.0.0.1:8000 runs/http-bf16 \\
-        --reference fixtures/clef-flash/bfloat16 --max-dp 0.005 \\
-        [--also fixtures/clef-flash/float32] [--requests fixtures/requests/*.jsonl] [--token T]
+        [--regression fixtures/clef-flash/bfloat16] [--also DIR] [--token T]
 
-Exit code is the gate's (0 pass, 1 fail). `--also` prints an informational report against a
-second reference (fp32 drift) that never affects the exit code.
+Exit 0 when the correctness gate passes and, if requested, the regression gate passes too.
+`--also` prints informational reports that never affect the exit code. The run's manifest
+records the worker's engine info (GPU, dtype, versions) from the first debug block.
 """
 
 from __future__ import annotations
@@ -78,13 +88,18 @@ def record_from_reply(line: dict[str, Any], status: int, reply: dict[str, Any]) 
     return rec
 
 
-def collect(lines: list[dict[str, Any]], run_dir: Path, poster) -> dict[str, int]:
-    """Post every fixture line through `poster(body) -> (status, reply)` and write the records."""
+def collect(
+    lines: list[dict[str, Any]], run_dir: Path, poster, meta: dict[str, Any] | None = None
+) -> dict[str, int]:
+    """Post every fixture line through `poster(body) -> (status, reply)` and write the records.
+    If `meta` is given, the first successful reply's engine info is stored in meta["engine"]."""
     run_dir.mkdir(parents=True, exist_ok=True)
     counts = {"ok": 0, "error": 0}
     for i, line in enumerate(lines, 1):
         t0 = time.perf_counter()
         status, reply = poster(wire_body(line))
+        if meta is not None and status == 200 and "engine" not in meta:
+            meta["engine"] = (reply.get("debug") or {}).get("engine")
         rec = record_from_reply(line, status, reply)
         rec["timing_ms"]["wall"] = round((time.perf_counter() - t0) * 1000, 1)
         (run_dir / f"{rec['id']}.json").write_text(json.dumps(rec, ensure_ascii=False))
@@ -132,9 +147,15 @@ def is_worker_unhealthy(status: int, body: bytes) -> bool:
         return False
 
 
-def wait_ready(base: str, token: str | None, timeout_s: float) -> None:
+def wait_ready(
+    base: str, token: str | None, timeout_s: float, every_s: float = 30.0, poll_s: float = 3.0
+) -> None:
+    """Poll /ping until 200. Prints a progress line to stderr every `every_s` seconds: a cold
+    worker can take minutes (download + load), and a silent terminal reads as a hang."""
     t0 = time.time()
+    last_report = t0
     headers = {"Authorization": f"Bearer {token}"} if token else {}
+    print(f"[wait] polling {base.rstrip('/')}/ping until the worker is ready", file=sys.stderr)
     while True:
         try:
             with urllib.request.urlopen(
@@ -150,36 +171,69 @@ def wait_ready(base: str, token: str | None, timeout_s: float) -> None:
             state = f"status {e.code}"  # LB with no worker yet, gateway errors: keep waiting
         except (urllib.error.URLError, TimeoutError) as e:
             state = str(e)
-        if time.time() - t0 > timeout_s:
+        now = time.time()
+        if now - t0 > timeout_s:
             raise SystemExit(f"worker not ready after {timeout_s:.0f}s ({state})")
-        time.sleep(3)
+        if now - last_report >= every_s:
+            label = " (initializing)" if state == "status 204" else ""
+            print(f"[wait] {now - t0:.0f}s: {state}{label}", file=sys.stderr, flush=True)
+            last_report = now
+        time.sleep(poll_s)
 
 
-def main() -> None:
+CORRECTNESS = {"max_dp": 0.025, "mean_dp": 0.0025}
+REGRESSION = {"max_dp": 0.005, "mean_dp": 0.001}
+
+
+def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     ap.add_argument("base", help="worker base URL, e.g. http://127.0.0.1:8000")
     ap.add_argument("run_dir", type=Path)
-    ap.add_argument("--reference", type=Path, default=ROOT / "fixtures/clef-flash/bfloat16")
+    ap.add_argument(
+        "--reference",
+        type=Path,
+        default=ROOT / "fixtures/clef-flash/float32",
+        help="correctness gate reference (default: the fp32 truth)",
+    )
+    ap.add_argument("--max-dp", type=float, default=CORRECTNESS["max_dp"])
+    ap.add_argument("--mean-dp", type=float, default=CORRECTNESS["mean_dp"])
+    ap.add_argument(
+        "--regression",
+        type=Path,
+        default=None,
+        help="same-GPU regression gate reference, e.g. fixtures/clef-flash/bfloat16 on Hopper",
+    )
+    ap.add_argument("--regression-max-dp", type=float, default=REGRESSION["max_dp"])
+    ap.add_argument("--regression-mean-dp", type=float, default=REGRESSION["mean_dp"])
     ap.add_argument("--also", type=Path, action="append", default=[], help="informational refs")
     ap.add_argument("--requests", nargs="+", default=[str(ROOT / "fixtures/requests/*.jsonl")])
-    ap.add_argument("--max-dp", type=float, default=0.005)
-    ap.add_argument("--mean-dp", type=float, default=0.001)
     ap.add_argument("--token", default=None, help="Runpod API key for an endpoint URL")
     ap.add_argument("--timeout", type=float, default=330.0, help="per request, seconds")
     ap.add_argument("--ready-timeout", type=float, default=900.0)
-    ap.add_argument("--json", type=Path, help="write the gate report as JSON")
-    a = ap.parse_args()
+    ap.add_argument("--json", type=Path, help="write the correctness report as JSON")
+    return ap
 
+
+def verdict(correct_passed: bool, regression_passed: bool | None) -> bool:
+    """Correctness always gates; regression gates only when it was requested."""
+    return correct_passed and regression_passed is not False
+
+
+def main() -> None:
+    a = build_parser().parse_args()
     wait_ready(a.base, a.token, a.ready_timeout)
     lines = load_requests(a.requests)
-    counts = collect(lines, a.run_dir, lambda body: post(a.base, body, a.token, a.timeout))
+    meta: dict[str, Any] = {}
+    counts = collect(lines, a.run_dir, lambda body: post(a.base, body, a.token, a.timeout), meta)
     (a.run_dir / "manifest.json").write_text(
         json.dumps(
             {
                 "base": a.base,
                 "reference": str(a.reference),
+                "regression": str(a.regression) if a.regression else None,
+                "engine": meta.get("engine"),
                 "counts": counts,
                 "requests": a.requests,
                 "finished_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
@@ -188,14 +242,23 @@ def main() -> None:
         )
     )
 
+    print("## Correctness gate (any GPU)\n")
     report = compare(a.reference, a.run_dir, max_dp=a.max_dp, mean_dp=a.mean_dp)
     print(render(report))
     if a.json:
         a.json.write_text(json.dumps(report.__dict__, default=lambda o: o.__dict__, indent=1))
+    reg_passed = None
+    if a.regression:
+        print("\n## Regression gate (same GPU as the reference)\n")
+        reg = compare(
+            a.regression, a.run_dir, max_dp=a.regression_max_dp, mean_dp=a.regression_mean_dp
+        )
+        print(render(reg))
+        reg_passed = reg.passed
     for ref in a.also:
         print(f"\n--- informational: vs {ref} (not gated) ---\n")
         print(render(compare(ref, a.run_dir)))
-    sys.exit(0 if report.passed else 1)
+    sys.exit(0 if verdict(report.passed, reg_passed) else 1)
 
 
 if __name__ == "__main__":
