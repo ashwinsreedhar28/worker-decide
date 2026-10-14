@@ -69,8 +69,9 @@ Environment variables (defaults baked into the image):
 
 Image: `ghcr.io/ashwinsreedhar28/worker-decide:clef-<sha7>` (built by the
 `image` workflow on `main`; the package must be public for Runpod to pull it
-without registry credentials). GPU: 24 GB is enough for bf16 at 16k tokens
-with the efficient SDPA kernel; 80 GB for fp32. Hosts must be CUDA 13.0
+without registry credentials). GPU: 48 GB for bf16 (what the Hub listing
+targets; weights are 19.1 GB and peak memory at 16k tokens has not been
+measured, so 24 GB is untested); 80 GB for fp32. Hosts must be CUDA 13.0
 (endpoint setting "Allowed CUDA versions"), the same filter worker-vllm uses.
 Attach a network volume with the weights, or give the worker ≥ 60 GB container
 disk and let the first start download them.
