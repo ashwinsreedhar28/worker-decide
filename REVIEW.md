@@ -88,8 +88,10 @@ Two kernel caveats, neither measured yet:
 - **Against Haiku on the 50** (same harness as Brian's table): hosted argmax
   46% exact / MAE 0.54 (reproduces the table); fp32 oracle 56% / 0.44; bf16
   52% / 0.48; urgent P/R identical (80% / 44%, 5 flagged) across all three.
-  Computed outside this repo with Pulse's bench harness; not yet reproducible
-  from the repo alone.
+  Reproduce: `python scripts/haiku_eval.py fixtures/clef-flash/float32
+  fixtures/clef-flash/bfloat16 runs/hosted` (labels in
+  `fixtures/labels/haiku-pulse50.json`; the `ev` decoder rows are the
+  harness's "+ev" variant).
 - **Vision twins**: every image record answers correctly at 0.93–0.98 while its
   text-only twin sits near uniform (receipt total 0.947 vs 0.416, chart Q3
   0.979 vs 0.296). Quality miss, not parity: `img_board2048` reads boarding
