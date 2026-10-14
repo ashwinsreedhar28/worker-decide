@@ -1,0 +1,61 @@
+{
+ "model": "Cloudflare/clef-flash",
+ "revision": "8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3",
+ "snapshot_path": "/workspace/.cache/huggingface/hub/models--Cloudflare--clef-flash/snapshots/8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3",
+ "files": {
+  "joint_head.safetensors": {
+   "sha256": "19cdcec8c81dc9212be320fff47462ab342fbc1278be4368fb3da71241cf5ba0",
+   "bytes": 243538016
+  },
+  "joint_head_config.json": {
+   "sha256": "77efe959a38b5b17b241543e129e695f3c77465ece55a25985279bd8176279a0",
+   "bytes": 119
+  },
+  "joint_schema_model.py": {
+   "sha256": "0e304cf7c6500e8bb59bef7e2afd2c6373f82596dfb3b57d1aa93c175e2dc3a3",
+   "bytes": 23263
+  },
+  "config.json": {
+   "sha256": "66f87f6fb2616b46604daf2a9c67ddc87938296d07156efa34d59b5be49e3238",
+   "bytes": 2832
+  },
+  "model-00001-of-00004.safetensors": {
+   "bytes": 4942706120
+  },
+  "model-00002-of-00004.safetensors": {
+   "bytes": 4987757928
+  },
+  "model-00003-of-00004.safetensors": {
+   "bytes": 4954810240
+  },
+  "model-00004-of-00004.safetensors": {
+   "bytes": 3934446832
+  }
+ },
+ "dtype": "bfloat16",
+ "device": "cuda",
+ "gpu": "NVIDIA H100 80GB HBM3",
+ "dry_run": false,
+ "max_length": 16384,
+ "sdp": "efficient",
+ "gdn_fast_path": false,
+ "versions": {
+  "python": "3.12.3",
+  "torch": "2.11.0+cu130",
+  "transformers": "5.10.2",
+  "cuda": "13.0"
+ },
+ "worker_decide_commit": "5973a9bf9f08cdd43f2cb812e8856c8b76a9d2b7",
+ "load_s": 6.2,
+ "counts": {
+  "ok": 86,
+  "error": 1
+ },
+ "requests": [
+  "fixtures/requests/coverage.jsonl",
+  "fixtures/requests/edge.jsonl",
+  "fixtures/requests/images.jsonl",
+  "fixtures/requests/pulse50.jsonl"
+ ],
+ "finished_utc": "2026-10-14T16:11:13Z"
+}

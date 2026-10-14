@@ -1,0 +1,1125 @@
+== pod_oracle.sh 2026-10-14T15:34:52Z ==
+commit 62346bc  model Cloudflare/clef-flash  revision main  dtypes [float32 bfloat16]
+NVIDIA H100 80GB HBM3, 81559 MiB, 580.126.09
+us-ca-2-vast.runpod.net:/runpodfs/networkvolumes/q98a1ysy5c   75G     0   75G   0% /workspace
+ERROR: Cannot install -r requirements-oracle.txt (line 5) and huggingface_hub==2.2.0 because these package versions have conflicting dependencies.
+ERROR: ResolutionImpossible: for help visit https://pip.pypa.io/en/latest/topics/dependency-resolution/#dealing-with-dependency-conflicts
+== pod_oracle.sh 2026-10-14T15:36:05Z ==
+commit 7d15e1c  model Cloudflare/clef-flash  revision main  dtypes [float32 bfloat16]
+NVIDIA H100 80GB HBM3, 81559 MiB, 580.126.09
+us-ca-2-vast.runpod.net:/runpodfs/networkvolumes/q98a1ysy5c   75G   13M   75G   1% /workspace
+cuda 13.0 NVIDIA H100 80GB HBM3
+transformers 5.10.2
+hub sha 8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Fetching 17 files:   6%|▌         | 1/17 [00:00<00:04,  3.92it/s]Fetching 17 files:  47%|████▋     | 8/17 [00:00<00:00, 23.18it/s]Fetching 17 files:  65%|██████▍   | 11/17 [00:00<00:00, 19.85it/s]Fetching 17 files:  76%|███████▋  | 13/17 [00:20<00:00, 19.85it/s]Fetching 17 files:  82%|████████▏ | 14/17 [00:27<00:09,  3.09s/it]Fetching 17 files:  88%|████████▊ | 15/17 [00:33<00:07,  3.53s/it]Fetching 17 files: 100%|██████████| 17/17 [00:34<00:00,  2.55s/it]Fetching 17 files: 100%|██████████| 17/17 [00:34<00:00,  2.01s/it]
+snapshot /workspace/.cache/huggingface/hub/models--Cloudflare--clef-flash/snapshots/8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 1898.84it/s]
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/root/worker-decide/deciders/clef/oracle.py", line 272, in <module>
+    main()
+  File "/root/worker-decide/deciders/clef/oracle.py", line 177, in main
+    model, processor = None, AutoProcessor.from_pretrained(snapshot)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/models/auto/processing_auto.py", line 441, in from_pretrained
+    return processor_class.from_pretrained(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/processing_utils.py", line 1691, in from_pretrained
+    args = cls._get_arguments_from_pretrained(pretrained_model_name_or_path, processor_dict, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/processing_utils.py", line 1820, in _get_arguments_from_pretrained
+    sub_processor = auto_processor_class.from_pretrained(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/models/auto/video_processing_auto.py", line 371, in from_pretrained
+    return video_processor_class.from_pretrained(pretrained_model_name_or_path, *inputs, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 2082, in __getattribute__
+    requires_backends(cls, cls._backends)
+  File "/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 2068, in requires_backends
+    raise ImportError("".join(failed))
+ImportError: 
+Qwen3VLVideoProcessor requires the Torchvision library but it was not found in your environment. Check out the instructions on the
+installation page: https://pytorch.org/get-started/locally/ and follow the ones that match your environment.
+Please note that you may need to restart your runtime after installation.
+
+== pod_oracle.sh 2026-10-14T15:55:49Z ==
+commit e3fa441  model Cloudflare/clef-flash  revision main  dtypes [float32 bfloat16]
+NVIDIA H100 80GB HBM3, 81559 MiB, 580.126.09
+us-ca-2-vast.runpod.net:/runpodfs/networkvolumes/q98a1ysy5c   75G   26G   50G  34% /workspace
+cuda 13.0 NVIDIA H100 80GB HBM3
+transformers 5.10.2
+hub sha 8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 1926.70it/s]
+snapshot /workspace/.cache/huggingface/hub/models--Cloudflare--clef-flash/snapshots/8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 2676.24it/s]
+[  1/87] intent77                 tokens=  1379      38.3 ms
+[  2/87] opts255                  tokens=  8641      26.3 ms
+[  3/87] q64                      tokens=  5538      20.4 ms
+[  4/87] score10                  tokens=   349       1.5 ms
+[  5/87] empty_instructions       tokens=   203       0.7 ms
+[  6/87] unicode_options          tokens=   270       1.3 ms
+[  7/87] list_state               tokens=   386       1.5 ms
+[  8/87] schema_overflow          tokens=     -    1488.2 ms  ERROR schema requires 475198 tokens before state; maximum is 16384
+[  9/87] triage_support           tokens=   475       2.4 ms
+[ 10/87] tool_select              tokens=   450       1.8 ms
+[ 11/87] invoice_extract          tokens=   561       2.1 ms
+[ 12/87] rag_relevance_1          tokens=   312       1.3 ms
+[ 13/87] rag_relevance_2          tokens=   301       1.2 ms
+[ 14/87] rag_relevance_3          tokens=   302       1.2 ms
+[ 15/87] moderation               tokens=   285       1.4 ms
+[ 16/87] near_dup_a               tokens=   232       1.0 ms
+[ 17/87] near_dup_b               tokens=   232       1.0 ms
+[ 18/87] near_dup_c               tokens=   232       1.0 ms
+[ 19/87] card_trio                tokens=   300       1.4 ms
+[ 20/87] no_instruction           tokens=   184       0.8 ms
+[ 21/87] unsorted_choice          tokens=   194       0.8 ms
+[ 22/87] noul_custom              tokens=   180       0.6 ms
+[ 23/87] json_state               tokens=   273       1.1 ms
+[ 24/87] many_options             tokens=  1164       4.5 ms
+[ 25/87] long_2k                  tokens=  2486       6.0 ms
+[ 26/87] trunc_16k                tokens= 16384      26.6 ms
+[ 27/87] img_receipt              tokens=   562     259.1 ms
+[ 28/87] img_receipt_textonly     tokens=   259       1.1 ms
+[ 29/87] img_chart                tokens=   388      17.3 ms
+[ 30/87] img_chart_textonly       tokens=   157       0.9 ms
+[ 31/87] img_shapes               tokens=   483       6.8 ms
+[ 32/87] img_shapes_textonly      tokens=   224       1.2 ms
+[ 33/87] img_sign448              tokens=   422       5.8 ms
+[ 34/87] img_sign448_textonly     tokens=   223       1.3 ms
+[ 35/87] img_board2048            tokens=  3321     104.9 ms
+[ 36/87] img_board2048_textonly   tokens=   246       4.8 ms
+[ 37/87] img_two                  tokens=   788      14.1 ms
+[ 38/87] pulse-11714037           tokens=   843       2.2 ms
+[ 39/87] pulse-10661222           tokens=   872       1.7 ms
+[ 40/87] pulse-11711957           tokens=   811       1.6 ms
+[ 41/87] pulse-9854422            tokens=   815       1.6 ms
+[ 42/87] pulse-11712604           tokens=   852       1.6 ms
+[ 43/87] pulse-9710164            tokens=   823       1.6 ms
+[ 44/87] pulse-9709124            tokens=   873       1.7 ms
+[ 45/87] pulse-11116991           tokens=   821       1.6 ms
+[ 46/87] pulse-10720478           tokens=   818       1.6 ms
+[ 47/87] pulse-9708731            tokens=   902       1.7 ms
+[ 48/87] pulse-9710418            tokens=   815       1.6 ms
+[ 49/87] pulse-11678677           tokens=   817       1.6 ms
+[ 50/87] pulse-9711065            tokens=   813       1.5 ms
+[ 51/87] pulse-9710025            tokens=   852       1.6 ms
+[ 52/87] pulse-11716232           tokens=   815       1.6 ms
+[ 53/87] pulse-9710672            tokens=   903       1.7 ms
+[ 54/87] pulse-9709632            tokens=   826       1.6 ms
+[ 55/87] pulse-11086438           tokens=   841       1.7 ms
+[ 56/87] pulse-11680618           tokens=   837       1.6 ms
+[ 57/87] pulse-9933807            tokens=   810       1.6 ms
+[ 58/87] pulse-9744321            tokens=   826       1.6 ms
+[ 59/87] pulse-9709100            tokens=   880       1.7 ms
+[ 60/87] pulse-11716347           tokens=   889       1.7 ms
+[ 61/87] pulse-11712187           tokens=   809       1.6 ms
+[ 62/87] pulse-9709747            tokens=   869       1.7 ms
+[ 63/87] pulse-10619114           tokens=   316       1.1 ms
+[ 64/87] pulse-11707797           tokens=   364       1.1 ms
+[ 65/87] pulse-11711171           tokens=   294       1.0 ms
+[ 66/87] pulse-9707691            tokens=   305       0.9 ms
+[ 67/87] pulse-11714938           tokens=   280       1.0 ms
+[ 68/87] pulse-10426369           tokens=   293       1.0 ms
+[ 69/87] pulse-9707552            tokens=   370       1.1 ms
+[ 70/87] pulse-10545020           tokens=   373       1.1 ms
+[ 71/87] pulse-9708199            tokens=   293       1.0 ms
+[ 72/87] pulse-9707413            tokens=   293       1.0 ms
+[ 73/87] pulse-11132428           tokens=   288       1.0 ms
+[ 74/87] pulse-10702774           tokens=   297       1.0 ms
+[ 75/87] pulse-9707528            tokens=   272       1.0 ms
+[ 76/87] pulse-11707888           tokens=   296       1.1 ms
+[ 77/87] pulse-11617432           tokens=   322       1.1 ms
+[ 78/87] pulse-9943143            tokens=   351       1.1 ms
+[ 79/87] pulse-10221259           tokens=   283       1.0 ms
+[ 80/87] pulse-10729536           tokens=   293       1.0 ms
+[ 81/87] pulse-10901596           tokens=   323       1.0 ms
+[ 82/87] pulse-11711123           tokens=   311       1.0 ms
+[ 83/87] pulse-11711631           tokens=   314       1.0 ms
+[ 84/87] pulse-9853056            tokens=   353       1.1 ms
+[ 85/87] pulse-11710845           tokens=   287       1.1 ms
+[ 86/87] pulse-11393348           tokens=   291       1.0 ms
+[ 87/87] pulse-9708012            tokens=   295       1.0 ms
+{"revision": "8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3", "dtype": "float32", "gpu": "NVIDIA H100 80GB HBM3", "versions": {"python": "3.12.3", "torch": "2.11.0+cu130", "transformers": "5.10.2", "cuda": "13.0"}, "counts": {"ok": 86, "error": 1}, "load_s": 1.3}
+PASS long_2k tokens in [1500, 3000]
+PASS trunc_16k tokens == 16384
+PASS schema_overflow errored
+PASS img_board2048 tokens < 4000
+PASS pulse-11714037 tokens == hosted 843
+PASS no unexpected errors
+87 records, 0 warnings
+STAGE=dry, stopping
+== pod_oracle.sh 2026-10-14T15:58:54Z ==
+commit e3fa441  model Cloudflare/clef-flash  revision main  dtypes [float32 bfloat16]
+NVIDIA H100 80GB HBM3, 81559 MiB, 580.126.09
+us-ca-2-vast.runpod.net:/runpodfs/networkvolumes/q98a1ysy5c   75G   26G   50G  34% /workspace
+cuda 13.0 NVIDIA H100 80GB HBM3
+transformers 5.10.2
+hub sha 8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 2033.86it/s]
+snapshot /workspace/.cache/huggingface/hub/models--Cloudflare--clef-flash/snapshots/8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 2610.12it/s]
+[  1/87] intent77                 tokens=  1379       8.2 ms
+[  2/87] opts255                  tokens=  8641      25.2 ms
+[  3/87] q64                      tokens=  5538      19.5 ms
+[  4/87] score10                  tokens=   349       1.4 ms
+[  5/87] empty_instructions       tokens=   203       0.7 ms
+[  6/87] unicode_options          tokens=   270       1.3 ms
+[  7/87] list_state               tokens=   386       1.5 ms
+[  8/87] schema_overflow          tokens=     -    1398.0 ms  ERROR schema requires 475198 tokens before state; maximum is 16384
+[  9/87] triage_support           tokens=   475       2.2 ms
+[ 10/87] tool_select              tokens=   450       1.7 ms
+[ 11/87] invoice_extract          tokens=   561       2.1 ms
+[ 12/87] rag_relevance_1          tokens=   312       1.2 ms
+[ 13/87] rag_relevance_2          tokens=   301       1.2 ms
+[ 14/87] rag_relevance_3          tokens=   302       1.2 ms
+[ 15/87] moderation               tokens=   285       1.3 ms
+[ 16/87] near_dup_a               tokens=   232       1.0 ms
+[ 17/87] near_dup_b               tokens=   232       1.0 ms
+[ 18/87] near_dup_c               tokens=   232       1.0 ms
+[ 19/87] card_trio                tokens=   300       1.4 ms
+[ 20/87] no_instruction           tokens=   184       0.7 ms
+[ 21/87] unsorted_choice          tokens=   194       0.8 ms
+[ 22/87] noul_custom              tokens=   180       0.7 ms
+[ 23/87] json_state               tokens=   273       1.1 ms
+[ 24/87] many_options             tokens=  1164       4.4 ms
+[ 25/87] long_2k                  tokens=  2486       5.6 ms
+[ 26/87] trunc_16k                tokens= 16384      25.1 ms
+[ 27/87] img_receipt              tokens=   562      49.7 ms
+[ 28/87] img_receipt_textonly     tokens=   259       1.6 ms
+[ 29/87] img_chart                tokens=   388      11.0 ms
+[ 30/87] img_chart_textonly       tokens=   157       0.9 ms
+[ 31/87] img_shapes               tokens=   483       7.0 ms
+[ 32/87] img_shapes_textonly      tokens=   224       1.2 ms
+[ 33/87] img_sign448              tokens=   422       6.6 ms
+[ 34/87] img_sign448_textonly     tokens=   223       1.3 ms
+[ 35/87] img_board2048            tokens=  3321     108.7 ms
+[ 36/87] img_board2048_textonly   tokens=   246       5.8 ms
+[ 37/87] img_two                  tokens=   788      55.3 ms
+[ 38/87] pulse-11714037           tokens=   843       3.0 ms
+[ 39/87] pulse-10661222           tokens=   872       1.8 ms
+[ 40/87] pulse-11711957           tokens=   811       1.6 ms
+[ 41/87] pulse-9854422            tokens=   815       1.6 ms
+[ 42/87] pulse-11712604           tokens=   852       1.6 ms
+[ 43/87] pulse-9710164            tokens=   823       1.7 ms
+[ 44/87] pulse-9709124            tokens=   873       1.7 ms
+[ 45/87] pulse-11116991           tokens=   821       1.6 ms
+[ 46/87] pulse-10720478           tokens=   818       1.6 ms
+[ 47/87] pulse-9708731            tokens=   902       1.8 ms
+[ 48/87] pulse-9710418            tokens=   815       1.6 ms
+[ 49/87] pulse-11678677           tokens=   817       1.6 ms
+[ 50/87] pulse-9711065            tokens=   813       1.6 ms
+[ 51/87] pulse-9710025            tokens=   852       1.8 ms
+[ 52/87] pulse-11716232           tokens=   815       2.5 ms
+[ 53/87] pulse-9710672            tokens=   903       2.7 ms
+[ 54/87] pulse-9709632            tokens=   826       2.5 ms
+[ 55/87] pulse-11086438           tokens=   841       2.5 ms
+[ 56/87] pulse-11680618           tokens=   837       1.6 ms
+[ 57/87] pulse-9933807            tokens=   810       2.7 ms
+[ 58/87] pulse-9744321            tokens=   826       2.7 ms
+[ 59/87] pulse-9709100            tokens=   880       2.1 ms
+[ 60/87] pulse-11716347           tokens=   889       2.6 ms
+[ 61/87] pulse-11712187           tokens=   809       2.4 ms
+[ 62/87] pulse-9709747            tokens=   869       2.1 ms
+[ 63/87] pulse-10619114           tokens=   316       1.6 ms
+[ 64/87] pulse-11707797           tokens=   364       2.0 ms
+[ 65/87] pulse-11711171           tokens=   294       1.1 ms
+[ 66/87] pulse-9707691            tokens=   305       1.4 ms
+[ 67/87] pulse-11714938           tokens=   280       1.4 ms
+[ 68/87] pulse-10426369           tokens=   293       1.5 ms
+[ 69/87] pulse-9707552            tokens=   370       1.7 ms
+[ 70/87] pulse-10545020           tokens=   373       1.5 ms
+[ 71/87] pulse-9708199            tokens=   293       1.1 ms
+[ 72/87] pulse-9707413            tokens=   293       1.6 ms
+[ 73/87] pulse-11132428           tokens=   288       2.1 ms
+[ 74/87] pulse-10702774           tokens=   297       1.1 ms
+[ 75/87] pulse-9707528            tokens=   272       1.0 ms
+[ 76/87] pulse-11707888           tokens=   296       1.0 ms
+[ 77/87] pulse-11617432           tokens=   322       1.1 ms
+[ 78/87] pulse-9943143            tokens=   351       1.2 ms
+[ 79/87] pulse-10221259           tokens=   283       1.0 ms
+[ 80/87] pulse-10729536           tokens=   293       1.0 ms
+[ 81/87] pulse-10901596           tokens=   323       1.1 ms
+[ 82/87] pulse-11711123           tokens=   311       1.0 ms
+[ 83/87] pulse-11711631           tokens=   314       1.1 ms
+[ 84/87] pulse-9853056            tokens=   353       1.1 ms
+[ 85/87] pulse-11710845           tokens=   287       1.0 ms
+[ 86/87] pulse-11393348           tokens=   291       1.0 ms
+[ 87/87] pulse-9708012            tokens=   295       1.0 ms
+{"revision": "8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3", "dtype": "float32", "gpu": "NVIDIA H100 80GB HBM3", "versions": {"python": "3.12.3", "torch": "2.11.0+cu130", "transformers": "5.10.2", "cuda": "13.0"}, "counts": {"ok": 86, "error": 1}, "load_s": 1.2}
+PASS long_2k tokens in [1500, 3000]
+PASS trunc_16k tokens == 16384
+PASS schema_overflow errored
+PASS img_board2048 tokens < 4000
+PASS pulse-11714037 tokens == hosted 843
+PASS no unexpected errors
+87 records, 0 warnings
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 2808.98it/s]
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+Loading weights:   0%|          | 0/760 [00:00<?, ?it/s]Loading weights:   0%|          | 1/760 [00:06<1:20:03,  6.33s/it]Loading weights:   5%|▍         | 37/760 [00:06<01:30,  7.97it/s] Loading weights:   6%|▋         | 49/760 [00:06<01:06, 10.75it/s]Loading weights:   8%|▊         | 58/760 [00:06<00:51, 13.72it/s]Loading weights:   9%|▊         | 66/760 [00:07<00:40, 16.93it/s]Loading weights:  10%|█         | 76/760 [00:07<00:30, 22.34it/s]Loading weights:  11%|█         | 84/760 [00:07<00:29, 22.83it/s]Loading weights:  12%|█▏        | 93/760 [00:07<00:23, 28.68it/s]Loading weights:  13%|█▎        | 100/760 [00:08<00:27, 23.97it/s]Loading weights:  15%|█▌        | 115/760 [00:08<00:18, 35.44it/s]Loading weights:  16%|█▌        | 122/760 [00:08<00:16, 37.75it/s]Loading weights:  18%|█▊        | 133/760 [00:08<00:14, 42.09it/s]Loading weights:  19%|█▉        | 147/760 [00:08<00:12, 50.44it/s]Loading weights:  20%|██        | 154/760 [00:08<00:12, 50.39it/s]Loading weights:  21%|██        | 161/760 [00:08<00:11, 51.55it/s]Loading weights:  23%|██▎       | 172/760 [00:09<00:09, 60.68it/s]Loading weights:  24%|██▍       | 182/760 [00:09<00:08, 67.75it/s]Loading weights:  25%|██▌       | 190/760 [00:09<00:08, 64.19it/s]Loading weights:  26%|██▋       | 200/760 [00:09<00:09, 61.35it/s]Loading weights:  27%|██▋       | 207/760 [00:09<00:10, 53.56it/s]Loading weights:  29%|██▉       | 222/760 [00:09<00:07, 72.91it/s]Loading weights:  30%|███       | 231/760 [00:10<00:08, 59.56it/s]Loading weights:  31%|███▏      | 238/760 [00:10<00:10, 48.51it/s]Loading weights:  32%|███▏      | 244/760 [00:10<00:10, 48.06it/s]Loading weights:  33%|███▎      | 252/760 [00:10<00:11, 46.03it/s]Loading weights:  34%|███▍      | 258/760 [00:10<00:11, 43.19it/s]Loading weights:  35%|███▌      | 266/760 [00:10<00:10, 45.54it/s]Loading weights:  37%|███▋      | 278/760 [00:11<00:09, 49.54it/s]Loading weights:  38%|███▊      | 289/760 [00:11<00:08, 53.84it/s]Loading weights:  39%|███▉      | 295/760 [00:11<00:08, 52.07it/s]Loading weights:  40%|████      | 305/760 [00:11<00:08, 55.91it/s]Loading weights:  41%|████      | 311/760 [00:11<00:10, 42.79it/s]Loading weights:  42%|████▏     | 317/760 [00:11<00:10, 43.70it/s]Loading weights:  43%|████▎     | 328/760 [00:12<00:07, 55.67it/s]Loading weights:  45%|████▍     | 341/760 [00:12<00:06, 62.78it/s]Loading weights:  46%|████▌     | 348/760 [00:12<00:09, 44.44it/s]Loading weights:  47%|████▋     | 358/760 [00:12<00:09, 44.45it/s]Loading weights:  48%|████▊     | 364/760 [00:13<00:10, 38.24it/s]Loading weights:  49%|████▉     | 372/760 [00:13<00:10, 38.42it/s]Loading weights:  51%|█████     | 384/760 [00:13<00:09, 39.53it/s]Loading weights:  52%|█████▏    | 398/760 [00:13<00:07, 46.57it/s]Loading weights:  54%|█████▍    | 409/760 [00:13<00:06, 55.35it/s]Loading weights:  55%|█████▍    | 416/760 [00:14<00:08, 41.44it/s]Loading weights:  56%|█████▌    | 422/760 [00:14<00:07, 44.28it/s]Loading weights:  57%|█████▋    | 433/760 [00:14<00:05, 55.89it/s]Loading weights:  60%|██████    | 459/760 [00:14<00:03, 94.39it/s]Loading weights:  67%|██████▋   | 507/760 [00:14<00:01, 178.24it/s]Loading weights:  70%|██████▉   | 530/760 [00:14<00:01, 181.88it/s]Loading weights:  73%|███████▎  | 553/760 [00:14<00:01, 188.36it/s]Loading weights:  76%|███████▌  | 579/760 [00:14<00:00, 204.04it/s]Loading weights:  79%|███████▉  | 603/760 [00:15<00:00, 203.87it/s]Loading weights:  82%|████████▎ | 627/760 [00:15<00:00, 205.59it/s]Loading weights:  86%|████████▌ | 651/760 [00:15<00:00, 214.73it/s]Loading weights:  90%|████████▉ | 683/760 [00:15<00:00, 241.71it/s]Loading weights:  93%|█████████▎| 708/760 [00:15<00:00, 181.58it/s]Loading weights:  96%|█████████▋| 733/760 [00:15<00:00, 182.38it/s]Loading weights:  99%|█████████▉| 754/760 [00:15<00:00, 181.75it/s]Loading weights: 100%|██████████| 760/760 [00:15<00:00, 47.88it/s] 
+[  1/87] intent77                 tokens=  1379    1473.8 ms
+[  2/87] opts255                  tokens=  8641    3395.3 ms
+[  3/87] q64                      tokens=  5538    2150.2 ms
+[  4/87] score10                  tokens=   349     198.8 ms
+[  5/87] empty_instructions       tokens=   203     128.0 ms
+[  6/87] unicode_options          tokens=   270     155.5 ms
+[  7/87] list_state               tokens=   386     205.2 ms
+[  8/87] schema_overflow          tokens=     -    1478.7 ms  ERROR schema requires 475198 tokens before state; maximum is 16384
+[  9/87] triage_support           tokens=   475     213.5 ms
+[ 10/87] tool_select              tokens=   450     210.6 ms
+[ 11/87] invoice_extract          tokens=   561     249.6 ms
+[ 12/87] rag_relevance_1          tokens=   312     155.7 ms
+[ 13/87] rag_relevance_2          tokens=   301     155.2 ms
+[ 14/87] rag_relevance_3          tokens=   302     155.1 ms
+[ 15/87] moderation               tokens=   285     155.0 ms
+[ 16/87] near_dup_a               tokens=   232     128.7 ms
+[ 17/87] near_dup_b               tokens=   232     128.6 ms
+[ 18/87] near_dup_c               tokens=   232     128.6 ms
+[ 19/87] card_trio                tokens=   300     155.4 ms
+[ 20/87] no_instruction           tokens=   184     111.6 ms
+[ 21/87] unsorted_choice          tokens=   194     127.2 ms
+[ 22/87] noul_custom              tokens=   180     111.3 ms
+[ 23/87] json_state               tokens=   273     154.0 ms
+[ 24/87] many_options             tokens=  1164     490.2 ms
+[ 25/87] long_2k                  tokens=  2486     983.0 ms
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/root/worker-decide/deciders/clef/oracle.py", line 272, in <module>
+    main()
+  File "/root/worker-decide/deciders/clef/oracle.py", line 200, in main
+    logits = model(batch)[0]
+             ^^^^^^^^^^^^
+  File "/workspace/.cache/venv-clef/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.cache/venv-clef/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.cache/huggingface/hub/models--Cloudflare--clef-flash/snapshots/8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3/joint_schema_model.py", line 478, in forward
+    outputs = text_model(
+              ^^^^^^^^^^^
+  File "/workspace/.cache/venv-clef/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.cache/venv-clef/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/utils/generic.py", line 1032, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/utils/output_capturing.py", line 252, in wrapper
+    outputs = func(self, *args, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/models/qwen3_5/modeling_qwen3_5.py", line 1204, in forward
+    hidden_states = decoder_layer(
+                    ^^^^^^^^^^^^^^
+  File "/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/modeling_layers.py", line 93, in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.cache/venv-clef/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.cache/venv-clef/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/models/qwen3_5/modeling_qwen3_5.py", line 793, in forward
+    hidden_states, _ = self.self_attn(
+                       ^^^^^^^^^^^^^^^
+  File "/workspace/.cache/venv-clef/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.cache/venv-clef/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/models/qwen3_5/modeling_qwen3_5.py", line 703, in forward
+    attn_output, attn_weights = attention_interface(
+                                ^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py", line 92, in sdpa_attention_forward
+    attn_output = torch.nn.functional.scaled_dot_product_attention(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 4.00 GiB. GPU 0 has a total capacity of 79.18 GiB of which 3.27 GiB is free. Including non-PyTorch memory, this process has 75.90 GiB memory in use. Of the allocated memory 70.67 GiB is allocated by PyTorch, and 4.57 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+== pod_oracle.sh 2026-10-14T16:03:52Z ==
+commit a06d54e  model Cloudflare/clef-flash  revision main  dtypes [float32 bfloat16]
+NVIDIA H100 80GB HBM3, 81559 MiB, 580.126.09
+us-ca-2-vast.runpod.net:/runpodfs/networkvolumes/q98a1ysy5c   75G   26G   50G  34% /workspace
+cuda 13.0 NVIDIA H100 80GB HBM3
+transformers 5.10.2
+hub sha 8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 2132.40it/s]
+snapshot /workspace/.cache/huggingface/hub/models--Cloudflare--clef-flash/snapshots/8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 2691.29it/s]
+[  1/87] intent77                 tokens=  1379       8.1 ms
+[  2/87] opts255                  tokens=  8641      25.1 ms
+[  3/87] q64                      tokens=  5538      19.9 ms
+[  4/87] score10                  tokens=   349       1.4 ms
+[  5/87] empty_instructions       tokens=   203       0.7 ms
+[  6/87] unicode_options          tokens=   270       1.3 ms
+[  7/87] list_state               tokens=   386       1.5 ms
+[  8/87] schema_overflow          tokens=     -    1420.5 ms  ERROR schema requires 475198 tokens before state; maximum is 16384
+[  9/87] triage_support           tokens=   475       2.3 ms
+[ 10/87] tool_select              tokens=   450       1.7 ms
+[ 11/87] invoice_extract          tokens=   561       2.1 ms
+[ 12/87] rag_relevance_1          tokens=   312       1.3 ms
+[ 13/87] rag_relevance_2          tokens=   301       1.2 ms
+[ 14/87] rag_relevance_3          tokens=   302       1.2 ms
+[ 15/87] moderation               tokens=   285       1.3 ms
+[ 16/87] near_dup_a               tokens=   232       1.0 ms
+[ 17/87] near_dup_b               tokens=   232       1.0 ms
+[ 18/87] near_dup_c               tokens=   232       1.0 ms
+[ 19/87] card_trio                tokens=   300       1.4 ms
+[ 20/87] no_instruction           tokens=   184       0.8 ms
+[ 21/87] unsorted_choice          tokens=   194       0.8 ms
+[ 22/87] noul_custom              tokens=   180       0.7 ms
+[ 23/87] json_state               tokens=   273       1.1 ms
+[ 24/87] many_options             tokens=  1164       4.4 ms
+[ 25/87] long_2k                  tokens=  2486       5.5 ms
+[ 26/87] trunc_16k                tokens= 16384      25.7 ms
+[ 27/87] img_receipt              tokens=   562      35.5 ms
+[ 28/87] img_receipt_textonly     tokens=   259       1.3 ms
+[ 29/87] img_chart                tokens=   388       8.2 ms
+[ 30/87] img_chart_textonly       tokens=   157       0.9 ms
+[ 31/87] img_shapes               tokens=   483       5.9 ms
+[ 32/87] img_shapes_textonly      tokens=   224       1.1 ms
+[ 33/87] img_sign448              tokens=   422       5.2 ms
+[ 34/87] img_sign448_textonly     tokens=   223       1.6 ms
+[ 35/87] img_board2048            tokens=  3321     120.5 ms
+[ 36/87] img_board2048_textonly   tokens=   246       5.9 ms
+[ 37/87] img_two                  tokens=   788      15.2 ms
+[ 38/87] pulse-11714037           tokens=   843       2.2 ms
+[ 39/87] pulse-10661222           tokens=   872       1.7 ms
+[ 40/87] pulse-11711957           tokens=   811       1.6 ms
+[ 41/87] pulse-9854422            tokens=   815       1.6 ms
+[ 42/87] pulse-11712604           tokens=   852       1.6 ms
+[ 43/87] pulse-9710164            tokens=   823       1.6 ms
+[ 44/87] pulse-9709124            tokens=   873       1.6 ms
+[ 45/87] pulse-11116991           tokens=   821       1.6 ms
+[ 46/87] pulse-10720478           tokens=   818       1.5 ms
+[ 47/87] pulse-9708731            tokens=   902       1.7 ms
+[ 48/87] pulse-9710418            tokens=   815       1.6 ms
+[ 49/87] pulse-11678677           tokens=   817       1.6 ms
+[ 50/87] pulse-9711065            tokens=   813       1.5 ms
+[ 51/87] pulse-9710025            tokens=   852       1.6 ms
+[ 52/87] pulse-11716232           tokens=   815       1.6 ms
+[ 53/87] pulse-9710672            tokens=   903       1.7 ms
+[ 54/87] pulse-9709632            tokens=   826       1.6 ms
+[ 55/87] pulse-11086438           tokens=   841       1.6 ms
+[ 56/87] pulse-11680618           tokens=   837       1.6 ms
+[ 57/87] pulse-9933807            tokens=   810       1.6 ms
+[ 58/87] pulse-9744321            tokens=   826       1.6 ms
+[ 59/87] pulse-9709100            tokens=   880       1.6 ms
+[ 60/87] pulse-11716347           tokens=   889       1.7 ms
+[ 61/87] pulse-11712187           tokens=   809       1.5 ms
+[ 62/87] pulse-9709747            tokens=   869       1.7 ms
+[ 63/87] pulse-10619114           tokens=   316       1.1 ms
+[ 64/87] pulse-11707797           tokens=   364       1.1 ms
+[ 65/87] pulse-11711171           tokens=   294       1.0 ms
+[ 66/87] pulse-9707691            tokens=   305       1.0 ms
+[ 67/87] pulse-11714938           tokens=   280       0.9 ms
+[ 68/87] pulse-10426369           tokens=   293       1.0 ms
+[ 69/87] pulse-9707552            tokens=   370       1.1 ms
+[ 70/87] pulse-10545020           tokens=   373       1.1 ms
+[ 71/87] pulse-9708199            tokens=   293       1.0 ms
+[ 72/87] pulse-9707413            tokens=   293       1.0 ms
+[ 73/87] pulse-11132428           tokens=   288       1.0 ms
+[ 74/87] pulse-10702774           tokens=   297       1.0 ms
+[ 75/87] pulse-9707528            tokens=   272       0.9 ms
+[ 76/87] pulse-11707888           tokens=   296       0.9 ms
+[ 77/87] pulse-11617432           tokens=   322       1.0 ms
+[ 78/87] pulse-9943143            tokens=   351       1.1 ms
+[ 79/87] pulse-10221259           tokens=   283       1.0 ms
+[ 80/87] pulse-10729536           tokens=   293       1.0 ms
+[ 81/87] pulse-10901596           tokens=   323       1.1 ms
+[ 82/87] pulse-11711123           tokens=   311       1.0 ms
+[ 83/87] pulse-11711631           tokens=   314       1.0 ms
+[ 84/87] pulse-9853056            tokens=   353       1.1 ms
+[ 85/87] pulse-11710845           tokens=   287       1.0 ms
+[ 86/87] pulse-11393348           tokens=   291       1.0 ms
+[ 87/87] pulse-9708012            tokens=   295       0.9 ms
+{"revision": "8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3", "dtype": "float32", "gpu": "NVIDIA H100 80GB HBM3", "versions": {"python": "3.12.3", "torch": "2.11.0+cu130", "transformers": "5.10.2", "cuda": "13.0"}, "counts": {"ok": 86, "error": 1}, "load_s": 1.1}
+PASS long_2k tokens in [1500, 3000]
+PASS trunc_16k tokens == 16384
+PASS schema_overflow errored
+PASS img_board2048 tokens < 4000
+PASS pulse-11714037 tokens == hosted 843
+PASS no unexpected errors
+87 records, 0 warnings
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 2678.66it/s]
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+Loading weights:   0%|          | 0/760 [00:00<?, ?it/s]Loading weights:   0%|          | 1/760 [00:00<12:37,  1.00it/s]Loading weights:   0%|          | 2/760 [00:01<08:50,  1.43it/s]Loading weights:   2%|▏         | 15/760 [00:01<00:52, 14.20it/s]Loading weights:   5%|▍         | 37/760 [00:01<00:19, 36.36it/s]Loading weights:   6%|▌         | 46/760 [00:02<00:17, 39.70it/s]Loading weights:   8%|▊         | 62/760 [00:02<00:12, 55.22it/s]Loading weights:  10%|█         | 76/760 [00:02<00:11, 59.94it/s]Loading weights:  12%|█▏        | 90/760 [00:02<00:10, 64.07it/s]Loading weights:  13%|█▎        | 99/760 [00:02<00:09, 67.36it/s]Loading weights:  14%|█▍        | 107/760 [00:02<00:10, 61.12it/s]Loading weights:  17%|█▋        | 129/760 [00:02<00:07, 87.86it/s]Loading weights:  19%|█▉        | 143/760 [00:03<00:07, 80.75it/s]Loading weights:  20%|██        | 153/760 [00:03<00:08, 69.15it/s]Loading weights:  23%|██▎       | 172/760 [00:03<00:07, 79.83it/s]Loading weights:  24%|██▍       | 186/760 [00:03<00:07, 74.27it/s]Loading weights:  26%|██▋       | 201/760 [00:03<00:06, 84.79it/s]Loading weights:  28%|██▊       | 211/760 [00:04<00:07, 74.77it/s]Loading weights:  29%|██▉       | 224/760 [00:04<00:06, 81.01it/s]Loading weights:  31%|███       | 235/760 [00:04<00:06, 80.71it/s]Loading weights:  33%|███▎      | 249/760 [00:04<00:06, 76.52it/s]Loading weights:  34%|███▍      | 258/760 [00:04<00:07, 68.22it/s]Loading weights:  36%|███▌      | 274/760 [00:04<00:07, 69.36it/s]Loading weights:  38%|███▊      | 288/760 [00:05<00:06, 70.64it/s]Loading weights:  40%|███▉      | 302/760 [00:05<00:06, 69.85it/s]Loading weights:  41%|████      | 311/760 [00:05<00:07, 63.73it/s]Loading weights:  43%|████▎     | 330/760 [00:05<00:04, 86.69it/s]Loading weights:  45%|████▍     | 341/760 [00:05<00:05, 78.12it/s]Loading weights:  47%|████▋     | 355/760 [00:05<00:04, 81.71it/s]Loading weights:  48%|████▊     | 364/760 [00:06<00:05, 74.62it/s]Loading weights:  50%|█████     | 380/760 [00:06<00:04, 88.31it/s]Loading weights:  52%|█████▏    | 394/760 [00:06<00:04, 81.80it/s]Loading weights:  54%|█████▎    | 408/760 [00:06<00:04, 77.25it/s]Loading weights:  55%|█████▍    | 417/760 [00:06<00:04, 69.80it/s]Loading weights:  60%|██████    | 457/760 [00:06<00:02, 134.12it/s]Loading weights:  73%|███████▎  | 555/760 [00:07<00:00, 316.36it/s]Loading weights:  86%|████████▌ | 651/760 [00:07<00:00, 465.70it/s]Loading weights:  98%|█████████▊| 745/760 [00:07<00:00, 583.04it/s]Loading weights: 100%|██████████| 760/760 [00:07<00:00, 104.70it/s]
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: Memory efficient kernel not used because: (Triggered internally at /pytorch/aten/src/ATen/native/transformers/cuda/sdp_utils.cpp:986.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 1379, 256], Key sizes(): [1, 4, 1379, 256], Value sizes(): [1, 4, 1379, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: Flash attention kernel not used because: (Triggered internally at /pytorch/aten/src/ATen/native/transformers/cuda/sdp_utils.cpp:988.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: Expected query, key and value to all be of dtype: {Half, BFloat16}. Got Query dtype: float, Key dtype: float, and Value dtype: float instead. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:91.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: cuDNN attention kernel not used because: (Triggered internally at /pytorch/aten/src/ATen/native/transformers/cuda/sdp_utils.cpp:990.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[  1/87] intent77                 tokens=  1379     311.5 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 8641, 256], Key sizes(): [1, 4, 8641, 256], Value sizes(): [1, 4, 8641, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[  2/87] opts255                  tokens=  8641     348.3 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 5538, 256], Key sizes(): [1, 4, 5538, 256], Value sizes(): [1, 4, 5538, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[  3/87] q64                      tokens=  5538     227.5 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 349, 256], Key sizes(): [1, 4, 349, 256], Value sizes(): [1, 4, 349, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[  4/87] score10                  tokens=   349      35.4 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 203, 256], Key sizes(): [1, 4, 203, 256], Value sizes(): [1, 4, 203, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[  5/87] empty_instructions       tokens=   203      17.8 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 270, 256], Key sizes(): [1, 4, 270, 256], Value sizes(): [1, 4, 270, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[  6/87] unicode_options          tokens=   270      20.9 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 386, 256], Key sizes(): [1, 4, 386, 256], Value sizes(): [1, 4, 386, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[  7/87] list_state               tokens=   386      26.1 ms  ERROR runtime: No available kernel. Aborting execution.
+[  8/87] schema_overflow          tokens=     -    1429.9 ms  ERROR schema requires 475198 tokens before state; maximum is 16384
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 475, 256], Key sizes(): [1, 4, 475, 256], Value sizes(): [1, 4, 475, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[  9/87] triage_support           tokens=   475      28.8 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 450, 256], Key sizes(): [1, 4, 450, 256], Value sizes(): [1, 4, 450, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 10/87] tool_select              tokens=   450      27.0 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 561, 256], Key sizes(): [1, 4, 561, 256], Value sizes(): [1, 4, 561, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 11/87] invoice_extract          tokens=   561      31.1 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 312, 256], Key sizes(): [1, 4, 312, 256], Value sizes(): [1, 4, 312, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 12/87] rag_relevance_1          tokens=   312      23.2 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 301, 256], Key sizes(): [1, 4, 301, 256], Value sizes(): [1, 4, 301, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 13/87] rag_relevance_2          tokens=   301      20.9 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 302, 256], Key sizes(): [1, 4, 302, 256], Value sizes(): [1, 4, 302, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 14/87] rag_relevance_3          tokens=   302      21.4 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 285, 256], Key sizes(): [1, 4, 285, 256], Value sizes(): [1, 4, 285, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 15/87] moderation               tokens=   285      21.0 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 232, 256], Key sizes(): [1, 4, 232, 256], Value sizes(): [1, 4, 232, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 16/87] near_dup_a               tokens=   232      17.6 ms  ERROR runtime: No available kernel. Aborting execution.
+[ 17/87] near_dup_b               tokens=   232      17.3 ms  ERROR runtime: No available kernel. Aborting execution.
+[ 18/87] near_dup_c               tokens=   232      17.2 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 300, 256], Key sizes(): [1, 4, 300, 256], Value sizes(): [1, 4, 300, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 19/87] card_trio                tokens=   300      20.6 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 184, 256], Key sizes(): [1, 4, 184, 256], Value sizes(): [1, 4, 184, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 20/87] no_instruction           tokens=   184      16.0 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 194, 256], Key sizes(): [1, 4, 194, 256], Value sizes(): [1, 4, 194, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 21/87] unsorted_choice          tokens=   194      17.1 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 180, 256], Key sizes(): [1, 4, 180, 256], Value sizes(): [1, 4, 180, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 22/87] noul_custom              tokens=   180      15.5 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 273, 256], Key sizes(): [1, 4, 273, 256], Value sizes(): [1, 4, 273, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 23/87] json_state               tokens=   273      20.3 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 1164, 256], Key sizes(): [1, 4, 1164, 256], Value sizes(): [1, 4, 1164, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 24/87] many_options             tokens=  1164      57.7 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 2486, 256], Key sizes(): [1, 4, 2486, 256], Value sizes(): [1, 4, 2486, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 25/87] long_2k                  tokens=  2486     109.5 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 16384, 256], Key sizes(): [1, 4, 16384, 256], Value sizes(): [1, 4, 16384, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 26/87] trunc_16k                tokens= 16384     648.0 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 562, 256], Key sizes(): [1, 4, 562, 256], Value sizes(): [1, 4, 562, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 27/87] img_receipt              tokens=   562    1929.3 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 259, 256], Key sizes(): [1, 4, 259, 256], Value sizes(): [1, 4, 259, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 28/87] img_receipt_textonly     tokens=   259      20.6 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 388, 256], Key sizes(): [1, 4, 388, 256], Value sizes(): [1, 4, 388, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 29/87] img_chart                tokens=   388      68.4 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 157, 256], Key sizes(): [1, 4, 157, 256], Value sizes(): [1, 4, 157, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 30/87] img_chart_textonly       tokens=   157      15.6 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 483, 256], Key sizes(): [1, 4, 483, 256], Value sizes(): [1, 4, 483, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 31/87] img_shapes               tokens=   483      70.9 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 224, 256], Key sizes(): [1, 4, 224, 256], Value sizes(): [1, 4, 224, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 32/87] img_shapes_textonly      tokens=   224      21.6 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 422, 256], Key sizes(): [1, 4, 422, 256], Value sizes(): [1, 4, 422, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 33/87] img_sign448              tokens=   422      62.0 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 223, 256], Key sizes(): [1, 4, 223, 256], Value sizes(): [1, 4, 223, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 34/87] img_sign448_textonly     tokens=   223      17.7 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 3321, 256], Key sizes(): [1, 4, 3321, 256], Value sizes(): [1, 4, 3321, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 35/87] img_board2048            tokens=  3321    1110.9 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 246, 256], Key sizes(): [1, 4, 246, 256], Value sizes(): [1, 4, 246, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 36/87] img_board2048_textonly   tokens=   246      26.6 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 788, 256], Key sizes(): [1, 4, 788, 256], Value sizes(): [1, 4, 788, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 37/87] img_two                  tokens=   788     128.2 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 843, 256], Key sizes(): [1, 4, 843, 256], Value sizes(): [1, 4, 843, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 38/87] pulse-11714037           tokens=   843      43.0 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 872, 256], Key sizes(): [1, 4, 872, 256], Value sizes(): [1, 4, 872, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 39/87] pulse-10661222           tokens=   872      42.3 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 811, 256], Key sizes(): [1, 4, 811, 256], Value sizes(): [1, 4, 811, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 40/87] pulse-11711957           tokens=   811      40.7 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 815, 256], Key sizes(): [1, 4, 815, 256], Value sizes(): [1, 4, 815, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 41/87] pulse-9854422            tokens=   815      40.7 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 852, 256], Key sizes(): [1, 4, 852, 256], Value sizes(): [1, 4, 852, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 42/87] pulse-11712604           tokens=   852      42.0 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 823, 256], Key sizes(): [1, 4, 823, 256], Value sizes(): [1, 4, 823, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 43/87] pulse-9710164            tokens=   823      40.8 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 873, 256], Key sizes(): [1, 4, 873, 256], Value sizes(): [1, 4, 873, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 44/87] pulse-9709124            tokens=   873      42.7 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 821, 256], Key sizes(): [1, 4, 821, 256], Value sizes(): [1, 4, 821, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 45/87] pulse-11116991           tokens=   821      40.8 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 818, 256], Key sizes(): [1, 4, 818, 256], Value sizes(): [1, 4, 818, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 46/87] pulse-10720478           tokens=   818      40.7 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 902, 256], Key sizes(): [1, 4, 902, 256], Value sizes(): [1, 4, 902, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 47/87] pulse-9708731            tokens=   902      43.6 ms  ERROR runtime: No available kernel. Aborting execution.
+[ 48/87] pulse-9710418            tokens=   815      40.6 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 817, 256], Key sizes(): [1, 4, 817, 256], Value sizes(): [1, 4, 817, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 49/87] pulse-11678677           tokens=   817      40.8 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 813, 256], Key sizes(): [1, 4, 813, 256], Value sizes(): [1, 4, 813, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 50/87] pulse-9711065            tokens=   813      40.7 ms  ERROR runtime: No available kernel. Aborting execution.
+[ 51/87] pulse-9710025            tokens=   852      42.0 ms  ERROR runtime: No available kernel. Aborting execution.
+[ 52/87] pulse-11716232           tokens=   815      40.6 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 903, 256], Key sizes(): [1, 4, 903, 256], Value sizes(): [1, 4, 903, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 53/87] pulse-9710672            tokens=   903      43.5 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 826, 256], Key sizes(): [1, 4, 826, 256], Value sizes(): [1, 4, 826, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 54/87] pulse-9709632            tokens=   826      40.7 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 841, 256], Key sizes(): [1, 4, 841, 256], Value sizes(): [1, 4, 841, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 55/87] pulse-11086438           tokens=   841      42.1 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 837, 256], Key sizes(): [1, 4, 837, 256], Value sizes(): [1, 4, 837, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 56/87] pulse-11680618           tokens=   837      42.2 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 810, 256], Key sizes(): [1, 4, 810, 256], Value sizes(): [1, 4, 810, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 57/87] pulse-9933807            tokens=   810      41.0 ms  ERROR runtime: No available kernel. Aborting execution.
+[ 58/87] pulse-9744321            tokens=   826      40.8 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 880, 256], Key sizes(): [1, 4, 880, 256], Value sizes(): [1, 4, 880, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 59/87] pulse-9709100            tokens=   880      42.3 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 889, 256], Key sizes(): [1, 4, 889, 256], Value sizes(): [1, 4, 889, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 60/87] pulse-11716347           tokens=   889      42.3 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 809, 256], Key sizes(): [1, 4, 809, 256], Value sizes(): [1, 4, 809, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 61/87] pulse-11712187           tokens=   809      40.7 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 869, 256], Key sizes(): [1, 4, 869, 256], Value sizes(): [1, 4, 869, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 62/87] pulse-9709747            tokens=   869      42.2 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 316, 256], Key sizes(): [1, 4, 316, 256], Value sizes(): [1, 4, 316, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 63/87] pulse-10619114           tokens=   316      20.3 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 364, 256], Key sizes(): [1, 4, 364, 256], Value sizes(): [1, 4, 364, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 64/87] pulse-11707797           tokens=   364      23.7 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 294, 256], Key sizes(): [1, 4, 294, 256], Value sizes(): [1, 4, 294, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 65/87] pulse-11711171           tokens=   294      20.4 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 305, 256], Key sizes(): [1, 4, 305, 256], Value sizes(): [1, 4, 305, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 66/87] pulse-9707691            tokens=   305      20.4 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 280, 256], Key sizes(): [1, 4, 280, 256], Value sizes(): [1, 4, 280, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 67/87] pulse-11714938           tokens=   280      20.5 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 293, 256], Key sizes(): [1, 4, 293, 256], Value sizes(): [1, 4, 293, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 68/87] pulse-10426369           tokens=   293      21.9 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 370, 256], Key sizes(): [1, 4, 370, 256], Value sizes(): [1, 4, 370, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 69/87] pulse-9707552            tokens=   370      23.3 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 373, 256], Key sizes(): [1, 4, 373, 256], Value sizes(): [1, 4, 373, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 70/87] pulse-10545020           tokens=   373      23.1 ms  ERROR runtime: No available kernel. Aborting execution.
+[ 71/87] pulse-9708199            tokens=   293      20.3 ms  ERROR runtime: No available kernel. Aborting execution.
+[ 72/87] pulse-9707413            tokens=   293      20.4 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 288, 256], Key sizes(): [1, 4, 288, 256], Value sizes(): [1, 4, 288, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 73/87] pulse-11132428           tokens=   288      20.5 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 297, 256], Key sizes(): [1, 4, 297, 256], Value sizes(): [1, 4, 297, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 74/87] pulse-10702774           tokens=   297      20.4 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 272, 256], Key sizes(): [1, 4, 272, 256], Value sizes(): [1, 4, 272, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 75/87] pulse-9707528            tokens=   272      20.4 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 296, 256], Key sizes(): [1, 4, 296, 256], Value sizes(): [1, 4, 296, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 76/87] pulse-11707888           tokens=   296      20.5 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 322, 256], Key sizes(): [1, 4, 322, 256], Value sizes(): [1, 4, 322, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 77/87] pulse-11617432           tokens=   322      22.8 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 351, 256], Key sizes(): [1, 4, 351, 256], Value sizes(): [1, 4, 351, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 78/87] pulse-9943143            tokens=   351      22.9 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 283, 256], Key sizes(): [1, 4, 283, 256], Value sizes(): [1, 4, 283, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 79/87] pulse-10221259           tokens=   283      20.4 ms  ERROR runtime: No available kernel. Aborting execution.
+[ 80/87] pulse-10729536           tokens=   293      20.4 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 323, 256], Key sizes(): [1, 4, 323, 256], Value sizes(): [1, 4, 323, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 81/87] pulse-10901596           tokens=   323      22.7 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 311, 256], Key sizes(): [1, 4, 311, 256], Value sizes(): [1, 4, 311, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 82/87] pulse-11711123           tokens=   311      20.4 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 314, 256], Key sizes(): [1, 4, 314, 256], Value sizes(): [1, 4, 314, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 83/87] pulse-11711631           tokens=   314      20.4 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 353, 256], Key sizes(): [1, 4, 353, 256], Value sizes(): [1, 4, 353, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 84/87] pulse-9853056            tokens=   353      22.9 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 287, 256], Key sizes(): [1, 4, 287, 256], Value sizes(): [1, 4, 287, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 85/87] pulse-11710845           tokens=   287      20.4 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 291, 256], Key sizes(): [1, 4, 291, 256], Value sizes(): [1, 4, 291, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 86/87] pulse-11393348           tokens=   291      20.4 ms  ERROR runtime: No available kernel. Aborting execution.
+/workspace/.cache/venv-clef/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:92: UserWarning: For dense input, both fused kernels require query, key and value to have the same num_heads. Query.sizes(): [1, 16, 295, 256], Key sizes(): [1, 4, 295, 256], Value sizes(): [1, 4, 295, 256] instead. To broadcast dense inputs, try using unsqueeze and expand_to before passing them into the kernel. (Triggered internally at /pytorch/aten/src/ATen/native/transformers/sdp_utils_cpp.h:418.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[ 87/87] pulse-9708012            tokens=   295      21.0 ms  ERROR runtime: No available kernel. Aborting execution.
+{"revision": "8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3", "dtype": "float32", "gpu": "NVIDIA H100 80GB HBM3", "versions": {"python": "3.12.3", "torch": "2.11.0+cu130", "transformers": "5.10.2", "cuda": "13.0"}, "counts": {"ok": 0, "error": 87}, "load_s": 11.1}
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 2269.14it/s]
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+Loading weights:   0%|          | 0/760 [00:00<?, ?it/s]Loading weights:   0%|          | 1/760 [00:00<03:16,  3.87it/s]Loading weights:   0%|          | 2/760 [00:00<03:42,  3.40it/s]Loading weights:   4%|▎         | 27/760 [00:00<00:12, 58.07it/s]Loading weights:   6%|▌         | 43/760 [00:00<00:08, 82.41it/s]Loading weights:   9%|▊         | 66/760 [00:00<00:06, 113.36it/s]Loading weights:  12%|█▏        | 91/760 [00:01<00:04, 147.91it/s]Loading weights:  14%|█▍        | 110/760 [00:01<00:04, 151.94it/s]Loading weights:  17%|█▋        | 132/760 [00:01<00:03, 167.58it/s]Loading weights:  20%|██        | 152/760 [00:01<00:03, 170.55it/s]Loading weights:  23%|██▎       | 174/760 [00:01<00:03, 177.90it/s]Loading weights:  26%|██▋       | 201/760 [00:01<00:02, 188.28it/s]Loading weights:  30%|██▉       | 226/760 [00:01<00:02, 198.93it/s]Loading weights:  33%|███▎      | 253/760 [00:01<00:02, 209.82it/s]Loading weights:  36%|███▌      | 275/760 [00:01<00:02, 209.72it/s]Loading weights:  39%|███▉      | 297/760 [00:02<00:02, 206.01it/s]Loading weights:  42%|████▏     | 318/760 [00:02<00:02, 199.48it/s]Loading weights:  45%|████▍     | 341/760 [00:02<00:02, 205.93it/s]Loading weights:  48%|████▊     | 364/760 [00:02<00:01, 205.69it/s]Loading weights:  51%|█████     | 386/760 [00:02<00:01, 202.80it/s]Loading weights:  54%|█████▍    | 412/760 [00:02<00:01, 218.15it/s]Loading weights:  60%|█████▉    | 455/760 [00:02<00:01, 277.34it/s]Loading weights:  92%|█████████▏| 697/760 [00:02<00:00, 893.23it/s]Loading weights: 100%|██████████| 760/760 [00:02<00:00, 271.33it/s]
+[  1/87] intent77                 tokens=  1379    2158.9 ms
+[  2/87] opts255                  tokens=  8641    1102.3 ms
+[  3/87] q64                      tokens=  5538     661.8 ms
+[  4/87] score10                  tokens=   349     438.2 ms
+[  5/87] empty_instructions       tokens=   203     409.5 ms
+[  6/87] unicode_options          tokens=   270     242.5 ms
+[  7/87] list_state               tokens=   386     253.8 ms
+[  8/87] schema_overflow          tokens=     -    1408.9 ms  ERROR schema requires 475198 tokens before state; maximum is 16384
+[  9/87] triage_support           tokens=   475     259.9 ms
+[ 10/87] tool_select              tokens=   450     216.1 ms
+[ 11/87] invoice_extract          tokens=   561     234.0 ms
+[ 12/87] rag_relevance_1          tokens=   312     216.4 ms
+[ 13/87] rag_relevance_2          tokens=   301     208.3 ms
+[ 14/87] rag_relevance_3          tokens=   302     204.1 ms
+[ 15/87] moderation               tokens=   285     210.8 ms
+[ 16/87] near_dup_a               tokens=   232     207.0 ms
+[ 17/87] near_dup_b               tokens=   232     107.2 ms
+[ 18/87] near_dup_c               tokens=   232     107.7 ms
+[ 19/87] card_trio                tokens=   300     209.9 ms
+[ 20/87] no_instruction           tokens=   184     204.3 ms
+[ 21/87] unsorted_choice          tokens=   194     202.7 ms
+[ 22/87] noul_custom              tokens=   180     196.6 ms
+[ 23/87] json_state               tokens=   273     206.7 ms
+[ 24/87] many_options             tokens=  1164     273.2 ms
+[ 25/87] long_2k                  tokens=  2486     339.2 ms
+[ 26/87] trunc_16k                tokens= 16384    2793.2 ms
+[ 27/87] img_receipt              tokens=   562     783.7 ms
+[ 28/87] img_receipt_textonly     tokens=   259     202.7 ms
+[ 29/87] img_chart                tokens=   388     270.3 ms
+[ 30/87] img_chart_textonly       tokens=   157     196.3 ms
+[ 31/87] img_shapes               tokens=   483     601.8 ms
+[ 32/87] img_shapes_textonly      tokens=   224     204.7 ms
+[ 33/87] img_sign448              tokens=   422     277.2 ms
+[ 34/87] img_sign448_textonly     tokens=   223     197.9 ms
+[ 35/87] img_board2048            tokens=  3321     686.6 ms
+[ 36/87] img_board2048_textonly   tokens=   246     212.3 ms
+[ 37/87] img_two                  tokens=   788     273.9 ms
+[ 38/87] pulse-11714037           tokens=   843     448.7 ms
+[ 39/87] pulse-10661222           tokens=   872     237.4 ms
+[ 40/87] pulse-11711957           tokens=   811     227.8 ms
+[ 41/87] pulse-9854422            tokens=   815     224.9 ms
+[ 42/87] pulse-11712604           tokens=   852     232.2 ms
+[ 43/87] pulse-9710164            tokens=   823     230.9 ms
+[ 44/87] pulse-9709124            tokens=   873     234.9 ms
+[ 45/87] pulse-11116991           tokens=   821     229.6 ms
+[ 46/87] pulse-10720478           tokens=   818     229.2 ms
+[ 47/87] pulse-9708731            tokens=   902     242.6 ms
+[ 48/87] pulse-9710418            tokens=   815     137.9 ms
+[ 49/87] pulse-11678677           tokens=   817     232.8 ms
+[ 50/87] pulse-9711065            tokens=   813     232.3 ms
+[ 51/87] pulse-9710025            tokens=   852     141.5 ms
+[ 52/87] pulse-11716232           tokens=   815     137.1 ms
+[ 53/87] pulse-9710672            tokens=   903     238.2 ms
+[ 54/87] pulse-9709632            tokens=   826     231.2 ms
+[ 55/87] pulse-11086438           tokens=   841     235.0 ms
+[ 56/87] pulse-11680618           tokens=   837     244.5 ms
+[ 57/87] pulse-9933807            tokens=   810     235.4 ms
+[ 58/87] pulse-9744321            tokens=   826     138.3 ms
+[ 59/87] pulse-9709100            tokens=   880     237.2 ms
+[ 60/87] pulse-11716347           tokens=   889     236.8 ms
+[ 61/87] pulse-11712187           tokens=   809     233.1 ms
+[ 62/87] pulse-9709747            tokens=   869     233.9 ms
+[ 63/87] pulse-10619114           tokens=   316     202.2 ms
+[ 64/87] pulse-11707797           tokens=   364     213.2 ms
+[ 65/87] pulse-11711171           tokens=   294     202.9 ms
+[ 66/87] pulse-9707691            tokens=   305     203.5 ms
+[ 67/87] pulse-11714938           tokens=   280     202.5 ms
+[ 68/87] pulse-10426369           tokens=   293     202.2 ms
+[ 69/87] pulse-9707552            tokens=   370     209.2 ms
+[ 70/87] pulse-10545020           tokens=   373     205.8 ms
+[ 71/87] pulse-9708199            tokens=   293     109.2 ms
+[ 72/87] pulse-9707413            tokens=   293     109.0 ms
+[ 73/87] pulse-11132428           tokens=   288     211.8 ms
+[ 74/87] pulse-10702774           tokens=   297     205.2 ms
+[ 75/87] pulse-9707528            tokens=   272     202.1 ms
+[ 76/87] pulse-11707888           tokens=   296     202.8 ms
+[ 77/87] pulse-11617432           tokens=   322     208.7 ms
+[ 78/87] pulse-9943143            tokens=   351     206.4 ms
+[ 79/87] pulse-10221259           tokens=   283     205.2 ms
+[ 80/87] pulse-10729536           tokens=   293     109.5 ms
+[ 81/87] pulse-10901596           tokens=   323     208.1 ms
+[ 82/87] pulse-11711123           tokens=   311     203.5 ms
+[ 83/87] pulse-11711631           tokens=   314     206.3 ms
+[ 84/87] pulse-9853056            tokens=   353     206.1 ms
+[ 85/87] pulse-11710845           tokens=   287     201.6 ms
+[ 86/87] pulse-11393348           tokens=   291     202.0 ms
+[ 87/87] pulse-9708012            tokens=   295     203.0 ms
+{"revision": "8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3", "dtype": "bfloat16", "gpu": "NVIDIA H100 80GB HBM3", "versions": {"python": "3.12.3", "torch": "2.11.0+cu130", "transformers": "5.10.2", "cuda": "13.0"}, "counts": {"ok": 86, "error": 1}, "load_s": 6.3}
+# Parity: runs/bfloat16 vs fixtures/clef-flash/float32
+
+| metric | value |
+|---|---|
+| records | 87 |
+| failed | 86 |
+| span mismatches | 0 |
+| max \|Δp\| (worst question) | 0.0000 (bar 0.02) |
+| mean of record means | n/a (bar 0.002) |
+| near-ties (not judged) | 0 |
+| result | FAIL |
+
+Traceback (most recent call last):
+  File "/root/worker-decide/scripts/hosted_to_run.py", line 65, in <module>
+    main()
+  File "/root/worker-decide/scripts/hosted_to_run.py", line 60, in main
+    n = convert(Path(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3]))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/worker-decide/scripts/hosted_to_run.py", line 30, in convert
+    oq = next(q for q in o["questions"] if q["id"] == h["question"])
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+StopIteration
+== pod_oracle.sh 2026-10-14T16:08:12Z ==
+commit 5973a9b  model Cloudflare/clef-flash  revision main  dtypes [float32 bfloat16]
+NVIDIA H100 80GB HBM3, 81559 MiB, 580.126.09
+us-ca-2-vast.runpod.net:/runpodfs/networkvolumes/q98a1ysy5c   75G   26G   50G  34% /workspace
+cuda 13.0 NVIDIA H100 80GB HBM3
+transformers 5.10.2
+hub sha 8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 1492.42it/s]
+snapshot /workspace/.cache/huggingface/hub/models--Cloudflare--clef-flash/snapshots/8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 2636.07it/s]
+[  1/87] intent77                 tokens=  1379       8.0 ms
+[  2/87] opts255                  tokens=  8641      25.1 ms
+[  3/87] q64                      tokens=  5538      19.8 ms
+[  4/87] score10                  tokens=   349       1.4 ms
+[  5/87] empty_instructions       tokens=   203       0.7 ms
+[  6/87] unicode_options          tokens=   270       1.3 ms
+[  7/87] list_state               tokens=   386       1.5 ms
+[  8/87] schema_overflow          tokens=     -    1421.3 ms  ERROR schema requires 475198 tokens before state; maximum is 16384
+[  9/87] triage_support           tokens=   475       2.3 ms
+[ 10/87] tool_select              tokens=   450       1.8 ms
+[ 11/87] invoice_extract          tokens=   561       2.2 ms
+[ 12/87] rag_relevance_1          tokens=   312       1.3 ms
+[ 13/87] rag_relevance_2          tokens=   301       1.3 ms
+[ 14/87] rag_relevance_3          tokens=   302       1.2 ms
+[ 15/87] moderation               tokens=   285       1.4 ms
+[ 16/87] near_dup_a               tokens=   232       1.1 ms
+[ 17/87] near_dup_b               tokens=   232       1.0 ms
+[ 18/87] near_dup_c               tokens=   232       1.0 ms
+[ 19/87] card_trio                tokens=   300       1.4 ms
+[ 20/87] no_instruction           tokens=   184       0.8 ms
+[ 21/87] unsorted_choice          tokens=   194       0.8 ms
+[ 22/87] noul_custom              tokens=   180       0.7 ms
+[ 23/87] json_state               tokens=   273       1.1 ms
+[ 24/87] many_options             tokens=  1164       4.4 ms
+[ 25/87] long_2k                  tokens=  2486       5.8 ms
+[ 26/87] trunc_16k                tokens= 16384      26.2 ms
+[ 27/87] img_receipt              tokens=   562      38.5 ms
+[ 28/87] img_receipt_textonly     tokens=   259       1.3 ms
+[ 29/87] img_chart                tokens=   388       9.1 ms
+[ 30/87] img_chart_textonly       tokens=   157       0.9 ms
+[ 31/87] img_shapes               tokens=   483       6.4 ms
+[ 32/87] img_shapes_textonly      tokens=   224       1.2 ms
+[ 33/87] img_sign448              tokens=   422       5.7 ms
+[ 34/87] img_sign448_textonly     tokens=   223       1.3 ms
+[ 35/87] img_board2048            tokens=  3321     110.1 ms
+[ 36/87] img_board2048_textonly   tokens=   246       4.6 ms
+[ 37/87] img_two                  tokens=   788      14.2 ms
+[ 38/87] pulse-11714037           tokens=   843       2.2 ms
+[ 39/87] pulse-10661222           tokens=   872       1.7 ms
+[ 40/87] pulse-11711957           tokens=   811       1.6 ms
+[ 41/87] pulse-9854422            tokens=   815       1.6 ms
+[ 42/87] pulse-11712604           tokens=   852       1.6 ms
+[ 43/87] pulse-9710164            tokens=   823       1.6 ms
+[ 44/87] pulse-9709124            tokens=   873       1.7 ms
+[ 45/87] pulse-11116991           tokens=   821       1.6 ms
+[ 46/87] pulse-10720478           tokens=   818       1.5 ms
+[ 47/87] pulse-9708731            tokens=   902       1.7 ms
+[ 48/87] pulse-9710418            tokens=   815       1.6 ms
+[ 49/87] pulse-11678677           tokens=   817       1.6 ms
+[ 50/87] pulse-9711065            tokens=   813       1.6 ms
+[ 51/87] pulse-9710025            tokens=   852       1.6 ms
+[ 52/87] pulse-11716232           tokens=   815       1.6 ms
+[ 53/87] pulse-9710672            tokens=   903       1.7 ms
+[ 54/87] pulse-9709632            tokens=   826       1.6 ms
+[ 55/87] pulse-11086438           tokens=   841       1.6 ms
+[ 56/87] pulse-11680618           tokens=   837       1.6 ms
+[ 57/87] pulse-9933807            tokens=   810       1.6 ms
+[ 58/87] pulse-9744321            tokens=   826       1.6 ms
+[ 59/87] pulse-9709100            tokens=   880       1.7 ms
+[ 60/87] pulse-11716347           tokens=   889       1.7 ms
+[ 61/87] pulse-11712187           tokens=   809       1.9 ms
+[ 62/87] pulse-9709747            tokens=   869       1.6 ms
+[ 63/87] pulse-10619114           tokens=   316       1.1 ms
+[ 64/87] pulse-11707797           tokens=   364       1.1 ms
+[ 65/87] pulse-11711171           tokens=   294       1.0 ms
+[ 66/87] pulse-9707691            tokens=   305       1.0 ms
+[ 67/87] pulse-11714938           tokens=   280       1.0 ms
+[ 68/87] pulse-10426369           tokens=   293       1.0 ms
+[ 69/87] pulse-9707552            tokens=   370       1.2 ms
+[ 70/87] pulse-10545020           tokens=   373       1.1 ms
+[ 71/87] pulse-9708199            tokens=   293       1.1 ms
+[ 72/87] pulse-9707413            tokens=   293       1.0 ms
+[ 73/87] pulse-11132428           tokens=   288       1.0 ms
+[ 74/87] pulse-10702774           tokens=   297       1.0 ms
+[ 75/87] pulse-9707528            tokens=   272       0.9 ms
+[ 76/87] pulse-11707888           tokens=   296       1.0 ms
+[ 77/87] pulse-11617432           tokens=   322       1.0 ms
+[ 78/87] pulse-9943143            tokens=   351       1.1 ms
+[ 79/87] pulse-10221259           tokens=   283       1.0 ms
+[ 80/87] pulse-10729536           tokens=   293       1.0 ms
+[ 81/87] pulse-10901596           tokens=   323       1.1 ms
+[ 82/87] pulse-11711123           tokens=   311       1.0 ms
+[ 83/87] pulse-11711631           tokens=   314       1.0 ms
+[ 84/87] pulse-9853056            tokens=   353       1.1 ms
+[ 85/87] pulse-11710845           tokens=   287       1.0 ms
+[ 86/87] pulse-11393348           tokens=   291       1.0 ms
+[ 87/87] pulse-9708012            tokens=   295       1.0 ms
+{"revision": "8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3", "dtype": "float32", "gpu": "NVIDIA H100 80GB HBM3", "versions": {"python": "3.12.3", "torch": "2.11.0+cu130", "transformers": "5.10.2", "cuda": "13.0"}, "counts": {"ok": 86, "error": 1}, "load_s": 1.3}
+PASS long_2k tokens in [1500, 3000]
+PASS trunc_16k tokens == 16384
+PASS schema_overflow errored
+PASS img_board2048 tokens < 4000
+PASS pulse-11714037 tokens == hosted 843
+PASS no unexpected errors
+87 records, 0 warnings
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 2636.27it/s]
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+Loading weights:   0%|          | 0/760 [00:00<?, ?it/s]Loading weights:   0%|          | 1/760 [00:00<08:43,  1.45it/s]Loading weights:   0%|          | 2/760 [00:01<06:07,  2.06it/s]Loading weights:   3%|▎         | 23/760 [00:01<00:25, 28.44it/s]Loading weights:   5%|▍         | 37/760 [00:01<00:18, 40.06it/s]Loading weights:   6%|▌         | 46/760 [00:01<00:15, 45.55it/s]Loading weights:   8%|▊         | 62/760 [00:01<00:11, 60.79it/s]Loading weights:  10%|█         | 76/760 [00:01<00:09, 71.55it/s]Loading weights:  12%|█▏        | 90/760 [00:02<00:09, 73.82it/s]Loading weights:  13%|█▎        | 99/760 [00:02<00:09, 73.19it/s]Loading weights:  15%|█▌        | 115/760 [00:02<00:08, 77.35it/s]Loading weights:  17%|█▋        | 129/760 [00:02<00:08, 74.90it/s]Loading weights:  19%|█▉        | 143/760 [00:02<00:08, 73.43it/s]Loading weights:  20%|██        | 152/760 [00:02<00:09, 66.64it/s]Loading weights:  22%|██▏       | 168/760 [00:03<00:07, 81.11it/s]Loading weights:  24%|██▍       | 182/760 [00:03<00:07, 77.00it/s]Loading weights:  26%|██▌       | 196/760 [00:03<00:07, 73.24it/s]Loading weights:  27%|██▋       | 206/760 [00:03<00:07, 76.78it/s]Loading weights:  30%|██▉       | 225/760 [00:03<00:05, 89.79it/s]Loading weights:  31%|███       | 235/760 [00:03<00:06, 87.49it/s]Loading weights:  33%|███▎      | 249/760 [00:04<00:06, 82.49it/s]Loading weights:  34%|███▍      | 259/760 [00:04<00:05, 83.99it/s]Loading weights:  36%|███▋      | 277/760 [00:04<00:05, 92.72it/s]Loading weights:  38%|███▊      | 288/760 [00:04<00:05, 89.08it/s]Loading weights:  40%|███▉      | 302/760 [00:04<00:05, 83.37it/s]Loading weights:  41%|████      | 312/760 [00:04<00:06, 73.88it/s]Loading weights:  43%|████▎     | 327/760 [00:04<00:05, 86.10it/s]Loading weights:  45%|████▍     | 341/760 [00:05<00:05, 81.65it/s]Loading weights:  47%|████▋     | 355/760 [00:05<00:05, 76.75it/s]Loading weights:  48%|████▊     | 365/760 [00:05<00:05, 70.13it/s]Loading weights:  50%|█████     | 380/760 [00:05<00:04, 83.99it/s]Loading weights:  52%|█████▏    | 394/760 [00:05<00:04, 78.12it/s]Loading weights:  54%|█████▎    | 408/760 [00:06<00:04, 79.03it/s]Loading weights:  55%|█████▍    | 417/760 [00:06<00:04, 80.01it/s]Loading weights:  61%|██████▏   | 467/760 [00:06<00:01, 171.65it/s]Loading weights:  74%|███████▍  | 565/760 [00:06<00:00, 360.91it/s]Loading weights:  87%|████████▋ | 663/760 [00:06<00:00, 516.18it/s]Loading weights:  99%|█████████▉| 753/760 [00:06<00:00, 602.17it/s]Loading weights: 100%|██████████| 760/760 [00:06<00:00, 116.31it/s]
+[  1/87] intent77                 tokens=  1379     788.0 ms
+[  2/87] opts255                  tokens=  8641    3127.6 ms
+[  3/87] q64                      tokens=  5538    2012.8 ms
+[  4/87] score10                  tokens=   349     187.9 ms
+[  5/87] empty_instructions       tokens=   203     127.2 ms
+[  6/87] unicode_options          tokens=   270     154.0 ms
+[  7/87] list_state               tokens=   386     204.7 ms
+[  8/87] schema_overflow          tokens=     -    1419.4 ms  ERROR schema requires 475198 tokens before state; maximum is 16384
+[  9/87] triage_support           tokens=   475     213.2 ms
+[ 10/87] tool_select              tokens=   450     210.5 ms
+[ 11/87] invoice_extract          tokens=   561     247.6 ms
+[ 12/87] rag_relevance_1          tokens=   312     157.5 ms
+[ 13/87] rag_relevance_2          tokens=   301     155.4 ms
+[ 14/87] rag_relevance_3          tokens=   302     155.3 ms
+[ 15/87] moderation               tokens=   285     155.1 ms
+[ 16/87] near_dup_a               tokens=   232     129.2 ms
+[ 17/87] near_dup_b               tokens=   232     129.1 ms
+[ 18/87] near_dup_c               tokens=   232     129.0 ms
+[ 19/87] card_trio                tokens=   300     156.1 ms
+[ 20/87] no_instruction           tokens=   184     112.7 ms
+[ 21/87] unsorted_choice          tokens=   194     127.4 ms
+[ 22/87] noul_custom              tokens=   180     111.8 ms
+[ 23/87] json_state               tokens=   273     154.1 ms
+[ 24/87] many_options             tokens=  1164     486.0 ms
+[ 25/87] long_2k                  tokens=  2486     967.0 ms
+[ 26/87] trunc_16k                tokens= 16384    6109.9 ms
+[ 27/87] img_receipt              tokens=   562     420.8 ms
+[ 28/87] img_receipt_textonly     tokens=   259     153.7 ms
+[ 29/87] img_chart                tokens=   388     244.7 ms
+[ 30/87] img_chart_textonly       tokens=   157     111.1 ms
+[ 31/87] img_shapes               tokens=   483     252.7 ms
+[ 32/87] img_shapes_textonly      tokens=   224     127.9 ms
+[ 33/87] img_sign448              tokens=   422     240.0 ms
+[ 34/87] img_sign448_textonly     tokens=   223     128.3 ms
+[ 35/87] img_board2048            tokens=  3321    2203.4 ms
+[ 36/87] img_board2048_textonly   tokens=   246     135.1 ms
+[ 37/87] img_two                  tokens=   788     434.0 ms
+[ 38/87] pulse-11714037           tokens=   843     359.7 ms
+[ 39/87] pulse-10661222           tokens=   872     360.2 ms
+[ 40/87] pulse-11711957           tokens=   811     347.5 ms
+[ 41/87] pulse-9854422            tokens=   815     347.9 ms
+[ 42/87] pulse-11712604           tokens=   852     359.8 ms
+[ 43/87] pulse-9710164            tokens=   823     347.7 ms
+[ 44/87] pulse-9709124            tokens=   873     360.3 ms
+[ 45/87] pulse-11116991           tokens=   821     347.7 ms
+[ 46/87] pulse-10720478           tokens=   818     348.0 ms
+[ 47/87] pulse-9708731            tokens=   902     372.9 ms
+[ 48/87] pulse-9710418            tokens=   815     347.3 ms
+[ 49/87] pulse-11678677           tokens=   817     347.6 ms
+[ 50/87] pulse-9711065            tokens=   813     347.4 ms
+[ 51/87] pulse-9710025            tokens=   852     359.6 ms
+[ 52/87] pulse-11716232           tokens=   815     347.1 ms
+[ 53/87] pulse-9710672            tokens=   903     372.5 ms
+[ 54/87] pulse-9709632            tokens=   826     347.8 ms
+[ 55/87] pulse-11086438           tokens=   841     359.1 ms
+[ 56/87] pulse-11680618           tokens=   837     358.9 ms
+[ 57/87] pulse-9933807            tokens=   810     347.4 ms
+[ 58/87] pulse-9744321            tokens=   826     347.9 ms
+[ 59/87] pulse-9709100            tokens=   880     361.2 ms
+[ 60/87] pulse-11716347           tokens=   889     360.7 ms
+[ 61/87] pulse-11712187           tokens=   809     347.2 ms
+[ 62/87] pulse-9709747            tokens=   869     360.3 ms
+[ 63/87] pulse-10619114           tokens=   316     154.7 ms
+[ 64/87] pulse-11707797           tokens=   364     177.3 ms
+[ 65/87] pulse-11711171           tokens=   294     153.6 ms
+[ 66/87] pulse-9707691            tokens=   305     153.9 ms
+[ 67/87] pulse-11714938           tokens=   280     153.5 ms
+[ 68/87] pulse-10426369           tokens=   293     154.2 ms
+[ 69/87] pulse-9707552            tokens=   370     178.5 ms
+[ 70/87] pulse-10545020           tokens=   373     178.6 ms
+[ 71/87] pulse-9708199            tokens=   293     153.4 ms
+[ 72/87] pulse-9707413            tokens=   293     153.7 ms
+[ 73/87] pulse-11132428           tokens=   288     153.9 ms
+[ 74/87] pulse-10702774           tokens=   297     153.6 ms
+[ 75/87] pulse-9707528            tokens=   272     152.8 ms
+[ 76/87] pulse-11707888           tokens=   296     153.5 ms
+[ 77/87] pulse-11617432           tokens=   322     176.2 ms
+[ 78/87] pulse-9943143            tokens=   351     177.3 ms
+[ 79/87] pulse-10221259           tokens=   283     153.6 ms
+[ 80/87] pulse-10729536           tokens=   293     154.0 ms
+[ 81/87] pulse-10901596           tokens=   323     176.5 ms
+[ 82/87] pulse-11711123           tokens=   311     154.4 ms
+[ 83/87] pulse-11711631           tokens=   314     154.5 ms
+[ 84/87] pulse-9853056            tokens=   353     177.7 ms
+[ 85/87] pulse-11710845           tokens=   287     154.1 ms
+[ 86/87] pulse-11393348           tokens=   291     153.6 ms
+[ 87/87] pulse-9708012            tokens=   295     153.6 ms
+{"revision": "8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3", "dtype": "float32", "gpu": "NVIDIA H100 80GB HBM3", "versions": {"python": "3.12.3", "torch": "2.11.0+cu130", "transformers": "5.10.2", "cuda": "13.0"}, "counts": {"ok": 86, "error": 1}, "load_s": 11.1}
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 2539.65it/s]
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+Loading weights:   0%|          | 0/760 [00:00<?, ?it/s]Loading weights:   0%|          | 1/760 [00:00<03:15,  3.89it/s]Loading weights:   0%|          | 2/760 [00:00<03:39,  3.46it/s]Loading weights:   4%|▎         | 27/760 [00:00<00:12, 58.06it/s]Loading weights:   6%|▌         | 46/760 [00:00<00:08, 86.82it/s]Loading weights:   9%|▉         | 67/760 [00:00<00:05, 115.72it/s]Loading weights:  12%|█▏        | 91/760 [00:00<00:04, 147.97it/s]Loading weights:  14%|█▍        | 110/760 [00:01<00:04, 152.44it/s]Loading weights:  18%|█▊        | 133/760 [00:01<00:03, 172.36it/s]Loading weights:  20%|██        | 153/760 [00:01<00:03, 167.60it/s]Loading weights:  24%|██▍       | 181/760 [00:01<00:02, 193.24it/s]Loading weights:  27%|██▋       | 202/760 [00:01<00:02, 187.42it/s]Loading weights:  29%|██▉       | 224/760 [00:01<00:02, 187.83it/s]Loading weights:  33%|███▎      | 253/760 [00:01<00:02, 207.46it/s]Loading weights:  36%|███▌      | 275/760 [00:01<00:02, 206.52it/s]Loading weights:  39%|███▉      | 296/760 [00:02<00:02, 199.58it/s]Loading weights:  42%|████▏     | 317/760 [00:02<00:02, 194.24it/s]Loading weights:  45%|████▌     | 345/760 [00:02<00:01, 211.66it/s]Loading weights:  48%|████▊     | 367/760 [00:02<00:02, 194.09it/s]Loading weights:  52%|█████▏    | 394/760 [00:02<00:01, 213.17it/s]Loading weights:  55%|█████▍    | 416/760 [00:02<00:01, 211.39it/s]Loading weights:  70%|██████▉   | 529/760 [00:02<00:00, 464.56it/s]Loading weights:  99%|█████████▉| 755/760 [00:02<00:00, 968.77it/s]Loading weights: 100%|██████████| 760/760 [00:02<00:00, 271.62it/s]
+[  1/87] intent77                 tokens=  1379     748.7 ms
+[  2/87] opts255                  tokens=  8641     888.1 ms
+[  3/87] q64                      tokens=  5538     673.5 ms
+[  4/87] score10                  tokens=   349     232.0 ms
+[  5/87] empty_instructions       tokens=   203     205.6 ms
+[  6/87] unicode_options          tokens=   270     241.7 ms
+[  7/87] list_state               tokens=   386     249.6 ms
+[  8/87] schema_overflow          tokens=     -    1428.0 ms  ERROR schema requires 475198 tokens before state; maximum is 16384
+[  9/87] triage_support           tokens=   475     260.5 ms
+[ 10/87] tool_select              tokens=   450     217.5 ms
+[ 11/87] invoice_extract          tokens=   561     226.5 ms
+[ 12/87] rag_relevance_1          tokens=   312     231.7 ms
+[ 13/87] rag_relevance_2          tokens=   301     209.6 ms
+[ 14/87] rag_relevance_3          tokens=   302     201.4 ms
+[ 15/87] moderation               tokens=   285     202.9 ms
+[ 16/87] near_dup_a               tokens=   232     204.1 ms
+[ 17/87] near_dup_b               tokens=   232     108.9 ms
+[ 18/87] near_dup_c               tokens=   232     108.3 ms
+[ 19/87] card_trio                tokens=   300     205.9 ms
+[ 20/87] no_instruction           tokens=   184     202.5 ms
+[ 21/87] unsorted_choice          tokens=   194     199.6 ms
+[ 22/87] noul_custom              tokens=   180     203.5 ms
+[ 23/87] json_state               tokens=   273     200.7 ms
+[ 24/87] many_options             tokens=  1164     269.8 ms
+[ 25/87] long_2k                  tokens=  2486     346.3 ms
+[ 26/87] trunc_16k                tokens= 16384    1674.5 ms
+[ 27/87] img_receipt              tokens=   562     391.0 ms
+[ 28/87] img_receipt_textonly     tokens=   259     203.2 ms
+[ 29/87] img_chart                tokens=   388     266.4 ms
+[ 30/87] img_chart_textonly       tokens=   157     193.1 ms
+[ 31/87] img_shapes               tokens=   483     272.3 ms
+[ 32/87] img_shapes_textonly      tokens=   224     214.3 ms
+[ 33/87] img_sign448              tokens=   422     286.5 ms
+[ 34/87] img_sign448_textonly     tokens=   223     199.6 ms
+[ 35/87] img_board2048            tokens=  3321     604.2 ms
+[ 36/87] img_board2048_textonly   tokens=   246     199.2 ms
+[ 37/87] img_two                  tokens=   788     283.4 ms
+[ 38/87] pulse-11714037           tokens=   843     250.5 ms
+[ 39/87] pulse-10661222           tokens=   872     235.6 ms
+[ 40/87] pulse-11711957           tokens=   811     227.3 ms
+[ 41/87] pulse-9854422            tokens=   815     223.1 ms
+[ 42/87] pulse-11712604           tokens=   852     230.3 ms
+[ 43/87] pulse-9710164            tokens=   823     230.3 ms
+[ 44/87] pulse-9709124            tokens=   873     230.6 ms
+[ 45/87] pulse-11116991           tokens=   821     237.4 ms
+[ 46/87] pulse-10720478           tokens=   818     226.8 ms
+[ 47/87] pulse-9708731            tokens=   902     240.2 ms
+[ 48/87] pulse-9710418            tokens=   815     141.0 ms
+[ 49/87] pulse-11678677           tokens=   817     238.1 ms
+[ 50/87] pulse-9711065            tokens=   813     227.2 ms
+[ 51/87] pulse-9710025            tokens=   852     143.2 ms
+[ 52/87] pulse-11716232           tokens=   815     138.8 ms
+[ 53/87] pulse-9710672            tokens=   903     238.9 ms
+[ 54/87] pulse-9709632            tokens=   826     230.6 ms
+[ 55/87] pulse-11086438           tokens=   841     230.6 ms
+[ 56/87] pulse-11680618           tokens=   837     237.4 ms
+[ 57/87] pulse-9933807            tokens=   810     226.9 ms
+[ 58/87] pulse-9744321            tokens=   826     140.0 ms
+[ 59/87] pulse-9709100            tokens=   880     241.6 ms
+[ 60/87] pulse-11716347           tokens=   889     234.5 ms
+[ 61/87] pulse-11712187           tokens=   809     228.3 ms
+[ 62/87] pulse-9709747            tokens=   869     234.8 ms
+[ 63/87] pulse-10619114           tokens=   316     197.4 ms
+[ 64/87] pulse-11707797           tokens=   364     218.6 ms
+[ 65/87] pulse-11711171           tokens=   294     198.1 ms
+[ 66/87] pulse-9707691            tokens=   305     204.2 ms
+[ 67/87] pulse-11714938           tokens=   280     199.2 ms
+[ 68/87] pulse-10426369           tokens=   293     198.8 ms
+[ 69/87] pulse-9707552            tokens=   370     202.8 ms
+[ 70/87] pulse-10545020           tokens=   373     200.8 ms
+[ 71/87] pulse-9708199            tokens=   293     110.7 ms
+[ 72/87] pulse-9707413            tokens=   293     110.7 ms
+[ 73/87] pulse-11132428           tokens=   288     212.3 ms
+[ 74/87] pulse-10702774           tokens=   297     199.9 ms
+[ 75/87] pulse-9707528            tokens=   272     200.4 ms
+[ 76/87] pulse-11707888           tokens=   296     201.3 ms
+[ 77/87] pulse-11617432           tokens=   322     215.8 ms
+[ 78/87] pulse-9943143            tokens=   351     203.8 ms
+[ 79/87] pulse-10221259           tokens=   283     202.5 ms
+[ 80/87] pulse-10729536           tokens=   293     111.5 ms
+[ 81/87] pulse-10901596           tokens=   323     203.2 ms
+[ 82/87] pulse-11711123           tokens=   311     200.7 ms
+[ 83/87] pulse-11711631           tokens=   314     198.7 ms
+[ 84/87] pulse-9853056            tokens=   353     202.0 ms
+[ 85/87] pulse-11710845           tokens=   287     211.3 ms
+[ 86/87] pulse-11393348           tokens=   291     204.5 ms
+[ 87/87] pulse-9708012            tokens=   295     216.6 ms
+{"revision": "8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3", "dtype": "bfloat16", "gpu": "NVIDIA H100 80GB HBM3", "versions": {"python": "3.12.3", "torch": "2.11.0+cu130", "transformers": "5.10.2", "cuda": "13.0"}, "counts": {"ok": 86, "error": 1}, "load_s": 6.2}
+# Parity: runs/bfloat16 vs fixtures/clef-flash/float32
+
+| metric | value |
+|---|---|
+| records | 87 |
+| failed | 1 |
+| span mismatches | 0 |
+| max \|Δp\| (worst question) | 0.0211 (bar 0.02) |
+| mean of record means | 0.00155 (bar 0.002) |
+| near-ties (not judged) | 7 |
+| result | FAIL |
+
+converted 50 hosted responses → runs/hosted
+# Parity: runs/hosted vs fixtures/clef-flash/float32
+
+| metric | value |
+|---|---|
+| records | 87 |
+| failed | 82 |
+| span mismatches | 0 |
+| max \|Δp\| (worst question) | 0.1435 (bar 0.02) |
+| mean of record means | 0.02583 (bar 0.002) |
+| near-ties (not judged) | 5 |
+| result | FAIL |
+
