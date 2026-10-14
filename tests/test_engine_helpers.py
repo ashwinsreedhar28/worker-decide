@@ -116,3 +116,38 @@ def test_unpinned_follows_refs_main(tmp_path):
 
 def test_model_store_root_is_runpods_documented_path():
     assert str(engine.MODEL_STORE_ROOT) == "/runpod-volume/huggingface-cache/hub"
+
+
+def test_process_start_is_in_the_past_and_recent():
+    import time
+
+    start = engine.process_start_time()
+    if start is None:  # non-Linux: the timeline falls back to engine-init basis
+        assert engine.Timeline().basis == "engine_init"
+        return
+    now = time.time()
+    assert now - 3600 * 24 < start <= now + 1  # this test process started today, not 1970
+
+
+def test_timeline_marks_are_seconds_since_origin_and_monotonic():
+    import time
+
+    tl = engine.Timeline(origin=time.time() - 10.0)  # pretend the process started 10 s ago
+    a = tl.mark("snapshot_resolved")
+    b = tl.mark("weights_loaded")
+    assert 9.9 < a <= b < 60 and tl.basis == "process_start"
+    tl.fetch = {"source": "hf_download", "bytes_added_to_cache": 5, "seconds": 1.0}
+    d = tl.as_dict()
+    assert list(d["marks"]) == ["snapshot_resolved", "weights_loaded"] and d["fetch"]["source"]
+
+
+def test_fetch_accounting(tmp_path):
+    assert engine.dir_bytes(tmp_path / "absent") == 0
+    (tmp_path / "blobs").mkdir()
+    (tmp_path / "blobs" / "a").write_bytes(b"x" * 100)
+    (tmp_path / "blobs" / "b").write_bytes(b"y" * 23)
+    (tmp_path / "blobs" / "link").symlink_to(tmp_path / "blobs" / "a")  # not double-counted
+    assert engine.dir_bytes(tmp_path / "blobs") == 123
+    assert engine.fetch_source(True, 0, 0) == "model_store"
+    assert engine.fetch_source(False, 123, 123) == "hf_cache"  # nothing new written
+    assert engine.fetch_source(False, 0, 19_000_000_000) == "hf_download"
