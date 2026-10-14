@@ -40,16 +40,34 @@ def test_edge_records_deterministic():
     assert a == b
 
 
-def test_image_records_have_twins_and_files():
-    recs = mf.make_images()
+def test_image_records_have_twins_and_files(tmp_path):
+    recs = mf.make_images(tmp_path)  # never into fixtures/: those bytes are what the oracle saw
     ids = {r["id"] for r in recs}
     for base in ("img_receipt", "img_chart", "img_shapes"):
         assert base in ids and f"{base}_textonly" in ids
     for r in recs:
         for rel in r.get("images", []):
-            assert (ROOT / rel).exists(), rel
+            assert rel.startswith("fixtures/requests/images/") and (ROOT / rel).exists(), rel
+            assert (tmp_path / Path(rel).name).exists(), rel
         twin = next(t for t in recs if t["id"] == r["id"].removesuffix("_textonly"))
         assert twin["request"] == r["request"]
+
+
+IMAGE_SHA16 = {  # sha256[:16] of the committed PNGs; the oracle records were produced from these
+    "board2048.png": "a9614d10c031cd8a",
+    "chart.png": "2fc37e75bb4f6d86",
+    "receipt.png": "8b950cc7d75e85b1",
+    "shapes.png": "77f1b83ad2831236",
+    "sign448.png": "73df062a8cbb18d2",
+}
+
+
+def test_committed_images_unchanged():
+    import hashlib
+
+    for name, want in IMAGE_SHA16.items():
+        got = hashlib.sha256((mf.IMG / name).read_bytes()).hexdigest()[:16]
+        assert got == want, f"{name} changed; regenerate only on purpose and re-run the oracle"
 
 
 def test_coverage_records_hit_hosted_limits():
@@ -76,3 +94,10 @@ def test_all_request_ids_unique_across_files():
         ids += [json.loads(line)["id"] for line in path.read_text().splitlines() if line]
     assert len(ids) == len(set(ids))
     assert len(ids) == 87, len(ids)
+
+
+def test_make_images_without_system_fonts(tmp_path, monkeypatch):
+    monkeypatch.setattr(mf, "FONTS", {"mono": [], "bold": []})  # a Mac or CI box without DejaVu
+    recs = mf.make_images(tmp_path)
+    assert sorted(p.name for p in tmp_path.glob("*.png")) == sorted(IMAGE_SHA16)
+    assert len(recs) == 11
