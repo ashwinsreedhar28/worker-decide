@@ -121,6 +121,17 @@ def post(base: str, body: dict[str, Any], token: str | None, timeout: float) -> 
             return e.code, {"error": str(e)}
 
 
+def is_worker_unhealthy(status: int, body: bytes) -> bool:
+    """Only our app's own failed-load answer is fatal. Behind Runpod's load balancer, 5xx
+    responses also come from the gateway while no worker is up, and those must be waited out."""
+    if status != 500:
+        return False
+    try:
+        return json.loads(body).get("status") == "unhealthy"
+    except (ValueError, AttributeError):
+        return False
+
+
 def wait_ready(base: str, token: str | None, timeout_s: float) -> None:
     t0 = time.time()
     headers = {"Authorization": f"Bearer {token}"} if token else {}
@@ -133,9 +144,10 @@ def wait_ready(base: str, token: str | None, timeout_s: float) -> None:
                     return
                 state = f"status {r.status}"
         except urllib.error.HTTPError as e:
-            if e.code == 500:
-                raise SystemExit(f"worker reports unhealthy: {e.read()[:300]!r}") from e
-            state = f"status {e.code}"
+            body = e.read()[:500]
+            if is_worker_unhealthy(e.code, body):
+                raise SystemExit(f"worker reports unhealthy: {body!r}") from e
+            state = f"status {e.code}"  # LB with no worker yet, gateway errors: keep waiting
         except (urllib.error.URLError, TimeoutError) as e:
             state = str(e)
         if time.time() - t0 > timeout_s:

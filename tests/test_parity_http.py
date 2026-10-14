@@ -135,3 +135,11 @@ def test_end_to_end_against_the_fake_worker(tmp_path):
             ),
         )
     assert not parity.compare(ref, tmp_path / "run2", max_dp=0.005).passed
+
+
+def test_only_the_apps_own_unhealthy_answer_is_fatal():
+    assert ph.is_worker_unhealthy(500, b'{"status": "unhealthy", "error": "sha mismatch"}')
+    assert not ph.is_worker_unhealthy(500, b"Internal Server Error")  # gateway, no worker yet
+    assert not ph.is_worker_unhealthy(500, b'{"error": "no workers available"}')
+    assert not ph.is_worker_unhealthy(502, b'{"status": "unhealthy"}')
+    assert not ph.is_worker_unhealthy(500, b"[1, 2]")
