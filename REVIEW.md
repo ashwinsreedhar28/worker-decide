@@ -76,6 +76,10 @@ Two kernel caveats, neither measured yet:
   listed. Decision: fp32→bf16 is a dtype characterization. The serving gate
   for every later arm is same-dtype against this bf16 run (promoted to
   `fixtures/clef-flash/bfloat16`), with fp32 drift reported, not judged.
+  **Superseded Oct 14** (milestone 2 results, A40 run): a same-dtype gate is
+  valid only on the GPU the bf16 reference was made on. Correctness is now
+  judged against fp32 on any GPU; the bf16 comparison is the same-GPU
+  regression gate.
 - **Workers AI vs fp32** (`runs/parity_hosted.md`, Pulse 50 only): hosted
   `prompt_tokens` equals the oracle's `input_tokens` on 50/50 records, so the
   request bodies and the encoder match byte for byte and the drift is
@@ -126,6 +130,9 @@ Expect:
 - HTTP parity vs `fixtures/clef-flash/bfloat16`: 0 request mismatches, 0 span
   mismatches, 87/87 pass at max |Δp| 0.005 (same dtype, same kernels; on a
   different GPU type a few 1e-3 differences are plausible, a 1e-2 one is not).
+  **Prediction falsified Oct 14:** on an A40 the worker differed from this
+  H100 reference by up to 0.0291 while staying closer to fp32 than the H100
+  did. See the A40 results below.
   `schema_overflow` errors on both sides. The informational report vs fp32
   should look like `runs/parity_bfloat16.md` (one marginal question).
 - bf16 re-check (oracle path after the engine refactor) vs the bf16 fixture:
@@ -185,11 +192,55 @@ pure-torch path. Engine ready 6.3 s after start (warm volume).
   `8b2e5fd…`, `joint_schema_model.py` sha `0e304cf7c650` (matches the pinned
   value in `worker/core.py`), torch 2.11.0+cu130, transformers 5.10.2.
 
+### Results: load-balancing endpoint on an A40 (branch `parity/http-a40-20261014`)
+
+Image `clef-b455d5a` on a Runpod **load-balancing endpoint**, A40 only, CUDA
+13.0, no network volume (the snapshot came down at first start, as on the
+Hub's test endpoint). Driven from a laptop over the public URL.
+
+- **Endpoint behavior**: `/ping` answered 204 within seconds of start and 200
+  at **32 s** (13 s snapshot fetch, 6 s weight load). 87 requests: 86 × 200 and
+  one 400, the 8th request, which is `schema_overflow` — the record that must
+  be rejected. The worker scaled to zero 300 s after the last request, per the
+  idle timeout.
+- **Same-dtype gate against the H100 bf16 fixture: FAIL**, 13 of 87 records
+  over 0.005 (all on |Δp|, none on argmax), worst 0.0291, mean of record means 0.00152, with 0 request and 0
+  span mismatches — tokenization and spans bit-identical, so the difference is
+  purely numeric, from different kernels on sm_86 vs sm_90.
+- **But against the fp32 truth the A40 is the better run**
+  (`python scripts/compare_runs.py fixtures/clef-flash/float32
+  fixtures/clef-flash/bfloat16 runs/http-a40 --labels H100-bf16,A40-bf16`):
+
+  | per-question max \|Δp\| | max | p99 | median | mean |
+  |---|---|---|---|---|
+  | H100 bf16 vs fp32 | 0.0211 | 0.0127 | 0.00108 | 0.00202 |
+  | A40 bf16 vs fp32 | 0.0163 | 0.0115 | 0.00102 | 0.00172 |
+  | A40 vs H100 | 0.0291 | 0.0147 | 0.00115 | 0.00221 |
+
+  Zero clear argmax flips in any of the three comparisons (every flip sits on
+  a near-tie with fp32 margin < 0.04). The A40 is closer to fp32 on 89
+  questions, the H100 on 84. The two bf16 runs err in different directions:
+  on `invoice_extract/overdue`, H100 is 0.0127 from fp32, A40 is 0.0163, and
+  they are 0.0291 apart — nearly the sum. Two bf16 runs on different hardware
+  disagree with each other more than either disagrees with the truth.
+
+**Decision (Oct 14): two gates, with different jobs.**
+
+- **Correctness, any GPU** — `parity_http.py`'s default. Against the fp32
+  truth: argmax agrees where the fp32 margin exceeds the near-tie window
+  (2 × max-dp = 0.05; 19 of 179 questions fall inside it); max |Δp| ≤ 0.025;
+  mean of record means ≤ 0.0025. Both measured GPUs pass with headroom (H100
+  0.0211 / 0.00155, A40 0.0163 / 0.00122). Set from two GPUs, so provisional
+  until an Ada run confirms or tightens it.
+- **Regression, same GPU as the reference** — `--regression
+  fixtures/clef-flash/bfloat16` at 0.005 / 0.001. Detects code changes, not
+  hardware. `pod_http_parity.sh` enables it only when the pod's GPU name equals
+  the fixture manifest's.
+
 Known gaps, carried forward: the queue transport has not been exercised on a
-real endpoint (only `WorkerCore.handle_job` under test); no load-balancing
-endpoint has been deployed; concurrency is one forward at a time, so
-throughput is 1/latency; parity is proven on Hopper (H100) only — the Hub
-listing targets Ampere/Ada 48 GB pools, where bf16 kernels differ, so the
-first endpoint run there should go through `parity_http.py` before the
-"matches the reference" claim extends to them; the worker has not been run in
-fp32 over HTTP; peak GPU memory at 16k tokens is unmeasured.
+real endpoint (only `WorkerCore.handle_job` under test); concurrency is one
+forward at a time, so throughput is 1/latency; correctness is measured on the
+H100 (sm_90) and the A40 (sm_86) only — the listing's other pools (A100-class
+sm_80, Ada) have not been gated yet; the worker has not been run in fp32 over
+HTTP; peak GPU memory at 16k tokens is unmeasured; and the 13 s snapshot fetch
+was either a fast link or a host-side cache, undetermined (milestone 3).

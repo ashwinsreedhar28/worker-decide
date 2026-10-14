@@ -143,3 +143,49 @@ def test_only_the_apps_own_unhealthy_answer_is_fatal():
     assert not ph.is_worker_unhealthy(500, b'{"error": "no workers available"}')
     assert not ph.is_worker_unhealthy(502, b'{"status": "unhealthy"}')
     assert not ph.is_worker_unhealthy(500, b"[1, 2]")
+
+
+def test_defaults_are_the_correctness_gate_against_fp32():
+    a = ph.build_parser().parse_args(["http://x", "runs/r"])
+    assert a.reference.name == "float32" and a.reference.parent.name == "clef-flash"
+    assert (a.max_dp, a.mean_dp) == (0.025, 0.0025)
+    assert a.regression is None and (a.regression_max_dp, a.regression_mean_dp) == (0.005, 0.001)
+
+
+def test_verdict_regression_gates_only_when_requested():
+    assert ph.verdict(True, None) and ph.verdict(True, True)
+    assert not ph.verdict(True, False) and not ph.verdict(False, None)
+    assert not ph.verdict(False, True)
+
+
+def test_collect_records_the_engine_from_the_first_good_reply(tmp_path):
+    replies = iter([
+        (400, {"error": "schema too long"}),
+        (200, {"model": "m", "answers": {}, "debug": {"engine": {"gpu": "NVIDIA A40"}}}),
+        (200, {"model": "m", "answers": {}, "debug": {"engine": {"gpu": "other"}}}),
+    ])  # fmt: skip
+    lines = [{"id": f"r{i}", "request": BODY} for i in range(3)]
+    meta = {}
+    counts = ph.collect(lines, tmp_path / "run", lambda body: next(replies), meta)
+    assert counts == {"ok": 2, "error": 1} and meta["engine"] == {"gpu": "NVIDIA A40"}
+
+
+def test_wait_ready_reports_progress_while_initializing(monkeypatch, capsys):
+    import io
+    import urllib.request
+
+    clock = {"t": 0.0}
+    statuses = iter([204, 204, 204, 200])
+
+    class Resp(io.BytesIO):
+        def __init__(self, status):
+            super().__init__(b"")
+            self.status = status
+
+    monkeypatch.setattr(urllib.request, "urlopen", lambda req, timeout: Resp(next(statuses)))
+    monkeypatch.setattr(ph.time, "time", lambda: clock["t"])
+    monkeypatch.setattr(ph.time, "sleep", lambda s: clock.__setitem__("t", clock["t"] + s))
+    ph.wait_ready("https://ep.api.runpod.ai", None, timeout_s=600, every_s=5, poll_s=3)
+    err = capsys.readouterr().err
+    assert "[wait] polling https://ep.api.runpod.ai/ping" in err
+    assert "status 204 (initializing)" in err

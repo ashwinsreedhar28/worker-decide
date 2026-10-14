@@ -1,6 +1,6 @@
 {
   "title": "Clef-flash Decisions",
-  "description": "Answer classification, yes/no probability and ordinal scoring questions about text, JSON or images with Cloudflare's Clef-flash, on the SystemOne request format. Weights and model code are pinned, and the serving path is parity-tested against a fixed bf16 reference.",
+  "description": "Answer classification, yes/no probability and ordinal scoring questions about text, JSON or images with Cloudflare's Clef-flash, on the SystemOne request format. Weights and model code are pinned; outputs are gated against an fp32 reference within measured bf16 tolerance (verified on H100 and A40).",
   "type": "serverless",
   "category": "language",
   "config": {

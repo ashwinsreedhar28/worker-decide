@@ -13,11 +13,15 @@
 #
 # What it does, in order:
 #   1. starts the worker (TRANSPORT=http) on 127.0.0.1:$PORT and waits for /ping = 200
-#   2. scripts/parity_http.py: all 87 fixtures over HTTP, gated against
-#      fixtures/clef-flash/bfloat16 (same dtype, bar 0.005), fp32 drift reported
-#   3. stops the worker, then re-runs the oracle itself in bf16 (the engine refactor check:
-#      must match fixtures/clef-flash/bfloat16) and in fp32 with the math SDPA kernel on
-#      every record but trunc_16k (bounds the memory-efficient-kernel caveat from REVIEW.md)
+#   2. scripts/parity_http.py: all 87 fixtures over HTTP, one pass, two gates —
+#      correctness against the fp32 truth (any GPU, 0.025 / 0.0025) and, only when this pod's
+#      GPU is the one fixtures/clef-flash/bfloat16 was made on, regression against that bf16
+#      fixture (0.005 / 0.001). Two bf16 runs on different GPUs disagree by up to ~0.03 while
+#      each is within the correctness bar (Oct 14, A40 vs H100), so regression is same-GPU only.
+#   3. stops the worker, then re-runs the oracle itself in bf16 (the engine refactor check,
+#      against the bf16 fixture on the same GPU, otherwise against fp32 at the correctness bar)
+#      and in fp32 with the math SDPA kernel on every record but trunc_16k (bounds the
+#      memory-efficient-kernel caveat from REVIEW.md)
 #   4. commits runs/ to parity/http-<rev7>-<yyyymmdd> and pushes
 #
 # Pod env (template; GH_TOKEN as a Runpod secret, never in the repo):
@@ -57,15 +61,23 @@ TAIL_PID=$!
 trap 'kill $WORKER_PID $TAIL_PID 2>/dev/null || true' EXIT
 echo "worker pid $WORKER_PID on :$PORT"
 
-# ---- 2. parity over HTTP (the gate) ---------------------------------------------------------
+# ---- 2. parity over HTTP (correctness always; regression only on the reference's GPU) --------
 REV7=$(python3 -c "import json;print(json.load(open('fixtures/clef-flash/bfloat16/manifest.json'))['revision'][:7])")
+REF_GPU=$(python3 -c "import json;print(json.load(open('fixtures/clef-flash/bfloat16/manifest.json'))['gpu'])")
+POD_GPU=$(nvidia-smi --query-gpu=name --format=csv,noheader | head -1)
+REGRESSION_ARGS=()
+if [ "$POD_GPU" = "$REF_GPU" ]; then
+  REGRESSION_ARGS=(--regression fixtures/clef-flash/bfloat16)
+  echo "regression gate ON: pod GPU matches the bf16 fixture's ($REF_GPU)"
+else
+  echo "regression gate SKIPPED: pod GPU '$POD_GPU' is not the bf16 fixture's '$REF_GPU'"
+fi
 HTTP_OK=1
 python3 scripts/parity_http.py "http://127.0.0.1:$PORT" runs/http-bfloat16 \
-  --reference fixtures/clef-flash/bfloat16 --max-dp 0.005 --mean-dp 0.001 \
-  --also fixtures/clef-flash/float32 --json runs/parity_http_bfloat16.json --ready-timeout "${READY_TIMEOUT:-600}" \
-  > runs/parity_http_bfloat16.md 2> >(tee runs/parity_http_bfloat16.err | sed -u 's/^/[http] /' >&2) || HTTP_OK=0
+  ${REGRESSION_ARGS[@]+"${REGRESSION_ARGS[@]}"} --json runs/parity_http_correctness.json --ready-timeout "${READY_TIMEOUT:-600}" \
+  > runs/parity_http.md 2> >(tee runs/parity_http.err | sed -u 's/^/[http] /' >&2) || HTTP_OK=0
 sleep 1
-head -16 runs/parity_http_bfloat16.md
+grep -E '^## |^\| (records|failed|max|mean of record|result)' runs/parity_http.md || true
 if [ "$HTTP_OK" = 0 ]; then
   echo "HTTP PARITY: FAIL"; echo "--- worker.log tail:"; tail -n 40 runs/worker.log
 fi
@@ -78,11 +90,16 @@ kill $TAIL_PID 2>/dev/null || true
 trap - EXIT
 [ "$STAGE" = "http" ] && { echo "STAGE=http, stopping"; exit 0; }
 
-# ---- 3a. engine refactor check: oracle in bf16 must reproduce the bf16 fixture ----------
+# ---- 3a. engine refactor check: the oracle path in bf16 ----------------------------------
 python3 -m deciders.clef.oracle --requests 'fixtures/requests/*.jsonl' --out runs/bf16-recheck \
   --dtype bfloat16 --revision "$(python3 -c "import json;print(json.load(open('fixtures/clef-flash/bfloat16/manifest.json'))['revision'])")"
-python3 scripts/parity.py fixtures/clef-flash/bfloat16 runs/bf16-recheck --max-dp 0.005 --mean-dp 0.001 \
-  --json runs/parity_bf16_recheck.json > runs/parity_bf16_recheck.md || echo "BF16 RECHECK: FAIL"
+if [ ${#REGRESSION_ARGS[@]} -gt 0 ]; then   # same GPU: must reproduce the bf16 fixture
+  python3 scripts/parity.py fixtures/clef-flash/bfloat16 runs/bf16-recheck --max-dp 0.005 --mean-dp 0.001 \
+    --json runs/parity_bf16_recheck.json > runs/parity_bf16_recheck.md || echo "BF16 RECHECK: FAIL"
+else                                        # other GPU: within bf16 tolerance of the truth
+  python3 scripts/parity.py fixtures/clef-flash/float32 runs/bf16-recheck --max-dp 0.025 --mean-dp 0.0025 \
+    --json runs/parity_bf16_recheck.json > runs/parity_bf16_recheck.md || echo "BF16 RECHECK: FAIL"
+fi
 head -14 runs/parity_bf16_recheck.md
 
 # ---- 3b. fp32 math-kernel bound on everything but trunc_16k ---------------------------------
@@ -102,7 +119,7 @@ for p in runs/*.md runs/*.json runs/*.log runs/*.err runs/http-bfloat16 runs/bf1
   [ -e "$p" ] && git add -f "$p"   # add what exists; a missing dir must not empty the commit
 done
 git commit -q --allow-empty -m "parity: worker image over HTTP vs bf16 fixture, bf16 recheck, fp32 math bound ($(nvidia-smi --query-gpu=name --format=csv,noheader | head -1))" \
-  -m "Produced by scripts/pod_http_parity.sh. Image commit ${WORKER_DECIDE_COMMIT:-unknown}; repo commit $(git rev-parse --short HEAD). HTTP gate: $([ "${HTTP_OK:-0}" = 1 ] && echo PASS || echo FAIL)."
+  -m "Produced by scripts/pod_http_parity.sh. Image commit ${WORKER_DECIDE_COMMIT:-unknown}; repo commit $(git rev-parse --short HEAD). HTTP gates (correctness$([ ${#REGRESSION_ARGS[@]} -gt 0 ] && echo " + regression" || echo ", regression skipped: $POD_GPU")): $([ "${HTTP_OK:-0}" = 1 ] && echo PASS || echo FAIL)."
 if [ -n "${GH_TOKEN:-}" ]; then
   # Token in a header via -c, not in the URL (keeps it out of ps and remote config), the way actions/checkout does.
   AUTH=$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)
