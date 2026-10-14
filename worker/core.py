@@ -36,6 +36,7 @@ def config_from_env(env: dict[str, str] | None = None) -> EngineConfig:
         max_length=int(e.get("MAX_LENGTH", "16384")),
         sdp=e.get("SDP", "efficient"),
         expect_code_sha=e.get("CODE_SHA", PINNED_CODE_SHA) or None,
+        warmup=e.get("WARMUP", "0").strip().lower() in {"1", "true", "yes"},
     )
 
 
@@ -48,11 +49,15 @@ class Outcome:
 class WorkerCore:
     def __init__(self, engine: Any):
         self.engine = engine
+        timeline = getattr(engine, "timeline", None)
+        if timeline is not None:  # both transports build the core, then start serving
+            timeline.mark("ready")
         m = engine.manifest()
         self.info = {
             k: m.get(k)
             for k in ("model", "revision", "dtype", "sdp", "gdn_fast_path", "versions", "gpu",
-                      "worker_decide_commit", "load_s")
+                      "worker_decide_commit", "load_s", "snapshot_source", "warmup_s",
+                      "timeline")
         }  # fmt: skip
         self.info["code_sha"] = (m.get("files", {}).get("joint_schema_model.py") or {}).get(
             "sha256"

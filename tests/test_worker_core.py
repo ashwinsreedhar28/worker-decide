@@ -109,6 +109,34 @@ def test_handle_job_pops_debug_and_marks_failures_with_error():
     assert bad["error"] == "invalid request" and bad["status"] == 400 and bad["problems"]
 
 
+def test_warmup_is_off_unless_asked():
+    assert wc.config_from_env({}).warmup is False
+    assert wc.config_from_env({"WARMUP": "1"}).warmup is True
+    assert wc.config_from_env({"WARMUP": "true"}).warmup is True
+    assert wc.config_from_env({"WARMUP": "0"}).warmup is False
+
+
+def test_core_marks_ready_and_exposes_the_timeline():
+    import time
+
+    from deciders.clef.engine import Timeline
+
+    class TimedEngine(FakeEngine):
+        def __init__(self):
+            super().__init__()
+            self.timeline = Timeline(origin=time.time() - 5.0)
+            self.timeline.mark("weights_loaded")
+
+        def manifest(self):
+            return {**super().manifest(), "timeline": self.timeline.as_dict()}
+
+    c = wc.WorkerCore(TimedEngine())
+    marks = c.info["timeline"]["marks"]
+    assert list(marks) == ["weights_loaded", "ready"] and marks["ready"] >= marks["weights_loaded"]
+    o = c.decide(BODY, debug=True)
+    assert o.body["debug"]["engine"]["timeline"]["marks"]["ready"] == marks["ready"]
+
+
 def test_config_from_env_defaults_and_overrides():
     cfg = wc.config_from_env({})
     assert cfg.dtype == "bfloat16" and cfg.revision == wc.PINNED_REVISION
