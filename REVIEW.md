@@ -264,3 +264,52 @@ H100 (sm_90) and the A40 (sm_86) only — the listing's other pools (A100-class
 sm_80, Ada) have not been gated yet; the worker has not been run in fp32 over
 HTTP; peak GPU memory at 16k tokens is unmeasured; and the 13 s snapshot fetch
 was either a fast link or a host-side cache, undetermined (milestone 3).
+
+## Milestone 3 — cold-start benchmark
+
+Goal: time-to-first-answer for a cold Clef-flash worker on Runpod, split into
+where the time goes, across the ways weights reach the GPU. Every arm keeps
+passing the correctness gate.
+
+Arms (A40 queue endpoint, reconfigured between arms): **A** container disk
+(download at start, billed); **B** Model Store (host cache, not billed);
+**C** network volume (`clef-oracle`, pins the endpoint to US-CA-2); **D**
+FlashBoot on A or B. The original plan's compile-cache arm is dropped: the
+transformers path runs eagerly, so there is nothing to cache (it belongs to the
+SGLang arm, milestone 4).
+
+What the Oct 14 runs already showed (hand-read from logs): the L40S cold start
+took ~2 min, ~90 s of it before the worker process existed (scheduling, image
+pull, container create) and ~29 s inside it; the A40 took 32 s in-process.
+Two hosts fetched the 19 GB snapshot in 13 s and 15 s, which points to a fast
+link rather than a host cache — the timeline's bytes count settles it. So the
+benchmark has to measure outside the process, not only inside it.
+
+Run:
+
+```
+make check
+python scripts/coldstart.py <ENDPOINT_ID> runs/coldstart-<arm>-<gpu> --runs 10 --label <arm>-<gpu>
+```
+
+(endpoint idle timeout 5 s during the benchmark; `$RUNPOD_API_KEY` set; the
+image must include the timeline, i.e. be built from this milestone's code).
+
+Audit points:
+
+- `resolve_model_store` serves only the pinned revision and raises naming the
+  revisions present otherwise; the CODE_SHA check still runs after it.
+- The timeline is measured from process start (`/proc`), labelled
+  `engine_init` where `/proc` is absent. `platform_est_s` (Runpod's delayTime
+  minus the worker's process-start → ready) is an estimate and is labelled so.
+- "Cold" means no running or initializing worker for two consecutive /health
+  readings. Idle slots (scaled down, not billed) count as cold, but their count
+  is recorded per sample, because a start onto one may skip the image pull. A
+  first start on a fresh host is measured once per new endpoint and labelled.
+- Cold samples under 2 s of queue delay are flagged `suspect_warm` and excluded
+  from the summary.
+- `WARMUP` is off by default until the cold-vs-warm execution times show it
+  pays for itself.
+
+Out of scope: SGLang/CUDA-graph caching, lazy image loading (eStargz, SOCI,
+Nydus), concurrency, cost per 1k decisions (milestone 5).

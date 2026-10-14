@@ -21,7 +21,7 @@ worker/app.py            HTTP entry for load-balancing endpoints (FastAPI)
 fixtures/requests/       SystemOne request bodies (Pulse 50, edge cases, coverage, images)
 fixtures/clef-flash/     float32 (truth) and bfloat16 (serving) reference outputs + manifests
 fixtures/labels/         Haiku labels for the Pulse 50 (scripts/haiku_eval.py)
-scripts/                 parity.py, parity_http.py, compare_runs.py, haiku_eval.py, make_fixtures.py, pod_*.sh
+scripts/                 parity.py, parity_http.py, compare_runs.py, coldstart.py, haiku_eval.py, make_fixtures.py, pod_*.sh
 tests/                   CPU-only tests (fake engine for the worker)
 Dockerfile               CUDA 13.0 image; .github/workflows/image.yml publishes to GHCR
 ```
@@ -64,6 +64,15 @@ Environment variables (defaults baked into the image):
 | `TRANSPORT` | `queue` | `queue` or `http` |
 | `PORT`, `PORT_HEALTH` | `8000` | HTTP transport; set both to the same value on the endpoint |
 | `HF_HOME` | `/runpod-volume/.cache/huggingface` | weights cache (network volume) |
+| `WARMUP` | `0` | `1` runs one throwaway forward at startup so the first request is not cold |
+
+Weights are found in this order: Runpod Model Store (an endpoint's "cached
+model", mounted at `/runpod-volume/huggingface-cache/hub`) if it holds the
+pinned revision — a different revision there fails loudly rather than loading
+unpinned weights — then the HF cache under `HF_HOME`, then a download. Every
+worker reports how its snapshot arrived and a startup timeline (seconds from
+process start to snapshot, imports, weights, warm-up, ready) in `GET /` and the
+debug block.
 
 ### Deploying on Runpod Serverless
 
