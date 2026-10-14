@@ -8,7 +8,7 @@ import parity
 
 
 def _rec(rid, questions, error=None, encoding=True):
-    rec = {"id": rid, "questions": questions, "error": error}
+    rec = {"id": rid, "request_sha": f"req-{rid}", "questions": questions, "error": error}
     if encoding:
         rec["encoding"] = {
             "input_tokens": 100,
@@ -96,13 +96,26 @@ def test_near_tie_defaults_to_twice_max_dp(tmp_path):
     assert not rep.passed  # the old default would have failed a within-bar run
 
 
+def test_request_gate_reported_first_and_skipped_when_absent(tmp_path):
+    run = copy.deepcopy(ORACLE)
+    run[0]["request_sha"] = "other-body"
+    run[0]["questions"][0]["probs"] = [0.2, 0.7, 0.1]  # numeric failure too; request comes first
+    rep = _run(tmp_path, run)
+    assert not rep.passed and rep.by["a"].request == "mismatch"
+    assert rep.by["a"].reasons[0].startswith("request gate: sha req-a")
+    assert rep.by["boom"].request == "ok"  # checked on error records as well
+    run = [{k: v for k, v in r.items() if k != "request_sha"} for r in copy.deepcopy(ORACLE)]
+    rep = _run(tmp_path, run)
+    assert rep.passed and rep.by["a"].request == "n/a"
+
+
 def test_span_gate_reported_before_numbers(tmp_path):
     run = copy.deepcopy(ORACLE)
     run[0]["encoding"]["spans_sha"] = "different"
     rep = _run(tmp_path, run)
     assert not rep.passed
     assert rep.by["a"].span == "mismatch"
-    assert rep.by["a"].reasons[0].startswith("span gate: spans")
+    assert rep.by["a"].request == "ok" and rep.by["a"].reasons[0].startswith("span gate: spans")
 
 
 def test_missing_encoding_is_na_not_failure(tmp_path):

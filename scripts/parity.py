@@ -2,8 +2,11 @@
 """Parity gate: compare a run directory against the oracle directory, record by record.
 
 Both directories hold one JSON per record id (see deciders/clef/oracle.py for the schema).
-Two gates, reported in this order:
+Three gates, reported in this order:
 
+0. request gate  both records carry `request_sha` (sha256 of the canonical request body) and
+                 they match. Catches a run made against different fixtures. Skipped ("n/a")
+                 when either side lacks it.
 1. span gate     the run encoded the request to the same token ids and the same question /
                  option spans as the oracle (sha256 of each). Encoding drift is the silent
                  failure mode, so it is reported before any numbers. A run file without an
@@ -50,6 +53,7 @@ class RecordResult:
     record: str
     status: str  # PASS | FAIL | SKIP
     reasons: list[str] = field(default_factory=list)
+    request: str = "n/a"  # ok | mismatch | n/a
     span: str = "n/a"  # ok | mismatch | n/a
     mean_dp: float | None = None
     questions: list[QuestionResult] = field(default_factory=list)
@@ -69,12 +73,14 @@ class Report:
     def summary_lines(self) -> list[str]:
         n = len(self.records)
         fails = [r for r in self.records if r.status == "FAIL"]
+        reqs = sum(1 for r in self.records if r.request == "mismatch")
         spans = sum(1 for r in self.records if r.span == "mismatch")
         ties = sum(1 for r in self.records for q in r.questions if q.near_tie)
         worst = max((q.max_dp for r in self.records for q in r.questions), default=0.0)
         lines = [
             f"| records | {n} |",
             f"| failed | {len(fails)} |",
+            f"| request mismatches | {reqs} |",
             f"| span mismatches | {spans} |",
             f"| max \\|Δp\\| (worst question) | {worst:.4f} (bar {self.max_dp}) |",
             f"| mean of record means | "
@@ -111,6 +117,13 @@ def compare_record(o: dict, r: dict | None, max_dp: float, near_tie: float) -> R
         res.status = "FAIL"
         res.reasons.append("missing in run")
         return res
+
+    osha, rsha = o.get("request_sha"), r.get("request_sha")
+    if osha and rsha:
+        res.request = "ok" if osha == rsha else "mismatch"
+        if res.request == "mismatch":
+            res.status = "FAIL"
+            res.reasons.append(f"request gate: sha {osha[:12]} vs {rsha[:12]}")
 
     if o.get("error"):
         if r.get("error"):
@@ -210,7 +223,9 @@ def render(report: Report) -> str:
     if fails:
         lines += ["## Failures", ""]
         for r in fails:
-            lines.append(f"- **{r.record}** (span {r.span}): " + "; ".join(r.reasons))
+            lines.append(
+                f"- **{r.record}** (request {r.request}, span {r.span}): " + "; ".join(r.reasons)
+            )
         lines.append("")
     ties = [q for r in report.records for q in r.questions if q.near_tie]
     if ties:
