@@ -149,6 +149,14 @@ def test_mean_of_means_bar(tmp_path):
     assert rep.overall_mean_dp > 0.002
 
 
+def test_question_mean_max_dp_is_informational(tmp_path):
+    run = copy.deepcopy(ORACLE)
+    run[0]["questions"][0]["probs"] = [0.69, 0.205, 0.105]  # max 0.01; other two questions 0
+    rep = _run(tmp_path, run)
+    assert rep.passed and abs(rep.question_mean_max_dp - 0.01 / 3) < 1e-9
+    assert "mean of question max" in "\n".join(rep.summary_lines())
+
+
 def test_render_has_table_and_sections(tmp_path):
     run = copy.deepcopy(ORACLE)
     run[1]["questions"][0]["probs"] = [0.495, 0.505]

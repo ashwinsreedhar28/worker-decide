@@ -13,7 +13,9 @@ Three gates, reported in this order:
                  `encoding` block (e.g. converted hosted responses) skips this gate: "n/a".
 2. numeric gate  per question: argmax equal where the oracle's top-2 margin > near-tie
                  (near-ties are listed, not failed); max |Δp| ≤ MAX_DP. Over the whole run:
-                 mean over records of each record's mean |Δp| ≤ MEAN_DP. near-tie defaults to
+                 mean over records of each record's mean |Δp| ≤ MEAN_DP. Reported alongside,
+                 not judged: the mean over questions of each question's max |Δp|, which a
+                 255-option or 64-question record cannot dilute. near-tie defaults to
                  2·MAX_DP: a run inside the max |Δp| bar can only flip an argmax when the
                  oracle's margin is below that, so a smaller near-tie would fail within-bar runs.
 
@@ -69,6 +71,7 @@ class Report:
     records: list[RecordResult]
     overall_mean_dp: float | None
     passed: bool
+    question_mean_max_dp: float | None = None  # informational
 
     def summary_lines(self) -> list[str]:
         n = len(self.records)
@@ -77,6 +80,7 @@ class Report:
         spans = sum(1 for r in self.records if r.span == "mismatch")
         ties = sum(1 for r in self.records for q in r.questions if q.near_tie)
         worst = max((q.max_dp for r in self.records for q in r.questions), default=0.0)
+        qmean = self.question_mean_max_dp
         lines = [
             f"| records | {n} |",
             f"| failed | {len(fails)} |",
@@ -86,6 +90,8 @@ class Report:
             f"| mean of record means | "
             f"{'n/a' if self.overall_mean_dp is None else f'{self.overall_mean_dp:.5f}'} "
             f"(bar {self.mean_dp}) |",
+            f"| mean of question max \\|Δp\\| (info) | "
+            f"{'n/a' if qmean is None else f'{qmean:.5f}'} |",
             f"| near-ties (not judged) | {ties} |",
             f"| result | {'PASS' if self.passed else 'FAIL'} |",
         ]
@@ -205,6 +211,7 @@ def compare(
     means = [r.mean_dp for r in records if r.mean_dp is not None]
     overall = sum(means) / len(means) if means else None
     passed = all(r.status != "FAIL" for r in records) and (overall is None or overall <= mean_dp)
+    qmax = [q.max_dp for r in records for q in r.questions]
     return Report(
         oracle_dir=str(oracle_dir),
         run_dir=str(run_dir),
@@ -214,6 +221,7 @@ def compare(
         records=records,
         overall_mean_dp=overall,
         passed=passed,
+        question_mean_max_dp=sum(qmax) / len(qmax) if qmax else None,
     )
 
 
