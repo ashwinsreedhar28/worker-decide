@@ -2,20 +2,27 @@
 """Parity gate: compare a run directory against the oracle directory, record by record.
 
 Both directories hold one JSON per record id (see deciders/clef/oracle.py for the schema).
-Two gates, reported in this order:
+Three gates, reported in this order:
 
+0. request gate  both records carry `request_sha` (sha256 of the canonical request body) and
+                 they match. Catches a run made against different fixtures. Skipped ("n/a")
+                 when either side lacks it.
 1. span gate     the run encoded the request to the same token ids and the same question /
                  option spans as the oracle (sha256 of each). Encoding drift is the silent
                  failure mode, so it is reported before any numbers. A run file without an
                  `encoding` block (e.g. converted hosted responses) skips this gate: "n/a".
-2. numeric gate  per question: argmax equal where the oracle's top-2 margin > NEAR_TIE
+2. numeric gate  per question: argmax equal where the oracle's top-2 margin > near-tie
                  (near-ties are listed, not failed); max |Δp| ≤ MAX_DP. Over the whole run:
-                 mean over records of each record's mean |Δp| ≤ MEAN_DP.
+                 mean over records of each record's mean |Δp| ≤ MEAN_DP. Reported alongside,
+                 not judged: the mean over questions of each question's max |Δp|, which a
+                 255-option or 64-question record cannot dilute. near-tie defaults to
+                 2·MAX_DP: a run inside the max |Δp| bar can only flip an argmax when the
+                 oracle's margin is below that, so a smaller near-tie would fail within-bar runs.
 
 Error records (oracle has `error`, e.g. schema_overflow) pass iff the run also errored.
 
 Usage:
-    python scripts/parity.py ORACLE_DIR RUN_DIR [--max-dp 0.02] [--mean-dp 0.002] [--near-tie 0.02]
+    python scripts/parity.py ORACLE_DIR RUN_DIR [--max-dp 0.02] [--mean-dp 0.002] [--near-tie 0.04]
                                                 [--json report.json]
 Exit 0 on pass, 1 on any failure.
 """
@@ -30,7 +37,6 @@ from pathlib import Path
 
 MAX_DP = 0.02
 MEAN_DP = 0.002
-NEAR_TIE = 0.02
 
 
 @dataclass
@@ -49,6 +55,7 @@ class RecordResult:
     record: str
     status: str  # PASS | FAIL | SKIP
     reasons: list[str] = field(default_factory=list)
+    request: str = "n/a"  # ok | mismatch | n/a
     span: str = "n/a"  # ok | mismatch | n/a
     mean_dp: float | None = None
     questions: list[QuestionResult] = field(default_factory=list)
@@ -64,21 +71,27 @@ class Report:
     records: list[RecordResult]
     overall_mean_dp: float | None
     passed: bool
+    question_mean_max_dp: float | None = None  # informational
 
     def summary_lines(self) -> list[str]:
         n = len(self.records)
         fails = [r for r in self.records if r.status == "FAIL"]
+        reqs = sum(1 for r in self.records if r.request == "mismatch")
         spans = sum(1 for r in self.records if r.span == "mismatch")
         ties = sum(1 for r in self.records for q in r.questions if q.near_tie)
         worst = max((q.max_dp for r in self.records for q in r.questions), default=0.0)
+        qmean = self.question_mean_max_dp
         lines = [
             f"| records | {n} |",
             f"| failed | {len(fails)} |",
+            f"| request mismatches | {reqs} |",
             f"| span mismatches | {spans} |",
             f"| max \\|Δp\\| (worst question) | {worst:.4f} (bar {self.max_dp}) |",
             f"| mean of record means | "
             f"{'n/a' if self.overall_mean_dp is None else f'{self.overall_mean_dp:.5f}'} "
             f"(bar {self.mean_dp}) |",
+            f"| mean of question max \\|Δp\\| (info) | "
+            f"{'n/a' if qmean is None else f'{qmean:.5f}'} |",
             f"| near-ties (not judged) | {ties} |",
             f"| result | {'PASS' if self.passed else 'FAIL'} |",
         ]
@@ -110,6 +123,13 @@ def compare_record(o: dict, r: dict | None, max_dp: float, near_tie: float) -> R
         res.status = "FAIL"
         res.reasons.append("missing in run")
         return res
+
+    osha, rsha = o.get("request_sha"), r.get("request_sha")
+    if osha and rsha:
+        res.request = "ok" if osha == rsha else "mismatch"
+        if res.request == "mismatch":
+            res.status = "FAIL"
+            res.reasons.append(f"request gate: sha {osha[:12]} vs {rsha[:12]}")
 
     if o.get("error"):
         if r.get("error"):
@@ -182,13 +202,16 @@ def compare(
     run_dir: Path,
     max_dp: float = MAX_DP,
     mean_dp: float = MEAN_DP,
-    near_tie: float = NEAR_TIE,
+    near_tie: float | None = None,
 ) -> Report:
+    if near_tie is None:
+        near_tie = 2 * max_dp
     oracle, run = _load_dir(oracle_dir), _load_dir(run_dir)
     records = [compare_record(o, run.get(rid), max_dp, near_tie) for rid, o in oracle.items()]
     means = [r.mean_dp for r in records if r.mean_dp is not None]
     overall = sum(means) / len(means) if means else None
     passed = all(r.status != "FAIL" for r in records) and (overall is None or overall <= mean_dp)
+    qmax = [q.max_dp for r in records for q in r.questions]
     return Report(
         oracle_dir=str(oracle_dir),
         run_dir=str(run_dir),
@@ -198,6 +221,7 @@ def compare(
         records=records,
         overall_mean_dp=overall,
         passed=passed,
+        question_mean_max_dp=sum(qmax) / len(qmax) if qmax else None,
     )
 
 
@@ -207,7 +231,9 @@ def render(report: Report) -> str:
     if fails:
         lines += ["## Failures", ""]
         for r in fails:
-            lines.append(f"- **{r.record}** (span {r.span}): " + "; ".join(r.reasons))
+            lines.append(
+                f"- **{r.record}** (request {r.request}, span {r.span}): " + "; ".join(r.reasons)
+            )
         lines.append("")
     ties = [q for r in report.records for q in r.questions if q.near_tie]
     if ties:
@@ -233,7 +259,7 @@ def main() -> None:
     ap.add_argument("run_dir", type=Path)
     ap.add_argument("--max-dp", type=float, default=MAX_DP)
     ap.add_argument("--mean-dp", type=float, default=MEAN_DP)
-    ap.add_argument("--near-tie", type=float, default=NEAR_TIE)
+    ap.add_argument("--near-tie", type=float, default=None, help="default 2 x max-dp")
     ap.add_argument("--json", type=Path, help="also write the full report as JSON")
     a = ap.parse_args()
     report = compare(a.oracle_dir, a.run_dir, a.max_dp, a.mean_dp, a.near_tie)

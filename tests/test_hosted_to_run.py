@@ -48,3 +48,10 @@ def test_convert(tmp_path):
     assert rec["questions"][0]["option_ids"] == ["0", "1", "2"]
     assert rec["questions"][0]["probs"] == [0.21, 0.49, 0.3]
     assert "encoding" not in rec and rec["request_sha"] == "abc"
+
+
+def test_align_by_option_id_and_skip_mismatches():
+    assert hosted_to_run._align({"y": 0.3, "x": 0.7}, ["x", "y"]) == [0.7, 0.3]
+    assert hosted_to_run._align([0.2, 0.8], ["x", "y"]) == [0.2, 0.8]
+    assert hosted_to_run._align({"x": 0.7, "z": 0.3}, ["x", "y"]) is None  # wrong ids
+    assert hosted_to_run._align([0.2, 0.5, 0.3], ["x", "y"]) is None  # wrong length

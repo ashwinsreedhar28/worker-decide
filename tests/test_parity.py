@@ -8,7 +8,7 @@ import parity
 
 
 def _rec(rid, questions, error=None, encoding=True):
-    rec = {"id": rid, "questions": questions, "error": error}
+    rec = {"id": rid, "request_sha": f"req-{rid}", "questions": questions, "error": error}
     if encoding:
         rec["encoding"] = {
             "input_tokens": 100,
@@ -76,9 +76,37 @@ def test_argmax_flip_fails_but_near_tie_is_listed_not_failed(tmp_path):
     tie_q = rep.by["tie"].questions[0]
     assert tie_q.near_tie and tie_q.argmax_ok is None
     run[0]["questions"][0]["probs"] = [0.2, 0.7, 0.1]  # clear flip
-    rep = _run(tmp_path, run, max_dp=1.0, mean_dp=1.0)
+    rep = _run(tmp_path, run, max_dp=1.0, mean_dp=1.0, near_tie=0.02)
     assert not rep.passed
     assert any("argmax x → y" in s for s in rep.by["a"].reasons)
+
+
+def test_near_tie_defaults_to_twice_max_dp(tmp_path):
+    # Oracle margin 0.03, run flips it with every option moving ≤ 0.016: inside the 0.02 bar.
+    oracle = copy.deepcopy(ORACLE)
+    oracle[1]["questions"][0]["probs"] = [0.515, 0.485]
+    run = copy.deepcopy(oracle)
+    run[1]["questions"][0]["probs"] = [0.499, 0.501]
+    o, r = tmp_path / "oracle", tmp_path / "run"
+    _write(o, oracle)
+    _write(r, run)
+    rep = parity.compare(o, r, mean_dp=0.01)
+    assert rep.near_tie == 0.04 and rep.passed  # listed as a tie, not an argmax failure
+    rep = parity.compare(o, r, mean_dp=0.01, near_tie=0.02)
+    assert not rep.passed  # the old default would have failed a within-bar run
+
+
+def test_request_gate_reported_first_and_skipped_when_absent(tmp_path):
+    run = copy.deepcopy(ORACLE)
+    run[0]["request_sha"] = "other-body"
+    run[0]["questions"][0]["probs"] = [0.2, 0.7, 0.1]  # numeric failure too; request comes first
+    rep = _run(tmp_path, run)
+    assert not rep.passed and rep.by["a"].request == "mismatch"
+    assert rep.by["a"].reasons[0].startswith("request gate: sha req-a")
+    assert rep.by["boom"].request == "ok"  # checked on error records as well
+    run = [{k: v for k, v in r.items() if k != "request_sha"} for r in copy.deepcopy(ORACLE)]
+    rep = _run(tmp_path, run)
+    assert rep.passed and rep.by["a"].request == "n/a"
 
 
 def test_span_gate_reported_before_numbers(tmp_path):
@@ -87,7 +115,7 @@ def test_span_gate_reported_before_numbers(tmp_path):
     rep = _run(tmp_path, run)
     assert not rep.passed
     assert rep.by["a"].span == "mismatch"
-    assert rep.by["a"].reasons[0].startswith("span gate: spans")
+    assert rep.by["a"].request == "ok" and rep.by["a"].reasons[0].startswith("span gate: spans")
 
 
 def test_missing_encoding_is_na_not_failure(tmp_path):
@@ -119,6 +147,14 @@ def test_mean_of_means_bar(tmp_path):
     assert not rep.passed
     assert all(r.status == "PASS" for r in rep.records)
     assert rep.overall_mean_dp > 0.002
+
+
+def test_question_mean_max_dp_is_informational(tmp_path):
+    run = copy.deepcopy(ORACLE)
+    run[0]["questions"][0]["probs"] = [0.69, 0.205, 0.105]  # max 0.01; other two questions 0
+    rep = _run(tmp_path, run)
+    assert rep.passed and abs(rep.question_mean_max_dp - 0.01 / 3) < 1e-9
+    assert "mean of question max" in "\n".join(rep.summary_lines())
 
 
 def test_render_has_table_and_sections(tmp_path):

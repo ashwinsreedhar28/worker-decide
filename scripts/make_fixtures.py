@@ -248,12 +248,44 @@ WORDS40 = [
 ]
 
 
-def make_images() -> list[dict]:
-    from PIL import Image, ImageDraw, ImageFont
+FONTS = {  # first path that exists wins; Pillow's bundled font otherwise
+    "mono": [
+        "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",
+        "/System/Library/Fonts/Menlo.ttc",
+        "C:/Windows/Fonts/consola.ttf",
+    ],
+    "bold": [
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+        "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+        "C:/Windows/Fonts/arialbd.ttf",
+    ],
+}
 
-    IMG.mkdir(parents=True, exist_ok=True)
-    mono = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf", 22)
-    bold = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 26)
+
+def _font(kind: str, size: int):
+    from PIL import ImageFont
+
+    for path in FONTS[kind]:
+        if Path(path).exists():
+            return ImageFont.truetype(path, size)
+    try:
+        return ImageFont.load_default(size=size)  # Pillow >= 10.1
+    except TypeError:
+        return ImageFont.load_default()
+
+
+def make_images(out_dir: Path = IMG) -> list[dict]:
+    """Render the image fixtures into out_dir and return their request records.
+
+    The committed PNGs under fixtures/requests/images are the bytes the oracle was run on;
+    rendering elsewhere (another font, another matplotlib) gives different bytes. Tests render
+    into a temp dir and a pinned-sha test guards the committed files.
+    """
+    from PIL import Image, ImageDraw
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+    mono = _font("mono", 22)
+    bold = _font("bold", 26)
 
     # 1. receipt: legible total
     im = Image.new("RGB", (480, 640), "white")
@@ -270,7 +302,7 @@ def make_images() -> list[dict]:
     d.line((40, y + 6, 440, y + 6), fill="black", width=2)
     d.text((40, y + 20), f"{'TOTAL':<22}{'27.48':>8}", font=bold, fill="black")
     d.text((40, y + 70), "VISA ****4421   10/11/2026", font=mono, fill="black")
-    im.save(IMG / "receipt.png")
+    im.save(out_dir / "receipt.png")
 
     # 2. chart: a bar chart whose tallest bar is unambiguous
     import matplotlib
@@ -283,7 +315,7 @@ def make_images() -> list[dict]:
     ax.set_title("Revenue by quarter ($M)")
     ax.set_ylim(0, 35)
     fig.tight_layout()
-    fig.savefig(IMG / "chart.png")
+    fig.savefig(out_dir / "chart.png")
     plt.close(fig)
 
     # 3. no text: colored shapes
@@ -292,7 +324,7 @@ def make_images() -> list[dict]:
     d.ellipse((60, 60, 260, 260), fill=(220, 50, 50))
     d.rectangle((280, 280, 460, 460), fill=(40, 90, 200))
     d.polygon([(300, 60), (460, 60), (380, 220)], fill=(40, 160, 90))
-    im.save(IMG / "shapes.png")
+    im.save(out_dir / "shapes.png")
 
     recs = []
 
@@ -366,18 +398,16 @@ def make_images() -> list[dict]:
     im = Image.new("RGB", (448, 448), (30, 30, 40))
     d = ImageDraw.Draw(im)
     d.rectangle((40, 40, 408, 200), fill=(255, 200, 0))
-    d.text((60, 90), "STOP", font=ImageFont.truetype(bold.path, 72), fill="black")
-    im.save(IMG / "sign448.png")
+    d.text((60, 90), "STOP", font=_font("bold", 72), fill="black")
+    im.save(out_dir / "sign448.png")
 
     im = Image.new("RGB", (2048, 1536), "white")
     d = ImageDraw.Draw(im)
-    big = ImageFont.truetype(bold.path, 160)
+    big = _font("bold", 160)
     d.text((120, 200), "GATE B12", font=big, fill="black")
     d.text((120, 500), "BOARDING 14:05", font=big, fill=(200, 0, 0))
-    d.text(
-        (120, 800), "FLIGHT DL 448 TO ATL", font=ImageFont.truetype(mono.path, 110), fill="black"
-    )
-    im.save(IMG / "board2048.png")
+    d.text((120, 800), "FLIGHT DL 448 TO ATL", font=_font("mono", 110), fill="black")
+    im.save(out_dir / "board2048.png")
 
     pair(
         "sign448",

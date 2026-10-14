@@ -79,9 +79,9 @@ set -- $DTYPES
 ORACLE_DTYPE="$1"; shift
 ORACLE_OUT="fixtures/clef-flash/$ORACLE_DTYPE"
 python -m deciders.clef.oracle --requests $REQ --out "$ORACLE_OUT" --dtype "$ORACLE_DTYPE" ${REVISION:+--revision $REVISION}
-for dt in "$@"; do
-  python -m deciders.clef.oracle --requests $REQ --out "runs/$dt" --dtype "$dt" ${REVISION:+--revision $REVISION}
-  python scripts/parity.py "$ORACLE_OUT" "runs/$dt" --json "runs/parity_${dt}.json" > "runs/parity_${dt}.md" || true
+for dt in "$@"; do   # comparison dtypes are references too (serving arms gate against their own dtype)
+  python -m deciders.clef.oracle --requests $REQ --out "fixtures/clef-flash/$dt" --dtype "$dt" ${REVISION:+--revision $REVISION}
+  python scripts/parity.py "$ORACLE_OUT" "fixtures/clef-flash/$dt" --json "runs/parity_${dt}.json" > "runs/parity_${dt}.md" || true
   head -12 "runs/parity_${dt}.md"
 done
 python scripts/parity.py "$ORACLE_OUT" "$ORACLE_OUT" > runs/parity_selfcheck.md
@@ -98,8 +98,8 @@ git config user.name "worker-decide pod"
 git config user.email "pod@worker-decide.invalid"
 git checkout -q -b "$BRANCH"
 git add "$ORACLE_OUT"
+for dt in "$@"; do git add "fixtures/clef-flash/$dt"; done
 git add -f runs/*.md runs/*.json runs/pod_oracle.log runs/dry runs/hosted   # runs/ is gitignored for local work
-for dt in "$@"; do git add -f "runs/$dt"; done
 git commit -q -m "oracle: $MODEL $ORACLE_DTYPE on $(nvidia-smi --query-gpu=name --format=csv,noheader | head -1), rev $REV7" \
   -m "Produced by scripts/pod_oracle.sh. manifest: $ORACLE_OUT/manifest.json. Comparison dtypes: $*."
 if [ -n "${GH_TOKEN:-}" ]; then
