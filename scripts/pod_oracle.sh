@@ -52,7 +52,7 @@ python -m pip install -q --upgrade pip
 python -m pip install -q -r requirements-oracle.txt
 if ! python -c "import torch; assert torch.cuda.is_available(); print('cuda', torch.version.cuda, torch.cuda.get_device_name(0))"; then
   echo "default torch wheel can't init CUDA on this host; falling back to the cu126 wheel"
-  python -m pip install -q --force-reinstall --no-deps --index-url https://download.pytorch.org/whl/cu126 torch==2.11.0
+  python -m pip install -q --force-reinstall --no-deps --index-url https://download.pytorch.org/whl/cu126 torch==2.11.0 torchvision==0.26.0
   python -c "import torch; assert torch.cuda.is_available(); print('cuda', torch.version.cuda, torch.cuda.get_device_name(0))"
 fi
 python -c "import transformers; from transformers import Qwen3_5ForConditionalGeneration; print('transformers', transformers.__version__)"
