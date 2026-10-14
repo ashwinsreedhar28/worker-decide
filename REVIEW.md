@@ -100,3 +100,56 @@ Two kernel caveats, neither measured yet:
 - Timings (fp32, batch 1): ~150 ms for 200–300 tokens, ~350 ms for 850, 6.1 s
   for 16,384; bf16 roughly 0.6× of that.
 
+
+## Milestone 2 — worker shell (engine, queue + HTTP transports, image)
+
+Goal: serve Clef-flash on Runpod with the oracle's numbers. One engine
+(`deciders/clef/engine.py`) behind two transports; a parity run over HTTP
+against the bf16 fixture is the gate.
+
+Run (CPU):
+
+```
+make check                                                   # 54 tests, fake engine for the worker
+python -c "import worker.app"                                 # the app imports without torch
+```
+
+Run (GPU, via `scripts/pod_http_parity.sh` on a pod from the image):
+
+```
+python scripts/parity_http.py http://127.0.0.1:8000 runs/http-bfloat16 \
+    --reference fixtures/clef-flash/bfloat16 --max-dp 0.005 --also fixtures/clef-flash/float32
+```
+
+Expect:
+
+- HTTP parity vs `fixtures/clef-flash/bfloat16`: 0 request mismatches, 0 span
+  mismatches, 87/87 pass at max |Δp| 0.005 (same dtype, same kernels; on a
+  different GPU type a few 1e-3 differences are plausible, a 1e-2 one is not).
+  `schema_overflow` errors on both sides. The informational report vs fp32
+  should look like `runs/parity_bfloat16.md` (one marginal question).
+- bf16 re-check (oracle path after the engine refactor) vs the bf16 fixture:
+  PASS at 0.005; on an H100 expect max |Δp| ≈ 0.
+- fp32 math-kernel bound (`runs/parity_fp32_math.md`, `--subset`, trunc_16k
+  excluded): whatever it is, it is recorded; the REVIEW.md caveat is replaced
+  by the number.
+- Image build: `image` workflow green; the build asserts torch 2.11.0+cu130
+  and transformers 5.10.2.
+
+Audit points:
+
+- `worker/core.py` is the only place requests are interpreted; both
+  transports call it, and the tests drive it with a fake engine
+  (`tests/test_worker_core.py`, `tests/test_worker_app.py`).
+- `worker/core.py` pins `MODEL_REVISION` and `CODE_SHA` to the oracle manifest
+  (`tests/test_worker_core.py::test_pins_match_the_oracle_manifest`); the
+  engine refuses to execute snapshot code whose sha differs.
+- `debug` is a request-header opt-in on HTTP and an `input.debug` flag on the
+  queue path; neither changes `request_sha` (popped/stripped before hashing).
+- `scripts/parity_http.py` computes `request_sha` locally from the fixture, so
+  a worker that hashed a different body fails the request gate.
+- `Dockerfile`: pins come from `requirements-oracle.txt`; weights are not in
+  the image; `CMD` not `ENTRYPOINT`.
+
+Out of scope: dynamic batching, SGLang, caching/cold-start arms, Typical
+backend, Hub listing (`.runpod/hub.json`, next).
