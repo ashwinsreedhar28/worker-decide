@@ -1,0 +1,108 @@
+{
+  "tests": [
+    {
+      "name": "route_support_ticket",
+      "input": {
+        "state": "Ticket #4821: the checkout page returns a 500 error after entering a card number. Started about an hour ago; three other customers report the same.",
+        "questions": {
+          "department": {
+            "type": "choice",
+            "instructions": "Which team should own this ticket?",
+            "criteria": {
+              "billing": "Payments and invoices",
+              "technical": "Bugs and outages",
+              "sales": "Pricing and plans"
+            }
+          }
+        }
+      },
+      "timeout": 1800000
+    },
+    {
+      "name": "yes_no_probability",
+      "input": {
+        "state": "The customer attached a receipt and asks to return a damaged order.",
+        "questions": {
+          "receipt": {
+            "type": "noul",
+            "instructions": "Does the customer have a receipt?"
+          }
+        }
+      },
+      "timeout": 1800000
+    },
+    {
+      "name": "ordinal_urgency",
+      "input": {
+        "state": "Production database is down for all users in the EU region.",
+        "questions": {
+          "urgency": {
+            "type": "score",
+            "instructions": "How urgent is this?",
+            "criteria": [
+              "can wait a week",
+              "this week",
+              "today",
+              "within the hour",
+              "right now"
+            ]
+          }
+        }
+      },
+      "timeout": 1800000
+    },
+    {
+      "name": "three_questions_json_state_debug",
+      "input": {
+        "state": {
+          "order_condition": "damaged",
+          "receipt_available": true,
+          "request": "replacement today"
+        },
+        "questions": {
+          "route": {
+            "type": "choice",
+            "instructions": "Which team should handle this request?",
+            "criteria": {
+              "returns": "Refunds, replacements and damaged deliveries",
+              "billing": "Payments, invoices and charges",
+              "technical": "Product setup and faults"
+            }
+          },
+          "receipt": {
+            "type": "noul",
+            "instructions": "Does the customer have a receipt?"
+          },
+          "urgency": {
+            "type": "score",
+            "instructions": "How urgent is this request?",
+            "criteria": [
+              "routine",
+              "soon",
+              "today"
+            ]
+          }
+        },
+        "debug": true
+      },
+      "timeout": 1800000
+    }
+  ],
+  "config": {
+    "gpuTypeId": "NVIDIA A40",
+    "gpuCount": 1,
+    "allowedCudaVersions": [
+      "13.0"
+    ],
+    "env": [
+      {
+        "key": "DTYPE",
+        "value": "bfloat16"
+      },
+      {
+        "key": "RUNPOD_INIT_TIMEOUT",
+        "value": "1800"
+      }
+    ]
+  }
+}
