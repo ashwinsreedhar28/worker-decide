@@ -17,7 +17,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     PIP_BREAK_SYSTEM_PACKAGES=1
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends python3 python3-pip ca-certificates \
+    && apt-get install -y --no-install-recommends python3 python3-pip ca-certificates git \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -47,5 +47,6 @@ ENV BASE_PATH=${BASE_PATH} \
     PORT_HEALTH=8000 \
     WORKER_DECIDE_COMMIT=${WORKER_DECIDE_COMMIT}
 
-# TRANSPORT=queue -> runpod.serverless handler; TRANSPORT=http -> uvicorn on $PORT
-ENTRYPOINT ["python3", "-m", "worker"]
+# TRANSPORT=queue -> runpod.serverless handler; TRANSPORT=http -> uvicorn on $PORT.
+# CMD, not ENTRYPOINT, so a pod template's start command can replace it (scripts/pod_http_parity.sh).
+CMD ["python3", "-m", "worker"]
