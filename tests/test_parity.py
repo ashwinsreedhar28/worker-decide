@@ -136,6 +136,14 @@ def test_missing_record_and_error_mismatch_fail(tmp_path):
     assert not rep.passed and "oracle errored" in rep.by["boom"].reasons[0]
 
 
+def test_subset_skips_missing_records_instead_of_failing(tmp_path):
+    run = [r for r in copy.deepcopy(ORACLE) if r["id"] != "boom"]
+    assert not _run(tmp_path, run).passed
+    rep = _run(tmp_path, run, subset=True)
+    assert rep.passed and rep.skipped == 1 and {r.record for r in rep.records} == {"a", "tie"}
+    assert "+1 skipped" in rep.summary_lines()[2]
+
+
 def test_mean_of_means_bar(tmp_path):
     run = copy.deepcopy(ORACLE)
     for q in run[0]["questions"]:

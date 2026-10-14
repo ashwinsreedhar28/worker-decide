@@ -20,10 +20,12 @@ Three gates, reported in this order:
                  oracle's margin is below that, so a smaller near-tie would fail within-bar runs.
 
 Error records (oracle has `error`, e.g. schema_overflow) pass iff the run also errored.
+With --subset, oracle records missing from the run are skipped (counted, not failed): for runs
+that deliberately cover part of the set, e.g. the fp32 math-kernel bound on the short records.
 
 Usage:
     python scripts/parity.py ORACLE_DIR RUN_DIR [--max-dp 0.02] [--mean-dp 0.002] [--near-tie 0.04]
-                                                [--json report.json]
+                                                [--subset] [--json report.json]
 Exit 0 on pass, 1 on any failure.
 """
 
@@ -72,6 +74,7 @@ class Report:
     overall_mean_dp: float | None
     passed: bool
     question_mean_max_dp: float | None = None  # informational
+    skipped: int = 0  # oracle records absent from the run under --subset
 
     def summary_lines(self) -> list[str]:
         n = len(self.records)
@@ -82,7 +85,7 @@ class Report:
         worst = max((q.max_dp for r in self.records for q in r.questions), default=0.0)
         qmean = self.question_mean_max_dp
         lines = [
-            f"| records | {n} |",
+            f"| records | {n}{f' (+{self.skipped} skipped, --subset)' if self.skipped else ''} |",
             f"| failed | {len(fails)} |",
             f"| request mismatches | {reqs} |",
             f"| span mismatches | {spans} |",
@@ -203,10 +206,15 @@ def compare(
     max_dp: float = MAX_DP,
     mean_dp: float = MEAN_DP,
     near_tie: float | None = None,
+    subset: bool = False,
 ) -> Report:
     if near_tie is None:
         near_tie = 2 * max_dp
     oracle, run = _load_dir(oracle_dir), _load_dir(run_dir)
+    skipped = 0
+    if subset:
+        skipped = sum(1 for rid in oracle if rid not in run)
+        oracle = {rid: o for rid, o in oracle.items() if rid in run}
     records = [compare_record(o, run.get(rid), max_dp, near_tie) for rid, o in oracle.items()]
     means = [r.mean_dp for r in records if r.mean_dp is not None]
     overall = sum(means) / len(means) if means else None
@@ -222,6 +230,7 @@ def compare(
         overall_mean_dp=overall,
         passed=passed,
         question_mean_max_dp=sum(qmax) / len(qmax) if qmax else None,
+        skipped=skipped,
     )
 
 
@@ -260,9 +269,10 @@ def main() -> None:
     ap.add_argument("--max-dp", type=float, default=MAX_DP)
     ap.add_argument("--mean-dp", type=float, default=MEAN_DP)
     ap.add_argument("--near-tie", type=float, default=None, help="default 2 x max-dp")
+    ap.add_argument("--subset", action="store_true", help="skip oracle records absent from the run")
     ap.add_argument("--json", type=Path, help="also write the full report as JSON")
     a = ap.parse_args()
-    report = compare(a.oracle_dir, a.run_dir, a.max_dp, a.mean_dp, a.near_tie)
+    report = compare(a.oracle_dir, a.run_dir, a.max_dp, a.mean_dp, a.near_tie, a.subset)
     print(render(report))
     if a.json:
         a.json.write_text(json.dumps(asdict(report), indent=1))
