@@ -28,6 +28,9 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_MODEL = "Cloudflare/clef-flash"
+# Runpod Model Store ("cached model" on an endpoint) mounts models here, in Hugging Face hub-cache
+# layout; custom workers must resolve the path themselves (docs.runpod.io model-caching).
+MODEL_STORE_ROOT = Path("/runpod-volume/huggingface-cache/hub")
 TYPE_NAMES = {0: "noul", 1: "choice", 2: "score"}
 CODE_FILE = "joint_schema_model.py"
 
@@ -111,6 +114,34 @@ def images_from_data_urls(urls: list[str]) -> list[Any]:
     return out
 
 
+def resolve_model_store(model: str, revision: str | None, root: Path) -> Path | None:
+    """The Model Store snapshot to load from, or None to fall back to the Hub.
+
+    Only the pinned revision is accepted: if the store holds this model at a different commit,
+    this raises instead of silently serving unpinned weights (the parity reference and the
+    CODE_SHA pin both refer to one commit). Unpinned (revision None) follows refs/main.
+    """
+    repo = root / ("models--" + model.replace("/", "--"))
+    if not repo.is_dir():
+        return None
+    snapshots = repo / "snapshots"
+    if revision:
+        snap = snapshots / revision
+        if snap.is_dir():
+            return snap
+        present = sorted(p.name for p in snapshots.iterdir()) if snapshots.is_dir() else []
+        raise RuntimeError(
+            f"Model Store has {model} at {[r[:7] for r in present] or 'no snapshots'}, but this "
+            f"worker is pinned to {revision[:7]}. Set the endpoint's cached model to that "
+            "revision, or clear MODEL_REVISION and CODE_SHA to serve what the store holds "
+            "(voids parity)."
+        )
+    ref = repo / "refs" / "main"
+    if ref.is_file() and (snapshots / ref.read_text().strip()).is_dir():
+        return snapshots / ref.read_text().strip()
+    return None
+
+
 def git_commit() -> str | None:
     """HEAD of the checkout, or WORKER_DECIDE_COMMIT (baked into the image at build time)."""
     try:
@@ -167,7 +198,13 @@ class ClefEngine:
         from huggingface_hub import snapshot_download
 
         self.cfg = cfg
-        self.snapshot = Path(snapshot_download(cfg.model, revision=cfg.revision))
+        store_root = Path(os.environ.get("MODEL_STORE_ROOT", str(MODEL_STORE_ROOT)))
+        stored = resolve_model_store(cfg.model, cfg.revision, store_root)
+        if stored is not None:
+            self.snapshot, self.snapshot_source = stored, "model_store"
+        else:
+            self.snapshot = Path(snapshot_download(cfg.model, revision=cfg.revision))
+            self.snapshot_source = "hf_hub"
         code_sha = hashlib.sha256((self.snapshot / CODE_FILE).read_bytes()).hexdigest()
         if cfg.expect_code_sha and code_sha != cfg.expect_code_sha:
             raise RuntimeError(
@@ -294,6 +331,7 @@ class ClefEngine:
             "model": self.cfg.model,
             "revision": self.snapshot.name,  # snapshots/<commit sha>
             "snapshot_path": str(self.snapshot),
+            "snapshot_source": self.snapshot_source,  # model_store | hf_hub
             "files": file_shas(self.snapshot),
             "dtype": self.cfg.dtype,
             "device": self.cfg.device,

@@ -70,3 +70,49 @@ def test_images_from_data_urls_roundtrip_and_rejections():
     for bad in ["https://example.com/x.png", "data:image/png;base64,!!!", 42]:
         with pytest.raises(ValueError, match="images\\[0\\]"):
             engine.images_from_data_urls([bad])
+
+
+def _store(root, model, revisions, main=None):
+    repo = root / ("models--" + model.replace("/", "--"))
+    for rev in revisions:
+        (repo / "snapshots" / rev).mkdir(parents=True)
+    if main:
+        (repo / "refs").mkdir(parents=True)
+        (repo / "refs" / "main").write_text(main + "\n")
+    return repo
+
+
+PINNED = "8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3"
+
+
+def test_model_store_serves_the_pinned_revision(tmp_path):
+    repo = _store(tmp_path, "Cloudflare/clef-flash", [PINNED, "17f0b0a" + "0" * 33])
+    got = engine.resolve_model_store("Cloudflare/clef-flash", PINNED, tmp_path)
+    assert got == repo / "snapshots" / PINNED
+
+
+def test_model_store_with_another_revision_fails_loudly(tmp_path):
+    _store(tmp_path, "Cloudflare/clef-flash", ["17f0b0a" + "0" * 33])
+    with pytest.raises(RuntimeError, match=r"\['17f0b0a'\].*pinned to 8b2e5fd"):
+        engine.resolve_model_store("Cloudflare/clef-flash", PINNED, tmp_path)
+
+
+def test_no_model_store_falls_back_to_the_hub(tmp_path):
+    assert engine.resolve_model_store("Cloudflare/clef-flash", PINNED, tmp_path) is None
+    _store(tmp_path, "someone/else", [PINNED])  # a different model in the store
+    assert engine.resolve_model_store("Cloudflare/clef-flash", PINNED, tmp_path) is None
+
+
+def test_unpinned_follows_refs_main(tmp_path):
+    rev = "17f0b0a" + "0" * 33
+    repo = _store(tmp_path, "Cloudflare/clef-flash", [rev], main=rev)
+    assert (
+        engine.resolve_model_store("Cloudflare/clef-flash", None, tmp_path)
+        == repo / "snapshots" / rev
+    )
+    _store(tmp_path, "x/y", [rev])  # no refs/main: nothing to follow
+    assert engine.resolve_model_store("x/y", None, tmp_path) is None
+
+
+def test_model_store_root_is_runpods_documented_path():
+    assert str(engine.MODEL_STORE_ROOT) == "/runpod-volume/huggingface-cache/hub"

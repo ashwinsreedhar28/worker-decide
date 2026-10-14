@@ -52,7 +52,7 @@ class WorkerCore:
         self.info = {
             k: m.get(k)
             for k in ("model", "revision", "dtype", "sdp", "gdn_fast_path", "versions", "gpu",
-                      "worker_decide_commit", "load_s")
+                      "worker_decide_commit", "load_s", "snapshot_source")
         }  # fmt: skip
         self.info["code_sha"] = (m.get("files", {}).get("joint_schema_model.py") or {}).get(
             "sha256"
