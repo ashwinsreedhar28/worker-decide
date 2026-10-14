@@ -1,0 +1,22 @@
+{
+  "input": {
+    "state": "Ticket #4821: Customer reports the checkout page returns a 500 error after entering a card number. Started about an hour ago; three other customers mention the same thing.",
+    "questions": {
+      "department": {
+        "type": "choice",
+        "instructions": "Which team should own this ticket?",
+        "criteria": {"billing": "Payments and invoices", "technical": "Bugs and outages", "sales": "Pricing and plans"}
+      },
+      "urgency": {
+        "type": "score",
+        "instructions": "How urgent is this ticket?",
+        "criteria": ["can wait a week", "this week", "today", "within the hour", "right now"]
+      },
+      "outage": {
+        "type": "noul",
+        "instructions": "Does the ticket describe an ongoing outage affecting multiple customers?"
+      }
+    },
+    "debug": true
+  }
+}
