@@ -1,0 +1,12 @@
+{
+ "base": "http://127.0.0.1:8000",
+ "reference": "fixtures/clef-flash/bfloat16",
+ "counts": {
+  "ok": 86,
+  "error": 1
+ },
+ "requests": [
+  "/root/worker-decide/fixtures/requests/*.jsonl"
+ ],
+ "finished_utc": "2026-10-14T21:21:14Z"
+}

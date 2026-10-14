@@ -1,0 +1,103 @@
+INFO:     Started server process [226]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files:  65%|██████▍   | 11/17 [00:00<00:00, 51.61it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 18.43it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 21.04it/s]
+INFO:     127.0.0.1:38978 - "GET /ping HTTP/1.1" 204 No Content
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+Loading weights:   0%|          | 0/760 [00:00<?, ?it/s]Loading weights:   0%|          | 1/760 [00:00<03:31,  3.59it/s]Loading weights:   0%|          | 2/760 [00:00<03:58,  3.18it/s]Loading weights:   4%|▎         | 27/760 [00:00<00:13, 53.44it/s]Loading weights:   6%|▌         | 46/760 [00:00<00:08, 81.71it/s]Loading weights:   9%|▉         | 68/760 [00:00<00:06, 110.46it/s]Loading weights:  12%|█▏        | 93/760 [00:01<00:04, 144.56it/s]Loading weights:  15%|█▍        | 112/760 [00:01<00:04, 153.33it/s]Loading weights:  18%|█▊        | 134/760 [00:01<00:03, 163.83it/s]Loading weights:  20%|██        | 154/760 [00:01<00:03, 166.91it/s]Loading weights:  24%|██▍       | 185/760 [00:01<00:02, 204.04it/s]INFO:     127.0.0.1:38992 - "GET /ping HTTP/1.1" 204 No Content
+Loading weights:  27%|██▋       | 207/760 [00:01<00:03, 177.75it/s]Loading weights:  31%|███▏      | 238/760 [00:01<00:02, 209.98it/s]Loading weights:  34%|███▍      | 261/760 [00:01<00:02, 191.07it/s]Loading weights:  38%|███▊      | 292/760 [00:02<00:02, 215.08it/s]Loading weights:  41%|████▏     | 315/760 [00:02<00:02, 198.16it/s]Loading weights:  45%|████▌     | 344/760 [00:02<00:01, 218.49it/s]Loading weights:  48%|████▊     | 367/760 [00:02<00:02, 186.96it/s]Loading weights:  52%|█████▏    | 395/760 [00:02<00:01, 206.98it/s]Loading weights:  55%|█████▌    | 418/760 [00:02<00:01, 191.66it/s]Loading weights:  76%|███████▌  | 577/760 [00:02<00:00, 533.98it/s]Loading weights: 100%|██████████| 760/760 [00:02<00:00, 263.32it/s]
+INFO:     127.0.0.1:39002 - "GET /ping HTTP/1.1" 204 No Content
+INFO:     127.0.0.1:49256 - "GET /ping HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49272 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49282 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49288 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49298 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49314 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49322 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49334 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49338 - "POST /v1/decide HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:49346 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49362 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49364 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49370 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49376 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49392 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49404 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49418 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49426 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49434 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49440 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49452 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45974 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45976 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45984 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45986 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45996 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46010 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46024 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46038 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46042 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46048 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46058 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46060 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46068 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46078 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46086 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46102 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46116 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46132 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46144 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58676 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58682 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58686 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58692 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58706 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58720 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58722 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58736 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58752 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58756 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58772 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58784 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58796 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58808 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58812 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58828 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58842 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58856 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58872 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58884 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58888 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58890 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58902 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58906 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58918 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58932 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58946 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58954 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58956 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58972 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58974 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58978 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58988 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59002 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59018 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59020 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59022 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59026 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59038 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59040 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59046 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59060 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59070 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59078 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59082 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35016 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35032 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35046 - "POST /v1/decide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35048 - "GET / HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [226]
