@@ -1,0 +1,12 @@
+{
+ "base": "https://i7yketlkgfzh7w.api.runpod.ai",
+ "reference": "fixtures/clef-flash/bfloat16",
+ "counts": {
+  "ok": 86,
+  "error": 1
+ },
+ "requests": [
+  "/Users/ashwinsreedhar/worker-decide/fixtures/requests/*.jsonl"
+ ],
+ "finished_utc": "2026-10-14T22:04:17Z"
+}
