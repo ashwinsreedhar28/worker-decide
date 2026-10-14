@@ -28,11 +28,10 @@
 #                 Oct 14 oracle run left the weights)
 #   PORT          default 8000
 #   STAGE         default all; "http" stops after step 2
-#   KEEP_ALIVE    default 0; 1 = sleep forever at the end so the pod can be inspected
+#   EXIT_WHEN_DONE default 0; 1 = exit after pushing instead of holding the pod open
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
-[ -n "${KEEP_ALIVE:-}" ] || KEEP_ALIVE=0
 GH_REPO="${GH_REPO:-ashwinsreedhar28/worker-decide}"
 PORT="${PORT:-8000}"
 STAGE="${STAGE:-all}"
@@ -113,5 +112,12 @@ else
   echo "GH_TOKEN unset: results committed locally on $BRANCH, not pushed"
 fi
 echo "== done $(date -u +%FT%TZ) =="
-[ "${KEEP_ALIVE:-0}" = "1" ] && sleep infinity
-exit 0
+# Hold the container open: Runpod restarts the command when it exits, and a restart re-runs
+# the whole thing against the existing checkout (Oct 14: a passing run looked like a crash
+# loop because `[ x = 1 ] && sleep infinity` returns 1 under set -e). Stop the pod from the
+# console when the branch has landed; EXIT_WHEN_DONE=1 to exit instead.
+if [ "${EXIT_WHEN_DONE:-0}" = "1" ]; then
+  exit 0
+fi
+echo "holding the pod open; stop it from the Runpod console"
+exec sleep infinity

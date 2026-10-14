@@ -16,7 +16,7 @@
 #   DTYPES        default "float32 bfloat16"; the first is written as the oracle (fixtures/),
 #                 the rest as runs/<dtype>/ and compared against it
 #   STAGE         default all; "dry" stops after the dry run (cheap smoke test)
-#   KEEP_ALIVE    default 0; 1 = sleep forever at the end so the pod can be inspected
+#   EXIT_WHEN_DONE default 0; 1 = exit after pushing instead of holding the pod open
 #
 # Everything the run produces is committed to oracle/<model>-<rev7>-<yyyymmdd> and pushed.
 set -euo pipefail
@@ -109,5 +109,11 @@ else
   echo "GH_TOKEN unset: results committed locally on $BRANCH, not pushed"
 fi
 echo "== done $(date -u +%FT%TZ) =="
-[ "${KEEP_ALIVE:-0}" = "1" ] && sleep infinity
-exit 0
+# Hold the container open rather than exiting: Runpod restarts the command on exit and the
+# restart re-runs everything. (And `[ x = 1 ] && sleep infinity` returns 1 under set -e, so
+# the old line killed the script before `exit 0`.) Stop the pod once the branch has landed.
+if [ "${EXIT_WHEN_DONE:-0}" = "1" ]; then
+  exit 0
+fi
+echo "holding the pod open; stop it from the Runpod console"
+exec sleep infinity

@@ -125,8 +125,10 @@ report in `runs/`, self-check, parity against the hosted Workers AI
 responses, then commit everything to `oracle/clef-flash-<rev7>-<yyyymmdd>` and
 push. Open that branch as a PR; its `runs/parity_*.md` files are the review.
 
-Set `KEEP_ALIVE=1` to keep the pod up afterwards for inspection; otherwise
-stop it once the branch appears.
+Both pod scripts hold the container open after pushing (Runpod restarts the
+command when it exits, and the restart re-runs the whole job) — stop the pod
+from the console once the branch appears, or set `EXIT_WHEN_DONE=1` to have the
+script exit instead.
 
 See `CONTRIBUTING.md` for commit rules and `REVIEW.md` for what to audit per
 milestone.
