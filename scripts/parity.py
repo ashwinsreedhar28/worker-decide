@@ -8,14 +8,16 @@ Two gates, reported in this order:
                  option spans as the oracle (sha256 of each). Encoding drift is the silent
                  failure mode, so it is reported before any numbers. A run file without an
                  `encoding` block (e.g. converted hosted responses) skips this gate: "n/a".
-2. numeric gate  per question: argmax equal where the oracle's top-2 margin > NEAR_TIE
+2. numeric gate  per question: argmax equal where the oracle's top-2 margin > near-tie
                  (near-ties are listed, not failed); max |Δp| ≤ MAX_DP. Over the whole run:
-                 mean over records of each record's mean |Δp| ≤ MEAN_DP.
+                 mean over records of each record's mean |Δp| ≤ MEAN_DP. near-tie defaults to
+                 2·MAX_DP: a run inside the max |Δp| bar can only flip an argmax when the
+                 oracle's margin is below that, so a smaller near-tie would fail within-bar runs.
 
 Error records (oracle has `error`, e.g. schema_overflow) pass iff the run also errored.
 
 Usage:
-    python scripts/parity.py ORACLE_DIR RUN_DIR [--max-dp 0.02] [--mean-dp 0.002] [--near-tie 0.02]
+    python scripts/parity.py ORACLE_DIR RUN_DIR [--max-dp 0.02] [--mean-dp 0.002] [--near-tie 0.04]
                                                 [--json report.json]
 Exit 0 on pass, 1 on any failure.
 """
@@ -30,7 +32,6 @@ from pathlib import Path
 
 MAX_DP = 0.02
 MEAN_DP = 0.002
-NEAR_TIE = 0.02
 
 
 @dataclass
@@ -182,8 +183,10 @@ def compare(
     run_dir: Path,
     max_dp: float = MAX_DP,
     mean_dp: float = MEAN_DP,
-    near_tie: float = NEAR_TIE,
+    near_tie: float | None = None,
 ) -> Report:
+    if near_tie is None:
+        near_tie = 2 * max_dp
     oracle, run = _load_dir(oracle_dir), _load_dir(run_dir)
     records = [compare_record(o, run.get(rid), max_dp, near_tie) for rid, o in oracle.items()]
     means = [r.mean_dp for r in records if r.mean_dp is not None]
@@ -233,7 +236,7 @@ def main() -> None:
     ap.add_argument("run_dir", type=Path)
     ap.add_argument("--max-dp", type=float, default=MAX_DP)
     ap.add_argument("--mean-dp", type=float, default=MEAN_DP)
-    ap.add_argument("--near-tie", type=float, default=NEAR_TIE)
+    ap.add_argument("--near-tie", type=float, default=None, help="default 2 x max-dp")
     ap.add_argument("--json", type=Path, help="also write the full report as JSON")
     a = ap.parse_args()
     report = compare(a.oracle_dir, a.run_dir, a.max_dp, a.mean_dp, a.near_tie)
