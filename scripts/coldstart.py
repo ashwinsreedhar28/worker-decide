@@ -100,6 +100,21 @@ def run_job(api, job, interval=1.0, timeout=1800.0, sleep=time.sleep, clock=time
     return {**final, "client_wall_s": round(clock() - t0, 3)}
 
 
+def segments(marks: dict[str, float], fetch_s: float | None) -> dict[str, float | None]:
+    """Durations between consecutive timeline marks (the marks themselves are cumulative)."""
+
+    def gap(a: str, b: str) -> float | None:
+        return round(marks[b] - marks[a], 3) if a in marks and b in marks else None
+
+    return {
+        "startup_s": marks.get("engine_init"),  # process start -> engine init (Python, imports)
+        "fetch_s": fetch_s,
+        "import_s": gap("snapshot_resolved", "model_code_imported"),  # torch, transformers, jsm
+        "weights_s": gap("model_code_imported", "weights_loaded"),
+        "warmup_s": gap("weights_loaded", "warmup_done"),
+    }
+
+
 def extract(status: dict[str, Any]) -> dict[str, Any]:
     """The fields the benchmark keeps from one /status response."""
     out = status.get("output") or {}
@@ -116,9 +131,16 @@ def extract(status: dict[str, Any]) -> dict[str, Any]:
         "client_wall_s": status.get("client_wall_s"),
         "gpu": engine.get("gpu"),
         "snapshot_source": fetch.get("source") or engine.get("snapshot_source"),
-        "fetch_bytes": fetch.get("bytes_added_to_cache"),
         "fetch_s": fetch.get("seconds"),
+        # v2 (from image clef-<sha> after the Oct 14 fix): bytes written during the fetch,
+        # counted on the disk and under HF_HOME, plus the resolved snapshot size. v1 only had
+        # blob-dir growth, which saw ~130 KB for a 19 GB snapshot and is not a transfer measure.
+        "fetch_metric": "v2" if "bytes_written" in fetch else ("v1" if fetch else None),
+        "bytes_written": fetch.get("bytes_written"),
+        "snapshot_bytes": fetch.get("snapshot_bytes"),
+        "snapshot_dir_existed": fetch.get("snapshot_dir_existed"),
         "marks": marks,
+        "segments": segments(marks, fetch.get("seconds")),
         "timeline_basis": timeline.get("basis"),
         "warmup_s": engine.get("warmup_s"),
         # submission -> process start, estimated as Runpod's delay minus the worker's own
@@ -155,7 +177,16 @@ def iteration(api, job, settle_timeout=900.0, interval=5.0, sleep=time.sleep, cl
         "suspect_warm": c["status"] == "COMPLETED" and c["delay_s"] < SUSPECT_WARM_DELAY_S,
         "cold": c,
         "warm": extract(warm) if warm else None,
+        # Runpod's responses as received, so a later extraction fix can be re-applied.
+        "raw": {"cold": cold, "warm": warm or None},
     }
+
+
+def percentile(sorted_values: list[float], p: float) -> float:
+    """Nearest-rank percentile. (Oct 14: int(n * p) as an index made p90 the max at n = 10.)"""
+    import math
+
+    return sorted_values[max(0, math.ceil(p * len(sorted_values)) - 1)]
 
 
 def _stats(values: list[float]) -> dict[str, float] | None:
@@ -165,7 +196,7 @@ def _stats(values: list[float]) -> dict[str, float] | None:
     return {
         "n": len(v),
         "median": round(statistics.median(v), 3),
-        "p90": round(v[min(len(v) - 1, int(len(v) * 0.9))], 3),
+        "p90": round(percentile(v, 0.9), 3),
         "min": v[0],
         "max": v[-1],
     }
@@ -175,19 +206,42 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
     ok = [r for r in rows if r["cold"]["status"] == "COMPLETED" and not r.get("suspect_warm")]
     cold = [r["cold"] for r in ok]
     warm = [r["warm"] for r in ok if r.get("warm")]
+
+    def seg(key):  # recomputed from marks so old run files get the same treatment
+        return _stats([segments(c["marks"], c.get("fetch_s")).get(key) for c in cold])
+
+    gb = [c["bytes_written"] / 1e9 for c in cold if c.get("bytes_written") is not None]
+    rate = [c["bytes_written"] / 1e9 / c["fetch_s"] for c in cold
+            if c.get("bytes_written") and c.get("fetch_s")]  # fmt: skip
     return {
         "iterations": len(rows),
         "completed": len(ok),
         "suspect_warm_excluded": sum(1 for r in rows if r.get("suspect_warm")),
         "gpus": sorted({c["gpu"] for c in cold if c["gpu"]}),
-        "snapshot_sources": sorted({c["snapshot_source"] for c in cold if c["snapshot_source"]}),
+        # v1 told hf_download from hf_cache by blob growth (unsound: ~130 KB seen for 19 GB);
+        # its model_store label came from the path check and stands.
+        "snapshot_sources": sorted(
+            {
+                c["snapshot_source"]
+                for c in cold
+                if c["snapshot_source"]
+                and (c.get("fetch_metric") == "v2" or c["snapshot_source"] == "model_store")
+            }
+        ),
+        "fetch_metrics": sorted({c.get("fetch_metric") or "v1" for c in cold}),
         "idle_before": [r["idle_before"] for r in ok],
+        "workers": [c["worker_id"] for c in cold],
         "workers_seen": len({c["worker_id"] for c in cold}),
         "cold_delay_s": _stats([c["delay_s"] for c in cold]),
         "platform_est_s": _stats([c["platform_est_s"] for c in cold]),
         "ready_s": _stats([c["marks"].get("ready") for c in cold]),
-        "fetch_s": _stats([c["fetch_s"] for c in cold]),
-        "weights_loaded_s": _stats([c["marks"].get("weights_loaded") for c in cold]),
+        "startup_s": seg("startup_s"),
+        "fetch_s": seg("fetch_s"),
+        "import_s": seg("import_s"),
+        "weights_s": seg("weights_s"),
+        "warmup_s": seg("warmup_s"),
+        "fetch_gb": _stats(gb),
+        "fetch_gb_per_s": _stats(rate),
         "cold_exec_s": _stats([c["exec_s"] for c in cold]),
         "warm_exec_s": _stats([w["exec_s"] for w in warm]),
     }
@@ -198,8 +252,13 @@ def render(label: str, s: dict[str, Any]) -> str:
         ("cold: queue delay (Runpod delayTime)", "cold_delay_s"),
         ("  platform: submit -> process start (est.)", "platform_est_s"),
         ("  worker: process start -> ready", "ready_s"),
+        ("    startup (Python, worker imports)", "startup_s"),
         ("    snapshot fetch", "fetch_s"),
-        ("    weights loaded (mark)", "weights_loaded_s"),
+        ("    import torch / transformers / model code", "import_s"),
+        ("    weight load", "weights_s"),
+        ("    warm-up forward", "warmup_s"),
+        ("fetch: GB written during it", "fetch_gb"),
+        ("fetch: GB/s", "fetch_gb_per_s"),
         ("cold: first execution", "cold_exec_s"),
         ("warm: next execution, same worker", "warm_exec_s"),
     ]
@@ -209,17 +268,28 @@ def render(label: str, s: dict[str, Any]) -> str:
         f"{s['completed']}/{s['iterations']} completed cold starts "
         f"({s['suspect_warm_excluded']} excluded as suspected warm); "
         f"GPU {', '.join(s['gpus']) or '?'}; "
-        f"snapshot {', '.join(s['snapshot_sources']) or '?'}; {s['workers_seen']} distinct "
-        f"workers; idle slots before each submit: {s['idle_before']}",
+        f"snapshot {', '.join(s['snapshot_sources']) or 'not measured (v1)'}; "
+        f"{s['workers_seen']} distinct workers; idle slots before each submit: {s['idle_before']}",
         "",
-        "| segment (seconds) | median | p90 | min | max |",
+        "| segment (seconds unless noted) | median | p90 | min | max |",
         "|---|---|---|---|---|",
     ]
     for name, key in rows:
         st = s.get(key)
-        cells = ["-"] * 4 if not st else [st["median"], st["p90"], st["min"], st["max"]]
-        out.append(f"| {name} | " + " | ".join(str(c) for c in cells) + " |")
+        if not st:
+            continue
+        out.append(f"| {name} | {st['median']} | {st['p90']} | {st['min']} | {st['max']} |")
+    if "v1" in s.get("fetch_metrics", []):
+        out += [
+            "",
+            "Fetch source and bytes here come from the v1 metric (blob-directory growth), which "
+            "saw ~130 KB for a 19 GB snapshot: they are not a transfer measurement.",
+        ]
     return "\n".join(out)
+
+
+def load_rows(out_dir: Path) -> list[dict[str, Any]]:
+    return [json.loads(p.read_text()) for p in sorted(out_dir.glob("run-*.json"))]
 
 
 def main() -> None:
@@ -232,14 +302,24 @@ def main() -> None:
     ap.add_argument("--label", default=None, help="arm name, e.g. disk-a40")
     ap.add_argument("--input", type=Path, default=ROOT / "test_input.json")
     ap.add_argument("--settle-timeout", type=float, default=900.0, help="max wait to go cold, s")
+    ap.add_argument(
+        "--summarize",
+        action="store_true",
+        help="recompute summary.json and the table from OUT_DIR's run files; no API calls",
+    )
     a = ap.parse_args()
+    label = a.label or a.out_dir.name
+    if a.summarize:
+        summary = {"label": label, "endpoint_id": a.endpoint_id, **summarize(load_rows(a.out_dir))}
+        (a.out_dir / "summary.json").write_text(json.dumps(summary, indent=1))
+        print(render(label, summary))
+        return
     token = os.environ.get("RUNPOD_API_KEY")
     if not token:
         sys.exit("RUNPOD_API_KEY is not set")
     job = json.loads(a.input.read_text())
     if not (job.get("input") or {}).get("debug"):
         sys.exit("the input must set input.debug = true, or the worker's timeline is not returned")
-    label = a.label or a.out_dir.name
     api = RunpodAPI(a.endpoint_id, token)
     a.out_dir.mkdir(parents=True, exist_ok=True)
     rows = []
@@ -253,7 +333,8 @@ def main() -> None:
         c = row["cold"]
         print(
             f"[{i}/{a.runs}] {c['status']} delay {c['delay_s']} s, ready {c['marks'].get('ready')} "
-            f"s, platform~{c['platform_est_s']} s, fetch {c['snapshot_source']} {c['fetch_s']} s, "
+            f"s, platform~{c['platform_est_s']} s, fetch {c['snapshot_source']} {c['fetch_s']} s "
+            f"({(c['bytes_written'] or 0) / 1e9:.2f} GB written), "
             f"exec {c['exec_s']} s / warm {(row['warm'] or {}).get('exec_s')} s, "
             f"idle before {row['idle_before']}",
             file=sys.stderr,
