@@ -231,7 +231,8 @@ Hub's test endpoint). Driven from a laptop over the public URL.
   (2 × max-dp = 0.05; 19 of 179 questions fall inside it); max |Δp| ≤ 0.025;
   mean of record means ≤ 0.0025. Both measured GPUs pass with headroom (H100
   0.0211 / 0.00155, A40 0.0163 / 0.00122). Set from two GPUs, so provisional
-  until an Ada run confirms or tightens it.
+  until an Ada run confirms or tightens it. **Confirmed on Ada (L40S) the same
+  night, with thin margin: 0.0225 / 0.00143** — see the L40S results below.
 - **Regression, same GPU as the reference** — `--regression
   fixtures/clef-flash/bfloat16` at 0.005 / 0.001. Detects code changes, not
   hardware. `pod_http_parity.sh` enables it only when the pod's GPU name equals
@@ -258,9 +259,46 @@ included, not a steady-state figure). Checked against the response:
 numerics on this path are covered by the shared `WorkerCore` and the HTTP
 parity runs.
 
+### Results: load-balancing endpoint on an L40S (branch `parity/http-l40s-20261014`)
+
+Same image (`clef-b455d5a`), same requests, a **load-balancing endpoint on an
+L40S** (Ada, sm_89), CUDA 13.0, no volume — the GPU is the only variable
+against the A40 run.
+
+- **Correctness gate: PASS**, 87/87, worst question 0.0225 (bar 0.025), mean
+  of record means 0.00143, 0 request and 0 span mismatches, no argmax failure
+  outside the near-tie window. The bar holds on a third architecture, but the
+  headroom is 0.0025 (H100 0.0039, A40 0.0087). It is not widened for that: it
+  was set as "confirm or tighten on Ada", and widening a bar after seeing data
+  so that it keeps passing is what a gate exists to prevent. The distance to a
+  genuinely different code path stays large — hosted Workers AI was off by
+  0.1435.
+- **The bar is set by one question.** Per GPU, worst question vs fp32
+  (`python scripts/compare_runs.py ...`):
+
+  | GPU | worst | 2nd | worst excluding `img_sign448/word` |
+  |---|---|---|---|
+  | H100 | 0.0211 `img_sign448/word` | 0.0127 `invoice_extract/overdue` | 0.0127 |
+  | A40 | 0.0163 `invoice_extract/overdue` | 0.0115 `img_sign448/word` | 0.0163 |
+  | L40S | 0.0225 `img_sign448/word` | 0.0133 `pulse-9707528/urgency` | 0.0133 |
+
+  Two of three GPUs land closest to the bar on the same question — one word
+  read off a 448-px rendered image — and without it nothing on any GPU passes
+  0.0163. If a future GPU crosses 0.025, look at `img_sign448/word` before
+  the GPU.
+- Across all three, zero clear argmax flips in any pairwise comparison, and
+  every pair of bf16 runs disagrees with each other by more than either
+  disagrees with fp32 (A40 vs L40S 0.0295, A40 vs H100 0.0291).
+- **Cold start, read from the worker log**: ~90 s from the first `/ping` to the
+  worker process starting (scheduling onto an L40S host, image pull, container
+  create — this endpoint's first worker ever), then ~29 s in-process (15 s
+  snapshot fetch, 3 s weight load) to `/ping` 200. In-process time matches the
+  A40's 32 s; the difference is entirely the platform segment. This is what
+  milestone 3's driver now measures per sample.
+
 Known gaps, carried forward: concurrency is one forward at a time, so
 throughput is 1/latency; correctness is measured on the
-H100 (sm_90) and the A40 (sm_86) only — the listing's other pools (A100-class
-sm_80, Ada) have not been gated yet; the worker has not been run in fp32 over
+H100 (sm_90), A40 (sm_86) and L40S (sm_89) only — the listing's A100-class
+pool (sm_80) has not been gated yet; the worker has not been run in fp32 over
 HTTP; peak GPU memory at 16k tokens is unmeasured; and the 13 s snapshot fetch
 was either a fast link or a host-side cache, undetermined (milestone 3).

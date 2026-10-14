@@ -13,7 +13,7 @@ the H100 bf16 run while being closer to fp32 than the H100 was):
 - correctness, any GPU (default, always on): against the fp32 truth. Argmax must agree where
   the fp32 margin exceeds the near-tie window (2 x max-dp); max |dp| <= 0.025, mean of record
   means <= 0.0025. Set from measured bf16 noise on two architectures (H100 worst 0.0211, A40
-  0.0163); provisional until an Ada run confirms it.
+  0.0163) and confirmed on a third (L40S 0.0225; one question, img_sign448/word, sets it).
 - regression, same GPU as the reference (opt-in, --regression DIR): against a bf16 run made on
   the same architecture, at 0.005 / 0.001. It catches code changes, not hardware: two bf16 runs
   on different GPUs disagree by up to ~0.03 while each stays within the correctness bar.
