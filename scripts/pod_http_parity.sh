@@ -51,7 +51,7 @@ python3 -c "import torch, transformers; print('torch', torch.__version__, 'trans
 
 # ---- 1. worker up (its output is tailed to the console so a failed start is visible) ---------
 mkdir -p runs/http-bfloat16
-python3 -m worker > runs/worker.log 2>&1 &
+env -u POD_SCRIPT TRANSPORT=http python3 -m worker > runs/worker.log 2>&1 &   # -u: or it re-runs this script
 WORKER_PID=$!
 tail -n +1 -F runs/worker.log | sed -u 's/^/[worker] /' &
 TAIL_PID=$!

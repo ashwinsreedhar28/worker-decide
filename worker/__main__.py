@@ -38,6 +38,10 @@ def run_pod_script(
     """Clone (retrying: a fresh pod's DNS can take a minute to come up) and exec the script."""
     repo = env.get("REPO_URL", DEFAULT_REPO)
     ref = env.get("REPO_REF", "main")
+    # The script starts the worker with `python3 -m worker`; without this pop that child would
+    # see POD_SCRIPT and run the script again instead of serving (infinite recursion, Oct 14).
+    if env is os.environ:
+        env.pop("POD_SCRIPT", None)
     cmd = ["git", "clone", "--branch", ref, "--depth", "1", repo, str(POD_CHECKOUT)]
     for attempt in range(1, tries + 1):
         if POD_CHECKOUT.exists():

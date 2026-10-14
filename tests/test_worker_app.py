@@ -1,6 +1,7 @@
 """worker/app.py over FastAPI's TestClient with the fake engine from test_worker_core."""
 
 import json
+import os
 import threading
 import time
 
@@ -136,3 +137,22 @@ def test_pod_script_gives_up_after_tries(monkeypatch, tmp_path):
     monkeypatch.setattr(wm.time, "sleep", lambda s: None)
     with pytest.raises(SystemExit, match="giving up"):
         wm.run_pod_script("s.sh", {}, tries=3)
+
+
+def test_pod_script_pops_pod_script_from_the_environment(monkeypatch, tmp_path):
+    """The script launches `python -m worker`; a lingering POD_SCRIPT would recurse."""
+    import subprocess
+
+    from worker import __main__ as wm
+
+    monkeypatch.setenv("POD_SCRIPT", "scripts/pod_http_parity.sh")
+    monkeypatch.setattr(wm, "POD_CHECKOUT", tmp_path / "co")
+    monkeypatch.setattr(
+        wm.subprocess,
+        "run",
+        lambda c, capture_output, text: subprocess.CompletedProcess(c, 0, "", ""),
+    )
+    monkeypatch.setattr(wm.os, "chdir", lambda p: None)
+    monkeypatch.setattr(wm.os, "execvp", lambda f, a: None)
+    wm.run_pod_script("scripts/pod_http_parity.sh")
+    assert "POD_SCRIPT" not in os.environ
