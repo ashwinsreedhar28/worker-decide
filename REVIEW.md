@@ -16,7 +16,7 @@ Run (CPU):
 ```
 make check
 python scripts/parity.py fixtures/clef-flash/float32 fixtures/clef-flash/float32   # self-check
-python scripts/parity.py fixtures/clef-flash/float32 runs/bfloat16                 # on the oracle branch
+python scripts/parity.py fixtures/clef-flash/float32 fixtures/clef-flash/bfloat16  # dtype characterization
 ```
 
 Expect:
@@ -26,7 +26,7 @@ Expect:
 - bf16 vs fp32: span gate ok on every record (same encoder, same ids). The
   numeric comparison characterizes the dtype; it is not the serving gate (see
   Results: one question sits just over the 0.02 bar). The Core AI port saw
-  max |Δp| 0.011 for bf16.
+  max |Δp| 0.011 for bf16. `fixtures/clef-flash/bfloat16` self-check PASS.
 - `runs/dry` checks: long_2k 1500-3000 tokens, trunc_16k exactly 16384,
   schema_overflow errored, pulse-11714037 == 843 tokens (what Workers AI
   billed), board2048 under 4000 tokens.

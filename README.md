@@ -47,8 +47,9 @@ The pod drives itself; nothing to SSH into. Results come back as a branch.
 
 What it does, in order: install the pinned environment, download the snapshot,
 dry run (encoding only) with token-length checks, fp32 oracle over all 87
-records into `fixtures/clef-flash/float32/`, bf16 pass into `runs/bfloat16/`
-with a parity report, self-check, parity against the hosted Workers AI
+records into `fixtures/clef-flash/float32/`, bf16 pass into
+`fixtures/clef-flash/bfloat16/` (the serving-dtype reference) with a parity
+report in `runs/`, self-check, parity against the hosted Workers AI
 responses, then commit everything to `oracle/clef-flash-<rev7>-<yyyymmdd>` and
 push. Open that branch as a PR; its `runs/parity_*.md` files are the review.
 
