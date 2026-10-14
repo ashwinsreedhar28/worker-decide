@@ -7,9 +7,18 @@ license = { text = "Apache-2.0" }
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["ruff>=0.6", "pytest>=8"]
-# The oracle environment is pinned separately in requirements-oracle.txt
-# (torch/transformers versions are tied to the model card's tested pair).
+dev = ["ruff>=0.6", "pytest>=8", "httpx>=0.27", "fastapi>=0.115", "pillow>=10", "matplotlib>=3.8"]
+worker = ["fastapi>=0.115", "uvicorn>=0.30", "runpod>=1.7"]
+# The model environment is pinned separately in requirements-oracle.txt
+# (torch/transformers versions are tied to the model card's tested pair);
+# the worker image installs requirements-oracle.txt plus the `worker` extra.
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["deciders", "deciders.clef", "worker"]
 
 [tool.ruff]
 line-length = 100
