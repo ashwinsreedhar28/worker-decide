@@ -43,8 +43,9 @@ Audit points:
   the torch/transformers versions match the model card's tested pair.
 - `scripts/parity.py` reports the span gate before the numeric gate, and
   near-ties (oracle top-2 margin ≤ 0.02) are listed, not counted as failures.
-- `deciders/clef/oracle.py` calls the snapshot's own `joint_schema_model`
-  functions and nothing else touches logits; batch size is 1.
+- `deciders/clef/engine.py` (shared by the oracle and the worker) calls the
+  snapshot's own `joint_schema_model` functions and nothing else touches
+  logits except the softmax; batch size is 1.
 - The oracle branch commit was made by the pod (`worker-decide pod`), and the
   manifest's `worker_decide_commit` matches a commit on `main`.
 
