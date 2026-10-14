@@ -1,0 +1,112 @@
+{
+  "title": "Clef-flash Decisions",
+  "description": "Answer classification, yes/no probability and ordinal scoring questions about text, JSON or images with Cloudflare's Clef-flash, on the SystemOne request format. Pinned weights and model code; outputs match a published fp32/bf16 reference.",
+  "type": "serverless",
+  "category": "language",
+  "config": {
+    "runsOn": "GPU",
+    "containerDiskInGb": 60,
+    "gpuCount": 1,
+    "gpuIds": "AMPERE_48,ADA_48_PRO,ADA_80_PRO,AMPERE_80",
+    "allowedCudaVersions": [
+      "13.0"
+    ],
+    "presets": [
+      {
+        "name": "Clef-flash bf16",
+        "defaults": {
+          "DTYPE": "bfloat16"
+        }
+      }
+    ],
+    "env": [
+      {
+        "key": "DTYPE",
+        "input": {
+          "name": "Dtype",
+          "type": "string",
+          "description": "bfloat16 is the serving dtype and matches fixtures/clef-flash/bfloat16 exactly. float32 matches the truth reference but needs an 80 GB GPU; this setting does not change the GPU.",
+          "default": "bfloat16",
+          "options": [
+            {
+              "label": "bfloat16",
+              "value": "bfloat16"
+            },
+            {
+              "label": "float32",
+              "value": "float32"
+            }
+          ]
+        }
+      },
+      {
+        "key": "MAX_LENGTH",
+        "input": {
+          "name": "Max input tokens",
+          "type": "number",
+          "description": "Requests are truncated in the state to this many tokens; a schema longer than this is rejected.",
+          "default": 16384,
+          "min": 512,
+          "max": 16384,
+          "advanced": true
+        }
+      },
+      {
+        "key": "MODEL_REVISION",
+        "input": {
+          "name": "Model revision",
+          "type": "string",
+          "description": "Hugging Face commit of Cloudflare/clef-flash. The default is the revision the parity reference was produced from; changing it voids that guarantee.",
+          "default": "8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3",
+          "advanced": true
+        }
+      },
+      {
+        "key": "CODE_SHA",
+        "input": {
+          "name": "Model code sha256",
+          "type": "string",
+          "description": "sha256 of the snapshot's joint_schema_model.py. The worker refuses to execute model code that does not match. Clear it only when deliberately changing MODEL_REVISION.",
+          "default": "0e304cf7c6500e8bb59bef7e2afd2c6373f82596dfb3b57d1aa93c175e2dc3a3",
+          "advanced": true
+        }
+      },
+      {
+        "key": "SDP",
+        "input": {
+          "name": "Attention kernel",
+          "type": "string",
+          "description": "efficient keeps attention memory linear in sequence length. math matches it to printed precision but materializes T\u00d7T and runs out of memory near 16k tokens.",
+          "default": "efficient",
+          "options": [
+            {
+              "label": "efficient",
+              "value": "efficient"
+            },
+            {
+              "label": "math",
+              "value": "math"
+            },
+            {
+              "label": "auto",
+              "value": "auto"
+            }
+          ],
+          "advanced": true
+        }
+      },
+      {
+        "key": "RUNPOD_INIT_TIMEOUT",
+        "input": {
+          "name": "Worker startup timeout (seconds)",
+          "type": "number",
+          "description": "Weights load before the worker accepts jobs. Without a network volume the first start downloads ~19 GB to container disk; with one, startup is seconds.",
+          "default": 1800,
+          "min": 120,
+          "max": 7200,
+          "advanced": true
+        }
+      }
+    ]
+  }
+}
