@@ -237,9 +237,29 @@ Hub's test endpoint). Driven from a laptop over the public URL.
   hardware. `pod_http_parity.sh` enables it only when the pod's GPU name equals
   the fixture manifest's.
 
-Known gaps, carried forward: the queue transport has not been exercised on a
-real endpoint (only `WorkerCore.handle_job` under test); concurrency is one
-forward at a time, so throughput is 1/latency; correctness is measured on the
+### Results: queue endpoint on an A40 (`runs/queue-a40/test_input_response.json`)
+
+Same image (`clef-b455d5a`) on a Runpod **queue endpoint**, A40, CUDA 13.0, no
+volume, default CMD (`TRANSPORT` unset). `test_input.json` submitted to `/run`
+and polled on `/status`: **COMPLETED**, 36.5 s queue delay for the cold
+worker, 920 ms execution (forward 824 ms — a first request, kernel warm-up
+included, not a steady-state figure). Checked against the response:
+
+- `request_sha` equals the hash of `test_input.json` with `debug` removed, so
+  `handle_job` strips the flag before hashing on a real endpoint, as the unit
+  test claims.
+- The score answer is Σ i·pᵢ of its five probabilities (3.4265), and every
+  `confidence` equals the question's max p — unlike hosted Workers AI, where
+  confidence ran 0.15–0.33 below max p.
+- Engine: A40, bf16, revision `8b2e5fd…`, `code_sha` equal to the pin,
+  commit `b455d5a`; `output_tokens` 0.
+
+`test_input.json` is not one of the 87 fixtures, so this is a transport check;
+numerics on this path are covered by the shared `WorkerCore` and the HTTP
+parity runs.
+
+Known gaps, carried forward: concurrency is one forward at a time, so
+throughput is 1/latency; correctness is measured on the
 H100 (sm_90) and the A40 (sm_86) only — the listing's other pools (A100-class
 sm_80, Ada) have not been gated yet; the worker has not been run in fp32 over
 HTTP; peak GPU memory at 16k tokens is unmeasured; and the 13 s snapshot fetch
