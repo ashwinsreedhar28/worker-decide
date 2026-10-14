@@ -208,14 +208,29 @@ def main() -> None:
             if a.sdp == "efficient"
             else [SDPBackend.MATH]
         )
+    if device.type == "cuda" and a.sdp == "efficient":
+        # transformers passes enable_gqa=True when the mask is None (Qwen3.5: 16 q heads, 4 kv
+        # heads); torch's fused kernels then refuse ("both fused kernels require ... the same
+        # num_heads") and only the math kernel is left, which materializes T×T in fp32. Forcing
+        # repeat_kv makes the memory-efficient kernel eligible. Verified against transformers
+        # 5.10.2's sdpa_attention.py: use_gqa_in_sdpa → False means repeat_kv, nothing else.
+        import transformers.integrations.sdpa_attention as sdpa_mod
+
+        sdpa_mod.use_gqa_in_sdpa = lambda attention_mask, key: False
 
     def forward(batch):
         if sdp_backends is None:
             return model(batch)[0]
-        from torch.nn.attention import sdpa_kernel
+        from torch.nn.attention import SDPBackend, sdpa_kernel
 
-        with sdpa_kernel(sdp_backends):
-            return model(batch)[0]
+        try:
+            with sdpa_kernel(sdp_backends):
+                return model(batch)[0]
+        except RuntimeError as e:
+            if "No available kernel" not in str(e) or sdp_backends == [SDPBackend.MATH]:
+                raise
+            with sdpa_kernel([SDPBackend.MATH]):  # last resort; OOMs at 16k in fp32
+                return model(batch)[0]
 
     counts = {"ok": 0, "error": 0}
     for i, line in enumerate(lines, 1):

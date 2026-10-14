@@ -27,7 +27,14 @@ def convert(hosted: Path, run_dir: Path, oracle_dir: Path) -> int:
             print(f"skip {h['id']}: no oracle record", file=sys.stderr)
             continue
         o = json.loads(oracle_path.read_text())
-        oq = next(q for q in o["questions"] if q["id"] == h["question"])
+        oq = next((q for q in o["questions"] if q["id"] == h["question"]), None)
+        if oq is None:
+            print(
+                f"skip {h['id']}: oracle has no answer for {h['question']}"
+                f"{' (' + o['error'][:50] + ')' if o.get('error') else ''}",
+                file=sys.stderr,
+            )
+            continue
         rec = {
             "id": h["id"],
             "request_sha": o["request_sha"],
