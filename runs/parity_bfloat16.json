@@ -1,0 +1,2408 @@
+{
+ "oracle_dir": "fixtures/clef-flash/float32",
+ "run_dir": "runs/bfloat16",
+ "max_dp": 0.02,
+ "mean_dp": 0.002,
+ "near_tie": 0.02,
+ "records": [
+  {
+   "record": "card_trio",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0007468318300587791,
+   "questions": [
+    {
+     "record": "card_trio",
+     "question": "department",
+     "argmax_ok": true,
+     "max_dp": 0.00030606985092163086,
+     "near_tie": false,
+     "oracle_top": "technical",
+     "run_top": "technical"
+    },
+    {
+     "record": "card_trio",
+     "question": "outage",
+     "argmax_ok": true,
+     "max_dp": 0.0011010169982910156,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "card_trio",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.0012068450450897217,
+     "near_tie": false,
+     "oracle_top": "2",
+     "run_top": "2"
+    }
+   ]
+  },
+  {
+   "record": "empty_instructions",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.001258542761206627,
+   "questions": [
+    {
+     "record": "empty_instructions",
+     "question": "needs_shipping_help",
+     "argmax_ok": true,
+     "max_dp": 0.001258552074432373,
+     "near_tie": false,
+     "oracle_top": "false",
+     "run_top": "false"
+    }
+   ]
+  },
+  {
+   "record": "img_board2048",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0011525701265782118,
+   "questions": [
+    {
+     "record": "img_board2048",
+     "question": "boarding_before_1430",
+     "argmax_ok": true,
+     "max_dp": 0.002572491765022278,
+     "near_tie": false,
+     "oracle_top": "false",
+     "run_top": "false"
+    },
+    {
+     "record": "img_board2048",
+     "question": "gate",
+     "argmax_ok": true,
+     "max_dp": 0.0008821450173854828,
+     "near_tie": false,
+     "oracle_top": "B12",
+     "run_top": "B12"
+    }
+   ]
+  },
+  {
+   "record": "img_board2048_textonly",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0010847312708695729,
+   "questions": [
+    {
+     "record": "img_board2048_textonly",
+     "question": "boarding_before_1430",
+     "argmax_ok": true,
+     "max_dp": 0.0008246004581451416,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "img_board2048_textonly",
+     "question": "gate",
+     "argmax_ok": true,
+     "max_dp": 0.0018876194953918457,
+     "near_tie": false,
+     "oracle_top": "A12",
+     "run_top": "A12"
+    }
+   ]
+  },
+  {
+   "record": "img_chart",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.00012203073129057884,
+   "questions": [
+    {
+     "record": "img_chart",
+     "question": "best_quarter",
+     "argmax_ok": true,
+     "max_dp": 0.00021916627883911133,
+     "near_tie": false,
+     "oracle_top": "Q3",
+     "run_top": "Q3"
+    }
+   ]
+  },
+  {
+   "record": "img_chart_textonly",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0005371011793613434,
+   "questions": [
+    {
+     "record": "img_chart_textonly",
+     "question": "best_quarter",
+     "argmax_ok": null,
+     "max_dp": 0.0010742545127868652,
+     "near_tie": true,
+     "oracle_top": "Q3",
+     "run_top": "Q4"
+    }
+   ]
+  },
+  {
+   "record": "img_receipt",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.001161932572722435,
+   "questions": [
+    {
+     "record": "img_receipt",
+     "question": "legible",
+     "argmax_ok": true,
+     "max_dp": 0.0013023503124713898,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "img_receipt",
+     "question": "total_bucket",
+     "argmax_ok": true,
+     "max_dp": 0.001602470874786377,
+     "near_tie": false,
+     "oracle_top": "10_to_50",
+     "run_top": "10_to_50"
+    }
+   ]
+  },
+  {
+   "record": "img_receipt_textonly",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0018158912658691405,
+   "questions": [
+    {
+     "record": "img_receipt_textonly",
+     "question": "legible",
+     "argmax_ok": true,
+     "max_dp": 0.002448350191116333,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "img_receipt_textonly",
+     "question": "total_bucket",
+     "argmax_ok": true,
+     "max_dp": 0.0020913779735565186,
+     "near_tie": false,
+     "oracle_top": "10_to_50",
+     "run_top": "10_to_50"
+    }
+   ]
+  },
+  {
+   "record": "img_shapes",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.00011303294450044632,
+   "questions": [
+    {
+     "record": "img_shapes",
+     "question": "has_text",
+     "argmax_ok": true,
+     "max_dp": 3.864336758852005e-05,
+     "near_tie": false,
+     "oracle_top": "false",
+     "run_top": "false"
+    },
+    {
+     "record": "img_shapes",
+     "question": "red_shape",
+     "argmax_ok": true,
+     "max_dp": 0.00024390220642089844,
+     "near_tie": false,
+     "oracle_top": "circle",
+     "run_top": "circle"
+    }
+   ]
+  },
+  {
+   "record": "img_shapes_textonly",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0009732842445373535,
+   "questions": [
+    {
+     "record": "img_shapes_textonly",
+     "question": "has_text",
+     "argmax_ok": true,
+     "max_dp": 0.0014431774616241455,
+     "near_tie": false,
+     "oracle_top": "false",
+     "run_top": "false"
+    },
+    {
+     "record": "img_shapes_textonly",
+     "question": "red_shape",
+     "argmax_ok": true,
+     "max_dp": 0.0009900033473968506,
+     "near_tie": false,
+     "oracle_top": "circle",
+     "run_top": "circle"
+    }
+   ]
+  },
+  {
+   "record": "img_sign448",
+   "status": "FAIL",
+   "reasons": [
+    "word: max |\u0394p| 0.0211 > 0.02"
+   ],
+   "span": "ok",
+   "mean_dp": 0.0062081751280597276,
+   "questions": [
+    {
+     "record": "img_sign448",
+     "question": "color",
+     "argmax_ok": true,
+     "max_dp": 0.0005875825881958008,
+     "near_tie": false,
+     "oracle_top": "yellow",
+     "run_top": "yellow"
+    },
+    {
+     "record": "img_sign448",
+     "question": "word",
+     "argmax_ok": true,
+     "max_dp": 0.021141022443771362,
+     "near_tie": false,
+     "oracle_top": "stop",
+     "run_top": "stop"
+    }
+   ]
+  },
+  {
+   "record": "img_sign448_textonly",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0009894764849117824,
+   "questions": [
+    {
+     "record": "img_sign448_textonly",
+     "question": "color",
+     "argmax_ok": true,
+     "max_dp": 0.0023861825466156006,
+     "near_tie": false,
+     "oracle_top": "red",
+     "run_top": "red"
+    },
+    {
+     "record": "img_sign448_textonly",
+     "question": "word",
+     "argmax_ok": true,
+     "max_dp": 0.0010769963264465332,
+     "near_tie": false,
+     "oracle_top": "stop",
+     "run_top": "stop"
+    }
+   ]
+  },
+  {
+   "record": "img_two",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0005324049852788448,
+   "questions": [
+    {
+     "record": "img_two",
+     "question": "chart_best_quarter",
+     "argmax_ok": true,
+     "max_dp": 0.00023857224732637405,
+     "near_tie": false,
+     "oracle_top": "Q3",
+     "run_top": "Q3"
+    },
+    {
+     "record": "img_two",
+     "question": "first_is_receipt",
+     "argmax_ok": true,
+     "max_dp": 0.0013530254364013672,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    }
+   ]
+  },
+  {
+   "record": "intent77",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.00014296978071041695,
+   "questions": [
+    {
+     "record": "intent77",
+     "question": "intent",
+     "argmax_ok": true,
+     "max_dp": 0.003769397735595703,
+     "near_tie": false,
+     "oracle_top": "declined_card_payment",
+     "run_top": "declined_card_payment"
+    }
+   ]
+  },
+  {
+   "record": "invoice_extract",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0037723831677188477,
+   "questions": [
+    {
+     "record": "invoice_extract",
+     "question": "amount_bucket",
+     "argmax_ok": true,
+     "max_dp": 0.0007055997848510742,
+     "near_tie": false,
+     "oracle_top": "2",
+     "run_top": "2"
+    },
+    {
+     "record": "invoice_extract",
+     "question": "currency",
+     "argmax_ok": true,
+     "max_dp": 0.00015622377395629883,
+     "near_tie": false,
+     "oracle_top": "EUR",
+     "run_top": "EUR"
+    },
+    {
+     "record": "invoice_extract",
+     "question": "lines_sum_matches_total",
+     "argmax_ok": true,
+     "max_dp": 0.009052693843841553,
+     "near_tie": false,
+     "oracle_top": "false",
+     "run_top": "false"
+    },
+    {
+     "record": "invoice_extract",
+     "question": "overdue",
+     "argmax_ok": true,
+     "max_dp": 0.01271975040435791,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    }
+   ]
+  },
+  {
+   "record": "json_state",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 8.468087762594222e-05,
+   "questions": [
+    {
+     "record": "json_state",
+     "question": "large",
+     "argmax_ok": true,
+     "max_dp": 1.3288110494613647e-05,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "json_state",
+     "question": "status",
+     "argmax_ok": true,
+     "max_dp": 0.00019848346710205078,
+     "near_tie": false,
+     "oracle_top": "overdue",
+     "run_top": "overdue"
+    }
+   ]
+  },
+  {
+   "record": "list_state",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0017278274255139487,
+   "questions": [
+    {
+     "record": "list_state",
+     "question": "cause",
+     "argmax_ok": true,
+     "max_dp": 0.0015010237693786621,
+     "near_tie": false,
+     "oracle_top": "deploy",
+     "run_top": "deploy"
+    },
+    {
+     "record": "list_state",
+     "question": "incident",
+     "argmax_ok": true,
+     "max_dp": 0.004539087414741516,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "list_state",
+     "question": "resolved",
+     "argmax_ok": true,
+     "max_dp": 7.323920726776123e-06,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    }
+   ]
+  },
+  {
+   "record": "long_2k",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0009643870095411936,
+   "questions": [
+    {
+     "record": "long_2k",
+     "question": "any_urgent",
+     "argmax_ok": true,
+     "max_dp": 0.0002926439046859741,
+     "near_tie": false,
+     "oracle_top": "false",
+     "run_top": "false"
+    },
+    {
+     "record": "long_2k",
+     "question": "count_bucket",
+     "argmax_ok": true,
+     "max_dp": 0.002600550651550293,
+     "near_tie": false,
+     "oracle_top": "1",
+     "run_top": "1"
+    }
+   ]
+  },
+  {
+   "record": "many_options",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 4.567365103866905e-05,
+   "questions": [
+    {
+     "record": "many_options",
+     "question": "category",
+     "argmax_ok": true,
+     "max_dp": 0.0007996559143066406,
+     "near_tie": false,
+     "oracle_top": "opt_00",
+     "run_top": "opt_00"
+    }
+   ]
+  },
+  {
+   "record": "moderation",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0016968936626134174,
+   "questions": [
+    {
+     "record": "moderation",
+     "question": "category",
+     "argmax_ok": true,
+     "max_dp": 0.0023219287395477295,
+     "near_tie": false,
+     "oracle_top": "none",
+     "run_top": "none"
+    },
+    {
+     "record": "moderation",
+     "question": "severity",
+     "argmax_ok": true,
+     "max_dp": 0.003617197275161743,
+     "near_tie": false,
+     "oracle_top": "2",
+     "run_top": "2"
+    }
+   ]
+  },
+  {
+   "record": "near_dup_a",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.001573946326971054,
+   "questions": [
+    {
+     "record": "near_dup_a",
+     "question": "day",
+     "argmax_ok": true,
+     "max_dp": 0.00393463671207428,
+     "near_tie": false,
+     "oracle_top": "thursday",
+     "run_top": "thursday"
+    },
+    {
+     "record": "near_dup_a",
+     "question": "payment_ok",
+     "argmax_ok": true,
+     "max_dp": 2.7939677238464355e-07,
+     "near_tie": false,
+     "oracle_top": "false",
+     "run_top": "false"
+    }
+   ]
+  },
+  {
+   "record": "near_dup_b",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0014654186554253102,
+   "questions": [
+    {
+     "record": "near_dup_b",
+     "question": "day",
+     "argmax_ok": true,
+     "max_dp": 0.003637172281742096,
+     "near_tie": false,
+     "oracle_top": "tuesday",
+     "run_top": "tuesday"
+    },
+    {
+     "record": "near_dup_b",
+     "question": "payment_ok",
+     "argmax_ok": true,
+     "max_dp": 2.6345252990722656e-05,
+     "near_tie": false,
+     "oracle_top": "false",
+     "run_top": "false"
+    }
+   ]
+  },
+  {
+   "record": "near_dup_c",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.002052079886198044,
+   "questions": [
+    {
+     "record": "near_dup_c",
+     "question": "day",
+     "argmax_ok": true,
+     "max_dp": 0.0037676095962524414,
+     "near_tie": false,
+     "oracle_top": "thursday",
+     "run_top": "thursday"
+    },
+    {
+     "record": "near_dup_c",
+     "question": "payment_ok",
+     "argmax_ok": true,
+     "max_dp": 0.001362588256597519,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    }
+   ]
+  },
+  {
+   "record": "no_instruction",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0018010213971138,
+   "questions": [
+    {
+     "record": "no_instruction",
+     "question": "refund_eligible",
+     "argmax_ok": true,
+     "max_dp": 0.0027015209197998047,
+     "near_tie": false,
+     "oracle_top": "2",
+     "run_top": "2"
+    }
+   ]
+  },
+  {
+   "record": "noul_custom",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 4.202080890536308e-05,
+   "questions": [
+    {
+     "record": "noul_custom",
+     "question": "wants_refund",
+     "argmax_ok": true,
+     "max_dp": 4.2079947888851166e-05,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    }
+   ]
+  },
+  {
+   "record": "opts255",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 4.670519533558e-05,
+   "questions": [
+    {
+     "record": "opts255",
+     "question": "sku",
+     "argmax_ok": true,
+     "max_dp": 0.0011202841997146606,
+     "near_tie": false,
+     "oracle_top": "sku_120",
+     "run_top": "sku_120"
+    }
+   ]
+  },
+  {
+   "record": "pulse-10221259",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0032091811299324036,
+   "questions": [
+    {
+     "record": "pulse-10221259",
+     "question": "urgency",
+     "argmax_ok": null,
+     "max_dp": 0.004998952150344849,
+     "near_tie": true,
+     "oracle_top": "4",
+     "run_top": "4"
+    }
+   ]
+  },
+  {
+   "record": "pulse-10426369",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.003776746988296509,
+   "questions": [
+    {
+     "record": "pulse-10426369",
+     "question": "urgency",
+     "argmax_ok": null,
+     "max_dp": 0.009441852569580078,
+     "near_tie": true,
+     "oracle_top": "0",
+     "run_top": "1"
+    }
+   ]
+  },
+  {
+   "record": "pulse-10545020",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0015895910561084746,
+   "questions": [
+    {
+     "record": "pulse-10545020",
+     "question": "urgency",
+     "argmax_ok": null,
+     "max_dp": 0.0023027658462524414,
+     "near_tie": true,
+     "oracle_top": "2",
+     "run_top": "0"
+    }
+   ]
+  },
+  {
+   "record": "pulse-10619114",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0012819960713386536,
+   "questions": [
+    {
+     "record": "pulse-10619114",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.0020729899406433105,
+     "near_tie": false,
+     "oracle_top": "1",
+     "run_top": "1"
+    }
+   ]
+  },
+  {
+   "record": "pulse-10661222",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0015106029808521272,
+   "questions": [
+    {
+     "record": "pulse-10661222",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.0037765800952911377,
+     "near_tie": false,
+     "oracle_top": "1",
+     "run_top": "1"
+    }
+   ]
+  },
+  {
+   "record": "pulse-10702774",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0020878192037343977,
+   "questions": [
+    {
+     "record": "pulse-10702774",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.004246741533279419,
+     "near_tie": false,
+     "oracle_top": "0",
+     "run_top": "0"
+    }
+   ]
+  },
+  {
+   "record": "pulse-10720478",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0016110140830278396,
+   "questions": [
+    {
+     "record": "pulse-10720478",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.003656715154647827,
+     "near_tie": false,
+     "oracle_top": "1",
+     "run_top": "1"
+    }
+   ]
+  },
+  {
+   "record": "pulse-10729536",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0007198106497526169,
+   "questions": [
+    {
+     "record": "pulse-10729536",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.0017668306827545166,
+     "near_tie": false,
+     "oracle_top": "2",
+     "run_top": "2"
+    }
+   ]
+  },
+  {
+   "record": "pulse-10901596",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0033664191141724586,
+   "questions": [
+    {
+     "record": "pulse-10901596",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.008416056632995605,
+     "near_tie": false,
+     "oracle_top": "0",
+     "run_top": "0"
+    }
+   ]
+  },
+  {
+   "record": "pulse-11086438",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0010986335575580597,
+   "questions": [
+    {
+     "record": "pulse-11086438",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.00274658203125,
+     "near_tie": false,
+     "oracle_top": "0",
+     "run_top": "0"
+    }
+   ]
+  },
+  {
+   "record": "pulse-11116991",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0007933065295219422,
+   "questions": [
+    {
+     "record": "pulse-11116991",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.0017694532871246338,
+     "near_tie": false,
+     "oracle_top": "2",
+     "run_top": "2"
+    }
+   ]
+  },
+  {
+   "record": "pulse-11132428",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.00258011557161808,
+   "questions": [
+    {
+     "record": "pulse-11132428",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.006450355052947998,
+     "near_tie": false,
+     "oracle_top": "1",
+     "run_top": "1"
+    }
+   ]
+  },
+  {
+   "record": "pulse-11393348",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0020589981228113174,
+   "questions": [
+    {
+     "record": "pulse-11393348",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.005147457122802734,
+     "near_tie": false,
+     "oracle_top": "0",
+     "run_top": "0"
+    }
+   ]
+  },
+  {
+   "record": "pulse-11617432",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0009617790579795838,
+   "questions": [
+    {
+     "record": "pulse-11617432",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.0015168190002441406,
+     "near_tie": false,
+     "oracle_top": "2",
+     "run_top": "2"
+    }
+   ]
+  },
+  {
+   "record": "pulse-11678677",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0015888415277004243,
+   "questions": [
+    {
+     "record": "pulse-11678677",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.003972113132476807,
+     "near_tie": false,
+     "oracle_top": "1",
+     "run_top": "1"
+    }
+   ]
+  },
+  {
+   "record": "pulse-11680618",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.00021377112716436386,
+   "questions": [
+    {
+     "record": "pulse-11680618",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.0004897713661193848,
+     "near_tie": false,
+     "oracle_top": "0",
+     "run_top": "0"
+    }
+   ]
+  },
+  {
+   "record": "pulse-11707797",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0017473965883255005,
+   "questions": [
+    {
+     "record": "pulse-11707797",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.004199162125587463,
+     "near_tie": false,
+     "oracle_top": "2",
+     "run_top": "2"
+    }
+   ]
+  },
+  {
+   "record": "pulse-11707888",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0017749741673469543,
+   "questions": [
+    {
+     "record": "pulse-11707888",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.004437446594238281,
+     "near_tie": false,
+     "oracle_top": "0",
+     "run_top": "0"
+    }
+   ]
+  },
+  {
+   "record": "pulse-11710845",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.000661715492606163,
+   "questions": [
+    {
+     "record": "pulse-11710845",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.0015025734901428223,
+     "near_tie": false,
+     "oracle_top": "1",
+     "run_top": "1"
+    }
+   ]
+  },
+  {
+   "record": "pulse-11711123",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0010668259114027024,
+   "questions": [
+    {
+     "record": "pulse-11711123",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.0022980868816375732,
+     "near_tie": false,
+     "oracle_top": "0",
+     "run_top": "0"
+    }
+   ]
+  },
+  {
+   "record": "pulse-11711171",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.001960696280002594,
+   "questions": [
+    {
+     "record": "pulse-11711171",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.003824368119239807,
+     "near_tie": false,
+     "oracle_top": "2",
+     "run_top": "2"
+    }
+   ]
+  },
+  {
+   "record": "pulse-11711631",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.001990290731191635,
+   "questions": [
+    {
+     "record": "pulse-11711631",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.0032888203859329224,
+     "near_tie": false,
+     "oracle_top": "2",
+     "run_top": "2"
+    }
+   ]
+  },
+  {
+   "record": "pulse-11711957",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0033664464950561523,
+   "questions": [
+    {
+     "record": "pulse-11711957",
+     "question": "urgency",
+     "argmax_ok": null,
+     "max_dp": 0.00841611623764038,
+     "near_tie": true,
+     "oracle_top": "1",
+     "run_top": "0"
+    }
+   ]
+  },
+  {
+   "record": "pulse-11712187",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0010162383317947389,
+   "questions": [
+    {
+     "record": "pulse-11712187",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.002498805522918701,
+     "near_tie": false,
+     "oracle_top": "2",
+     "run_top": "2"
+    }
+   ]
+  },
+  {
+   "record": "pulse-11712604",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0018570274114608765,
+   "questions": [
+    {
+     "record": "pulse-11712604",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.0033948123455047607,
+     "near_tie": false,
+     "oracle_top": "1",
+     "run_top": "1"
+    }
+   ]
+  },
+  {
+   "record": "pulse-11714037",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0005580216646194458,
+   "questions": [
+    {
+     "record": "pulse-11714037",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.001088857650756836,
+     "near_tie": false,
+     "oracle_top": "2",
+     "run_top": "2"
+    }
+   ]
+  },
+  {
+   "record": "pulse-11714938",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0011078204959630966,
+   "questions": [
+    {
+     "record": "pulse-11714938",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.0027695447206497192,
+     "near_tie": false,
+     "oracle_top": "1",
+     "run_top": "1"
+    }
+   ]
+  },
+  {
+   "record": "pulse-11716232",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.00298658087849617,
+   "questions": [
+    {
+     "record": "pulse-11716232",
+     "question": "urgency",
+     "argmax_ok": null,
+     "max_dp": 0.007466435432434082,
+     "near_tie": true,
+     "oracle_top": "4",
+     "run_top": "4"
+    }
+   ]
+  },
+  {
+   "record": "pulse-11716347",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0007727600634098053,
+   "questions": [
+    {
+     "record": "pulse-11716347",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.0011320561170578003,
+     "near_tie": false,
+     "oracle_top": "2",
+     "run_top": "2"
+    }
+   ]
+  },
+  {
+   "record": "pulse-9707413",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0012233614921569823,
+   "questions": [
+    {
+     "record": "pulse-9707413",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.0029969215393066406,
+     "near_tie": false,
+     "oracle_top": "0",
+     "run_top": "0"
+    }
+   ]
+  },
+  {
+   "record": "pulse-9707528",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.00460117943584919,
+   "questions": [
+    {
+     "record": "pulse-9707528",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.011332690715789795,
+     "near_tie": false,
+     "oracle_top": "0",
+     "run_top": "0"
+    }
+   ]
+  },
+  {
+   "record": "pulse-9707552",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0011872127652168274,
+   "questions": [
+    {
+     "record": "pulse-9707552",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.001976802945137024,
+     "near_tie": false,
+     "oracle_top": "1",
+     "run_top": "1"
+    }
+   ]
+  },
+  {
+   "record": "pulse-9707691",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.001666390895843506,
+   "questions": [
+    {
+     "record": "pulse-9707691",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.002634495496749878,
+     "near_tie": false,
+     "oracle_top": "2",
+     "run_top": "2"
+    }
+   ]
+  },
+  {
+   "record": "pulse-9708012",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.003156903386116028,
+   "questions": [
+    {
+     "record": "pulse-9708012",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.00789228081703186,
+     "near_tie": false,
+     "oracle_top": "0",
+     "run_top": "0"
+    }
+   ]
+  },
+  {
+   "record": "pulse-9708199",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.001692824438214302,
+   "questions": [
+    {
+     "record": "pulse-9708199",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.004148572683334351,
+     "near_tie": false,
+     "oracle_top": "0",
+     "run_top": "0"
+    }
+   ]
+  },
+  {
+   "record": "pulse-9708731",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0016748182475566863,
+   "questions": [
+    {
+     "record": "pulse-9708731",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.004187077283859253,
+     "near_tie": false,
+     "oracle_top": "1",
+     "run_top": "1"
+    }
+   ]
+  },
+  {
+   "record": "pulse-9709100",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0014058731496334076,
+   "questions": [
+    {
+     "record": "pulse-9709100",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.0026573240756988525,
+     "near_tie": false,
+     "oracle_top": "3",
+     "run_top": "3"
+    }
+   ]
+  },
+  {
+   "record": "pulse-9709124",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.002416333556175232,
+   "questions": [
+    {
+     "record": "pulse-9709124",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.005405932664871216,
+     "near_tie": false,
+     "oracle_top": "2",
+     "run_top": "2"
+    }
+   ]
+  },
+  {
+   "record": "pulse-9709632",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.001471921056509018,
+   "questions": [
+    {
+     "record": "pulse-9709632",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.003389894962310791,
+     "near_tie": false,
+     "oracle_top": "2",
+     "run_top": "2"
+    }
+   ]
+  },
+  {
+   "record": "pulse-9709747",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0011620402336120605,
+   "questions": [
+    {
+     "record": "pulse-9709747",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.002429068088531494,
+     "near_tie": false,
+     "oracle_top": "1",
+     "run_top": "1"
+    }
+   ]
+  },
+  {
+   "record": "pulse-9710025",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0013662859797477721,
+   "questions": [
+    {
+     "record": "pulse-9710025",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.0030763745307922363,
+     "near_tie": false,
+     "oracle_top": "2",
+     "run_top": "2"
+    }
+   ]
+  },
+  {
+   "record": "pulse-9710164",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0008748732507228851,
+   "questions": [
+    {
+     "record": "pulse-9710164",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.0014104321599006653,
+     "near_tie": false,
+     "oracle_top": "1",
+     "run_top": "1"
+    }
+   ]
+  },
+  {
+   "record": "pulse-9710418",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0007965782657265663,
+   "questions": [
+    {
+     "record": "pulse-9710418",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.001730501651763916,
+     "near_tie": false,
+     "oracle_top": "0",
+     "run_top": "0"
+    }
+   ]
+  },
+  {
+   "record": "pulse-9710672",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.002110337093472481,
+   "questions": [
+    {
+     "record": "pulse-9710672",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.00527578592300415,
+     "near_tie": false,
+     "oracle_top": "1",
+     "run_top": "1"
+    }
+   ]
+  },
+  {
+   "record": "pulse-9711065",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0038795709609985352,
+   "questions": [
+    {
+     "record": "pulse-9711065",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.008709371089935303,
+     "near_tie": false,
+     "oracle_top": "2",
+     "run_top": "2"
+    }
+   ]
+  },
+  {
+   "record": "pulse-9744321",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0032560653984546662,
+   "questions": [
+    {
+     "record": "pulse-9744321",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.006033271551132202,
+     "near_tie": false,
+     "oracle_top": "3",
+     "run_top": "3"
+    }
+   ]
+  },
+  {
+   "record": "pulse-9853056",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.002693399041891098,
+   "questions": [
+    {
+     "record": "pulse-9853056",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.006733447313308716,
+     "near_tie": false,
+     "oracle_top": "3",
+     "run_top": "3"
+    }
+   ]
+  },
+  {
+   "record": "pulse-9854422",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.001578254997730255,
+   "questions": [
+    {
+     "record": "pulse-9854422",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.00389137864112854,
+     "near_tie": false,
+     "oracle_top": "1",
+     "run_top": "1"
+    }
+   ]
+  },
+  {
+   "record": "pulse-9933807",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0004798531532287598,
+   "questions": [
+    {
+     "record": "pulse-9933807",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.0008510053157806396,
+     "near_tie": false,
+     "oracle_top": "2",
+     "run_top": "2"
+    }
+   ]
+  },
+  {
+   "record": "pulse-9943143",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0013461314141750337,
+   "questions": [
+    {
+     "record": "pulse-9943143",
+     "question": "urgency",
+     "argmax_ok": true,
+     "max_dp": 0.002129986882209778,
+     "near_tie": false,
+     "oracle_top": "2",
+     "run_top": "2"
+    }
+   ]
+  },
+  {
+   "record": "q64",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0005159611173439771,
+   "questions": [
+    {
+     "record": "q64",
+     "question": "q00",
+     "argmax_ok": true,
+     "max_dp": 0.00031572580337524414,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q01",
+     "argmax_ok": true,
+     "max_dp": 0.0010643750429153442,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q02",
+     "argmax_ok": true,
+     "max_dp": 0.00020412355661392212,
+     "near_tie": false,
+     "oracle_top": "false",
+     "run_top": "false"
+    },
+    {
+     "record": "q64",
+     "question": "q03",
+     "argmax_ok": true,
+     "max_dp": 8.638575673103333e-05,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q04",
+     "argmax_ok": true,
+     "max_dp": 0.0017662346363067627,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q05",
+     "argmax_ok": true,
+     "max_dp": 0.00025177001953125,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q06",
+     "argmax_ok": true,
+     "max_dp": 0.00014550983905792236,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q07",
+     "argmax_ok": true,
+     "max_dp": 0.0004634261131286621,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q08",
+     "argmax_ok": true,
+     "max_dp": 0.0004661679267883301,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q09",
+     "argmax_ok": true,
+     "max_dp": 0.0003256797790527344,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q10",
+     "argmax_ok": true,
+     "max_dp": 0.0003844797611236572,
+     "near_tie": false,
+     "oracle_top": "false",
+     "run_top": "false"
+    },
+    {
+     "record": "q64",
+     "question": "q11",
+     "argmax_ok": true,
+     "max_dp": 0.0003024451434612274,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q12",
+     "argmax_ok": true,
+     "max_dp": 0.0009999573230743408,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q13",
+     "argmax_ok": true,
+     "max_dp": 0.0010825581848621368,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q14",
+     "argmax_ok": true,
+     "max_dp": 0.0008001327514648438,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q15",
+     "argmax_ok": true,
+     "max_dp": 0.0006300806999206543,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q16",
+     "argmax_ok": true,
+     "max_dp": 0.0007345080375671387,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q17",
+     "argmax_ok": true,
+     "max_dp": 0.0005832910537719727,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q18",
+     "argmax_ok": true,
+     "max_dp": 0.0019070953130722046,
+     "near_tie": false,
+     "oracle_top": "false",
+     "run_top": "false"
+    },
+    {
+     "record": "q64",
+     "question": "q19",
+     "argmax_ok": true,
+     "max_dp": 0.00021320581436157227,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q20",
+     "argmax_ok": true,
+     "max_dp": 0.0003605782985687256,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q21",
+     "argmax_ok": true,
+     "max_dp": 0.0012379884719848633,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q22",
+     "argmax_ok": true,
+     "max_dp": 0.0006995201110839844,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q23",
+     "argmax_ok": true,
+     "max_dp": 0.000156402587890625,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q24",
+     "argmax_ok": true,
+     "max_dp": 0.0005628466606140137,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q25",
+     "argmax_ok": true,
+     "max_dp": 0.000613868236541748,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q26",
+     "argmax_ok": true,
+     "max_dp": 0.0019312351942062378,
+     "near_tie": false,
+     "oracle_top": "false",
+     "run_top": "false"
+    },
+    {
+     "record": "q64",
+     "question": "q27",
+     "argmax_ok": true,
+     "max_dp": 0.00038880109786987305,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q28",
+     "argmax_ok": true,
+     "max_dp": 0.0004110410809516907,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q29",
+     "argmax_ok": true,
+     "max_dp": 0.0005622059106826782,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q30",
+     "argmax_ok": true,
+     "max_dp": 0.00038436800241470337,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q31",
+     "argmax_ok": true,
+     "max_dp": 3.4332275390625e-05,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q32",
+     "argmax_ok": true,
+     "max_dp": 7.593631744384766e-05,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q33",
+     "argmax_ok": true,
+     "max_dp": 0.000678718090057373,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q34",
+     "argmax_ok": true,
+     "max_dp": 0.0011208057403564453,
+     "near_tie": false,
+     "oracle_top": "false",
+     "run_top": "false"
+    },
+    {
+     "record": "q64",
+     "question": "q35",
+     "argmax_ok": true,
+     "max_dp": 0.000164031982421875,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q36",
+     "argmax_ok": true,
+     "max_dp": 0.0009479448199272156,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q37",
+     "argmax_ok": true,
+     "max_dp": 0.00031040608882904053,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q38",
+     "argmax_ok": true,
+     "max_dp": 0.0010321997106075287,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q39",
+     "argmax_ok": true,
+     "max_dp": 9.655952453613281e-05,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q40",
+     "argmax_ok": true,
+     "max_dp": 0.00021209940314292908,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q41",
+     "argmax_ok": true,
+     "max_dp": 0.0003191158175468445,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q42",
+     "argmax_ok": true,
+     "max_dp": 0.000632651150226593,
+     "near_tie": false,
+     "oracle_top": "false",
+     "run_top": "false"
+    },
+    {
+     "record": "q64",
+     "question": "q43",
+     "argmax_ok": true,
+     "max_dp": 1.817941665649414e-06,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q44",
+     "argmax_ok": true,
+     "max_dp": 0.00017112493515014648,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q45",
+     "argmax_ok": true,
+     "max_dp": 1.728534698486328e-05,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q46",
+     "argmax_ok": true,
+     "max_dp": 0.0008271932601928711,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q47",
+     "argmax_ok": true,
+     "max_dp": 0.00019026175141334534,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q48",
+     "argmax_ok": true,
+     "max_dp": 6.496906280517578e-05,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q49",
+     "argmax_ok": true,
+     "max_dp": 0.00014990568161010742,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q50",
+     "argmax_ok": true,
+     "max_dp": 0.0005463436245918274,
+     "near_tie": false,
+     "oracle_top": "false",
+     "run_top": "false"
+    },
+    {
+     "record": "q64",
+     "question": "q51",
+     "argmax_ok": true,
+     "max_dp": 0.0008658766746520996,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q52",
+     "argmax_ok": true,
+     "max_dp": 0.0008033737540245056,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q53",
+     "argmax_ok": true,
+     "max_dp": 0.0007134675979614258,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q54",
+     "argmax_ok": true,
+     "max_dp": 0.00013452395796775818,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q55",
+     "argmax_ok": true,
+     "max_dp": 0.00021332502365112305,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q56",
+     "argmax_ok": true,
+     "max_dp": 5.843117833137512e-06,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q57",
+     "argmax_ok": true,
+     "max_dp": 0.0002474784851074219,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q58",
+     "argmax_ok": true,
+     "max_dp": 6.657838821411133e-05,
+     "near_tie": false,
+     "oracle_top": "false",
+     "run_top": "false"
+    },
+    {
+     "record": "q64",
+     "question": "q59",
+     "argmax_ok": true,
+     "max_dp": 0.0005486011505126953,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q60",
+     "argmax_ok": true,
+     "max_dp": 0.0011650323867797852,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q61",
+     "argmax_ok": true,
+     "max_dp": 0.00014688074588775635,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q62",
+     "argmax_ok": true,
+     "max_dp": 8.624792098999023e-05,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "q64",
+     "question": "q63",
+     "argmax_ok": true,
+     "max_dp": 0.0003960132598876953,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    }
+   ]
+  },
+  {
+   "record": "rag_relevance_1",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0005392339080572128,
+   "questions": [
+    {
+     "record": "rag_relevance_1",
+     "question": "answers",
+     "argmax_ok": true,
+     "max_dp": 0.0002428293228149414,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "rag_relevance_1",
+     "question": "relevance",
+     "argmax_ok": true,
+     "max_dp": 0.0012119412422180176,
+     "near_tie": false,
+     "oracle_top": "3",
+     "run_top": "3"
+    }
+   ]
+  },
+  {
+   "record": "rag_relevance_2",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0017633363604545593,
+   "questions": [
+    {
+     "record": "rag_relevance_2",
+     "question": "answers",
+     "argmax_ok": true,
+     "max_dp": 0.0005998611450195312,
+     "near_tie": false,
+     "oracle_top": "false",
+     "run_top": "false"
+    },
+    {
+     "record": "rag_relevance_2",
+     "question": "relevance",
+     "argmax_ok": true,
+     "max_dp": 0.004690110683441162,
+     "near_tie": false,
+     "oracle_top": "0",
+     "run_top": "0"
+    }
+   ]
+  },
+  {
+   "record": "rag_relevance_3",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.00025009425977865857,
+   "questions": [
+    {
+     "record": "rag_relevance_3",
+     "question": "answers",
+     "argmax_ok": true,
+     "max_dp": 7.405132055282593e-05,
+     "near_tie": false,
+     "oracle_top": "false",
+     "run_top": "false"
+    },
+    {
+     "record": "rag_relevance_3",
+     "question": "relevance",
+     "argmax_ok": true,
+     "max_dp": 0.0005721598863601685,
+     "near_tie": false,
+     "oracle_top": "0",
+     "run_top": "0"
+    }
+   ]
+  },
+  {
+   "record": "schema_overflow",
+   "status": "PASS",
+   "reasons": [
+    "both errored"
+   ],
+   "span": "n/a",
+   "mean_dp": null,
+   "questions": []
+  },
+  {
+   "record": "score10",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0008056911174207926,
+   "questions": [
+    {
+     "record": "score10",
+     "question": "frustration",
+     "argmax_ok": true,
+     "max_dp": 0.0020623356103897095,
+     "near_tie": false,
+     "oracle_top": "6",
+     "run_top": "6"
+    }
+   ]
+  },
+  {
+   "record": "tool_select",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.00045139179565012455,
+   "questions": [
+    {
+     "record": "tool_select",
+     "question": "needs_clarification",
+     "argmax_ok": true,
+     "max_dp": 0.00135904923081398,
+     "near_tie": false,
+     "oracle_top": "false",
+     "run_top": "false"
+    },
+    {
+     "record": "tool_select",
+     "question": "tool",
+     "argmax_ok": true,
+     "max_dp": 0.000363767147064209,
+     "near_tie": false,
+     "oracle_top": "retry_payment",
+     "run_top": "retry_payment"
+    }
+   ]
+  },
+  {
+   "record": "triage_support",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0005859170968715961,
+   "questions": [
+    {
+     "record": "triage_support",
+     "question": "deadline",
+     "argmax_ok": true,
+     "max_dp": 0.00013643503189086914,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    },
+    {
+     "record": "triage_support",
+     "question": "sentiment",
+     "argmax_ok": true,
+     "max_dp": 0.00044143199920654297,
+     "near_tie": false,
+     "oracle_top": "negative",
+     "run_top": "negative"
+    },
+    {
+     "record": "triage_support",
+     "question": "severity",
+     "argmax_ok": null,
+     "max_dp": 0.0016656219959259033,
+     "near_tie": true,
+     "oracle_top": "3",
+     "run_top": "3"
+    },
+    {
+     "record": "triage_support",
+     "question": "team",
+     "argmax_ok": true,
+     "max_dp": 0.000325080007314682,
+     "near_tie": false,
+     "oracle_top": "payments",
+     "run_top": "payments"
+    }
+   ]
+  },
+  {
+   "record": "trunc_16k",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.005319803953170776,
+   "questions": [
+    {
+     "record": "trunc_16k",
+     "question": "any_urgent",
+     "argmax_ok": true,
+     "max_dp": 0.005319833755493164,
+     "near_tie": false,
+     "oracle_top": "true",
+     "run_top": "true"
+    }
+   ]
+  },
+  {
+   "record": "unicode_options",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.0012053695640393666,
+   "questions": [
+    {
+     "record": "unicode_options",
+     "question": "sprache",
+     "argmax_ok": true,
+     "max_dp": 0.00047838687896728516,
+     "near_tie": false,
+     "oracle_top": "de",
+     "run_top": "de"
+    },
+    {
+     "record": "unicode_options",
+     "question": "stimmung",
+     "argmax_ok": true,
+     "max_dp": 0.003740370273590088,
+     "near_tie": false,
+     "oracle_top": "freundlich",
+     "run_top": "freundlich"
+    }
+   ]
+  },
+  {
+   "record": "unsorted_choice",
+   "status": "PASS",
+   "reasons": [],
+   "span": "ok",
+   "mean_dp": 0.00011342127496997516,
+   "questions": [
+    {
+     "record": "unsorted_choice",
+     "question": "team",
+     "argmax_ok": true,
+     "max_dp": 0.00017020618543028831,
+     "near_tie": false,
+     "oracle_top": "billing",
+     "run_top": "billing"
+    }
+   ]
+  }
+ ],
+ "overall_mean_dp": 0.0015467193408603471,
+ "passed": false
+}
