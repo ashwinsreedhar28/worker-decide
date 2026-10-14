@@ -1,7 +1,7 @@
 """HTTP transport for Runpod load-balancing endpoints (and anything else that speaks HTTP).
 
     POST /v1/decide     SystemOne request body -> SystemOne response body
-                        header `X-Decide-Debug: 1` adds the `debug` block (parity_http uses it)
+    POST /v1/systemone  (alias) header `X-Decide-Debug: 1` adds the `debug` block (parity_http)
     GET  /ping          204 while the engine loads, 200 once ready, 500 if loading failed
                         (Runpod's health contract: 200 healthy, 204 initializing, else unhealthy)
     GET  /              engine info and state
@@ -76,11 +76,12 @@ def create_app(
                 "state": "error" if state["error"] else ("ready" if c else "loading"),
                 "error": state["error"],
                 "engine": c.info if c else None,
-                "routes": ["POST /v1/decide", "GET /ping", "GET /"],
+                "routes": ["POST /v1/decide", "POST /v1/systemone", "GET /ping", "GET /"],
             }
         )
 
     @app.post("/v1/decide")
+    @app.post("/v1/systemone")  # same handler; the README's wire-format name
     async def decide(request: Request) -> JSONResponse:
         c = state["core"]
         if c is None:

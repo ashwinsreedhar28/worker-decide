@@ -22,6 +22,7 @@ def test_decide_plain_and_debug_header():
         assert r.status_code == 200 and "debug" not in r.json()
         r = c.post("/v1/decide", json=BODY, headers={"X-Decide-Debug": "1"})
         assert r.status_code == 200 and r.json()["debug"]["encoding"]["input_tokens"] == 3
+        assert c.post("/v1/systemone", json=BODY).json() == c.post("/v1/decide", json=BODY).json()
         assert c.get("/ping").status_code == 200
         info = c.get("/").json()
         assert info["state"] == "ready" and info["engine"]["revision"] == "8b2e5fd"
