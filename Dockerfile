@@ -24,6 +24,7 @@ WORKDIR /app
 COPY requirements-oracle.txt pyproject.toml ./
 COPY deciders ./deciders
 COPY worker ./worker
+COPY handler.py ./
 RUN python3 -m pip install -r requirements-oracle.txt \
     && python3 -m pip install ".[worker]"
 # Fail the build, not the first cold start, if the pins drifted.
