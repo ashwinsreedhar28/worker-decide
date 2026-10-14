@@ -188,4 +188,8 @@ pure-torch path. Engine ready 6.3 s after start (warm volume).
 Known gaps, carried forward: the queue transport has not been exercised on a
 real endpoint (only `WorkerCore.handle_job` under test); no load-balancing
 endpoint has been deployed; concurrency is one forward at a time, so
-throughput is 1/latency.
+throughput is 1/latency; parity is proven on Hopper (H100) only — the Hub
+listing targets Ampere/Ada 48 GB pools, where bf16 kernels differ, so the
+first endpoint run there should go through `parity_http.py` before the
+"matches the reference" claim extends to them; the worker has not been run in
+fp32 over HTTP; peak GPU memory at 16k tokens is unmeasured.
