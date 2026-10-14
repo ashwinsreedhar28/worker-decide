@@ -91,8 +91,12 @@ def collect(lines: list[dict[str, Any]], run_dir: Path, poster) -> dict[str, int
         counts["error" if rec["error"] else "ok"] += 1
         tok = rec["encoding"]["input_tokens"] if rec["encoding"] else "-"
         err = f"  ERROR {rec['error'][:60]}" if rec["error"] else ""
-        print(f"[{i:>3}/{len(lines)}] {rec['id']:<24} tokens={tok!s:>6} "
-              f"{rec['timing_ms']['wall']:>9.1f} ms{err}", flush=True)  # fmt: skip
+        print(  # progress goes to stderr; stdout is the report
+            f"[{i:>3}/{len(lines)}] {rec['id']:<24} tokens={tok!s:>6} "
+            f"{rec['timing_ms']['wall']:>9.1f} ms{err}",
+            file=sys.stderr,
+            flush=True,
+        )
     return counts
 
 
