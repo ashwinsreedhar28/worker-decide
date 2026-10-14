@@ -21,7 +21,7 @@ worker/app.py            HTTP entry for load-balancing endpoints (FastAPI)
 fixtures/requests/       SystemOne request bodies (Pulse 50, edge cases, coverage, images)
 fixtures/clef-flash/     float32 (truth) and bfloat16 (serving) reference outputs + manifests
 fixtures/labels/         Haiku labels for the Pulse 50 (scripts/haiku_eval.py)
-scripts/                 parity.py, parity_http.py, haiku_eval.py, make_fixtures.py, pod_*.sh
+scripts/                 parity.py, parity_http.py, compare_runs.py, haiku_eval.py, make_fixtures.py, pod_*.sh
 tests/                   CPU-only tests (fake engine for the worker)
 Dockerfile               CUDA 13.0 image; .github/workflows/image.yml publishes to GHCR
 ```
@@ -83,11 +83,25 @@ disk and let the first start download them.
 
 ### Gating a deployed or local worker
 
+Two gates with different jobs:
+
+- **Correctness, any GPU** (the default): against the fp32 truth — argmax
+  agrees outside the near-tie window, max |Δp| ≤ 0.025, mean ≤ 0.0025. Set
+  from measured bf16 noise on an H100 (worst 0.0211) and an A40 (0.0163).
+- **Regression, same GPU as the reference** (`--regression`): against a bf16
+  run made on the same GPU, at 0.005. It catches code changes. Don't point it
+  at a reference from different hardware: two bf16 runs on different GPUs
+  disagree by up to ~0.03 while each stays within the correctness bar.
+
 ```
-python scripts/parity_http.py http://127.0.0.1:8000 runs/http-bf16 \
-    --reference fixtures/clef-flash/bfloat16 --max-dp 0.005 --also fixtures/clef-flash/float32
-python scripts/parity_http.py https://<ENDPOINT_ID>.api.runpod.ai runs/http-endpoint --token $RUNPOD_API_KEY
+python scripts/parity_http.py https://<ENDPOINT_ID>.api.runpod.ai runs/http-endpoint --token "$RUNPOD_API_KEY"
+python scripts/parity_http.py http://127.0.0.1:8000 runs/http-h100 --regression fixtures/clef-flash/bfloat16
+python scripts/compare_runs.py fixtures/clef-flash/float32 runs/http-a40 runs/http-h100
 ```
+
+The run's `manifest.json` records the worker's GPU. `compare_runs.py` puts two
+runs side by side against the truth when they disagree, to tell a wrong run
+from two noisy ones.
 
 `scripts/pod_http_parity.sh` runs that on a pod deployed from the worker image
 (same self-driving pattern as the oracle below; results land on a
