@@ -148,6 +148,31 @@ def test_fetch_accounting(tmp_path):
     (tmp_path / "blobs" / "b").write_bytes(b"y" * 23)
     (tmp_path / "blobs" / "link").symlink_to(tmp_path / "blobs" / "a")  # not double-counted
     assert engine.dir_bytes(tmp_path / "blobs") == 123
-    assert engine.fetch_source(True, 0, 0) == "model_store"
-    assert engine.fetch_source(False, 123, 123) == "hf_cache"  # nothing new written
-    assert engine.fetch_source(False, 0, 19_000_000_000) == "hf_download"
+
+
+def test_snapshot_bytes_follow_symlinks_to_wherever_the_bytes_live(tmp_path):
+    # The HF layout: snapshots/<rev>/file -> a blob that may live elsewhere (e.g. a xet store).
+    store = tmp_path / "elsewhere"
+    store.mkdir()
+    (store / "shard").write_bytes(b"w" * 1000)
+    snap = tmp_path / "snapshots" / "rev"
+    snap.mkdir(parents=True)
+    (snap / "model.safetensors").symlink_to(store / "shard")
+    (snap / "config.json").write_bytes(b"{}")
+    assert engine.snapshot_bytes(snap) == 1002
+    assert engine.dir_bytes(snap) == 2  # the Oct 14 metric's blind spot: symlinks not counted
+    assert engine.snapshot_bytes(tmp_path / "absent") == 0
+
+
+def test_disk_used_resolves_a_missing_path_to_its_nearest_ancestor(tmp_path):
+    assert engine.disk_used(tmp_path / "not" / "yet" / "created") == engine.disk_used(tmp_path)
+
+
+def test_fetch_source_needs_the_bytes_to_match_the_snapshot():
+    snap = 19_400_000_000
+    assert engine.fetch_source(True, 0, snap) == "model_store"
+    assert engine.fetch_source(False, 19_380_000_000, snap) == "hf_download"
+    assert (
+        engine.fetch_source(False, 129_851, snap) == "hf_cache"
+    )  # Oct 14's 130 KB: not a download
+    assert engine.fetch_source(False, 0, 0) == "hf_cache"

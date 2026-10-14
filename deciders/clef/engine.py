@@ -168,12 +168,31 @@ def dir_bytes(path: Path) -> int:
     return sum(p.stat().st_size for p in path.rglob("*") if p.is_file() and not p.is_symlink())
 
 
-def fetch_source(from_store: bool, bytes_before: int, bytes_after: int) -> str:
-    """How the snapshot reached this worker: model_store, hf_cache (nothing new written to the
-    HF cache) or hf_download (the cache's blobs grew)."""
+def snapshot_bytes(snapshot: Path) -> int:
+    """Resolved size of a snapshot: its files, following symlinks to wherever the bytes live."""
+    if not snapshot.is_dir():
+        return 0
+    return sum(p.stat().st_size for p in snapshot.rglob("*") if p.is_file())
+
+
+def disk_used(path: Path) -> int:
+    """Bytes used on the filesystem holding path (its nearest existing ancestor)."""
+    import shutil
+
+    p = path
+    while not p.exists() and p != p.parent:
+        p = p.parent
+    return shutil.disk_usage(p).used
+
+
+def fetch_source(from_store: bool, bytes_written: int, snap_bytes: int) -> str:
+    """How the snapshot reached this worker: model_store, hf_download (at least half the
+    snapshot's size was written during the fetch) or hf_cache (it was already here)."""
     if from_store:
         return "model_store"
-    return "hf_download" if bytes_after > bytes_before else "hf_cache"
+    if snap_bytes > 0 and bytes_written >= snap_bytes // 2:
+        return "hf_download"
+    return "hf_cache"
 
 
 class Timeline:
@@ -257,21 +276,35 @@ class ClefEngine:
         store_root = Path(os.environ.get("MODEL_STORE_ROOT", str(MODEL_STORE_ROOT)))
         stored = resolve_model_store(cfg.model, cfg.revision, store_root)
         t_fetch = time.perf_counter()
+        fetch: dict[str, Any] = {}
         if stored is not None:
-            self.snapshot, before, after = stored, 0, 0
+            self.snapshot = stored
+            written = 0
         else:
             from huggingface_hub import constants
 
-            blobs = (
-                Path(constants.HF_HUB_CACHE) / ("models--" + cfg.model.replace("/", "--")) / "blobs"
-            )
-            before = dir_bytes(blobs)
+            # Where downloaded bytes land is not assumed (hub blobs, xet cache, temp files):
+            # count them three ways and report all of them. Oct 14: blob-dir growth alone saw
+            # ~130 KB for a 19 GB snapshot.
+            hub, home = Path(constants.HF_HUB_CACHE), Path(constants.HF_HOME)
+            snap_dir = hub / ("models--" + cfg.model.replace("/", "--")) / "snapshots"
+            existed = bool(cfg.revision) and (snap_dir / cfg.revision).is_dir()
+            disk0, home0 = disk_used(hub), dir_bytes(home)
             self.snapshot = Path(snapshot_download(cfg.model, revision=cfg.revision))
-            after = dir_bytes(blobs)
-        self.snapshot_source = fetch_source(stored is not None, before, after)
+            disk_delta, home_delta = disk_used(hub) - disk0, dir_bytes(home) - home0
+            written = max(disk_delta, home_delta)
+            fetch = {
+                "snapshot_dir_existed": existed,
+                "bytes_written_disk": disk_delta,
+                "bytes_written_hf_home": home_delta,
+            }
+        snap = snapshot_bytes(self.snapshot)
+        self.snapshot_source = fetch_source(stored is not None, written, snap)
         self.timeline.fetch = {
             "source": self.snapshot_source,
-            "bytes_added_to_cache": after - before,
+            "snapshot_bytes": snap,
+            "bytes_written": written,
+            **fetch,
             "seconds": round(time.perf_counter() - t_fetch, 3),
         }
         self.timeline.mark("snapshot_resolved")
