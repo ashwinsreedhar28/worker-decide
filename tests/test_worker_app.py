@@ -71,3 +71,13 @@ def test_ping_is_500_when_loading_failed():
         r = c.get("/ping")
         assert r.status_code == 500 and "sha mismatch" in r.json()["error"]
         assert c.post("/v1/decide", json=BODY).status_code == 503
+
+
+def test_main_rejects_unknown_transport(monkeypatch):
+    import pytest
+
+    from worker import __main__ as wm
+
+    monkeypatch.setenv("TRANSPORT", "carrier-pigeon")
+    with pytest.raises(SystemExit, match="TRANSPORT"):
+        wm.main()

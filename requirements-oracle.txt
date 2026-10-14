@@ -1,6 +1,7 @@
 # Oracle environment: the model card's tested pair (torch 2.11, transformers 5.10.2).
-# torch's default PyPI wheel is CUDA 12.8; scripts/pod_oracle.sh falls back to the cu126
-# wheel if the host driver can't init it (same lesson as the Typical pod, Oct 13).
+# torch 2.11.0's default PyPI wheel is CUDA 13.0 (needs driver >= 580; the Oct 14 oracle ran on
+# 580.126). scripts/pod_oracle.sh falls back to the cu126 wheel if the host driver can't init
+# it; the worker image stays on cu130 and the endpoint filters hosts to CUDA 13.0.
 # huggingface_hub, safetensors and tokenizers are left to transformers' own constraints
 # (5.10.2 requires huggingface-hub<2.0,>=1.5.0); the resolved versions land in manifest.json.
 torch==2.11.0

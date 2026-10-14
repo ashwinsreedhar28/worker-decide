@@ -1,0 +1,10 @@
+.git
+.github
+*.egg-info
+__pycache__
+runs
+fixtures
+tests
+docs
+scripts
+test_input.json

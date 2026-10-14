@@ -16,6 +16,7 @@ import base64
 import hashlib
 import io
 import json
+import os
 import platform
 import subprocess
 import sys
@@ -111,12 +112,13 @@ def images_from_data_urls(urls: list[str]) -> list[Any]:
 
 
 def git_commit() -> str | None:
+    """HEAD of the checkout, or WORKER_DECIDE_COMMIT (baked into the image at build time)."""
     try:
         return subprocess.check_output(
             ["git", "-C", str(ROOT), "rev-parse", "HEAD"], text=True, stderr=subprocess.DEVNULL
         ).strip()
     except Exception:  # noqa: BLE001
-        return None
+        return os.environ.get("WORKER_DECIDE_COMMIT") or None
 
 
 def file_shas(snapshot: Path) -> dict[str, Any]:
