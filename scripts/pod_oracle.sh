@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
 # Self-driving oracle run for a Runpod GPU pod. No SSH needed: the pod's start command is
 #
-#   bash -c "git clone https://github.com/ashwinsreedhar28/worker-decide /workspace/worker-decide \
-#            && cd /workspace/worker-decide && bash scripts/pod_oracle.sh"
+#   bash -c "git clone https://github.com/ashwinsreedhar28/worker-decide /root/worker-decide \
+#            && cd /root/worker-decide && bash scripts/pod_oracle.sh"
+#
+# The clone goes to the container disk (/root), not the volume, so a second pod on the same
+# volume clones fresh instead of failing on an existing directory.
 #
 # Pod env (set in the template; GH_TOKEN as a Runpod secret, never in the repo):
 #   GH_TOKEN      fine-grained PAT, contents:read+write on this repo only   (required to push)
 #   GH_REPO       default ashwinsreedhar28/worker-decide
-#   HF_HOME       default /runpod-volume/hf      (network volume → weights persist across pods)
+#   HF_HOME       default /runpod-volume/hf, falls back to /workspace/hf (Runpod's default volume mount)
 #   MODEL         default Cloudflare/clef-flash
 #   REVISION      optional HF commit sha; default main, recorded in manifest.json
 #   DTYPES        default "float32 bfloat16"; the first is written as the oracle (fixtures/),
@@ -20,7 +23,11 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 export HF_HOME="${HF_HOME:-/runpod-volume/hf}"
-mkdir -p "$HF_HOME" 2>/dev/null || { echo "no network volume at $HF_HOME; using /workspace/hf (weights won't persist)"; export HF_HOME=/workspace/hf; mkdir -p "$HF_HOME"; }
+# Runpod mounts a network volume at /workspace by default; /runpod-volume only if the template says so.
+if ! mkdir -p "$HF_HOME" 2>/dev/null; then
+  export HF_HOME=/workspace/hf; mkdir -p "$HF_HOME"
+  echo "using $HF_HOME (persists only if /workspace is the network volume)"
+fi
 MODEL="${MODEL:-Cloudflare/clef-flash}"
 GH_REPO="${GH_REPO:-ashwinsreedhar28/worker-decide}"
 DTYPES="${DTYPES:-float32 bfloat16}"

@@ -33,15 +33,16 @@ The pod drives itself; nothing to SSH into. Results come back as a branch.
    Contents: read and write. Store it in Runpod as a secret named `GH_TOKEN`.
    It never goes in the repo or in chat.
 2. Pod: H100 80 GB (fp32 needs ~36 GB for weights plus activations), a Runpod
-   PyTorch template image, a network volume mounted at `/runpod-volume`
-   (weights and the venv persist there; a re-run skips the 19 GB download).
-3. Environment variables on the pod: `GH_TOKEN` (from the secret), optional
+   PyTorch template image, a network volume attached (Runpod mounts it at
+   `/workspace`; weights and the venv persist there, so a re-run skips the
+   19 GB download).
+3. Environment variables on the pod: `GH_TOKEN` = `{{ RUNPOD_SECRET_GH_TOKEN }}`, optional
    `REVISION` (HF commit sha to pin; default `main`, recorded in the manifest),
    optional `STAGE=dry` for a smoke test that stops after encoding.
 4. Start command (the "Docker command" field):
 
    ```
-   bash -c "git clone https://github.com/ashwinsreedhar28/worker-decide /workspace/worker-decide && cd /workspace/worker-decide && bash scripts/pod_oracle.sh"
+   bash -c "git clone https://github.com/ashwinsreedhar28/worker-decide /root/worker-decide && cd /root/worker-decide && bash scripts/pod_oracle.sh"
    ```
 
 What it does, in order: install the pinned environment, download the snapshot,
