@@ -153,3 +153,39 @@ Audit points:
 
 Out of scope: dynamic batching, SGLang, caching/cold-start arms, Typical
 backend, Hub listing (`.runpod/hub.json`, next).
+
+### Results (branch `parity/http-8b2e5fd-20261014`, H100 80 GB, Oct 14 2026)
+
+Image `ghcr.io/ashwinsreedhar28/worker-decide:clef-13a432a` on a pod with the
+weights volume; worker in `TRANSPORT=http`, bf16, efficient SDPA, GDN on the
+pure-torch path. Engine ready 6.3 s after start (warm volume).
+
+- **Worker over HTTP vs `fixtures/clef-flash/bfloat16`**
+  (`runs/parity_http_bfloat16.md`): **PASS**, 87/87. 0 request mismatches,
+  0 span mismatches, worst question max |Δp| **0.0000** against the 0.005 bar,
+  mean of record means 0.00000. `schema_overflow` errored on both sides. The
+  serving path reproduces the reference exactly — same token ids, same spans,
+  same probabilities — so the debug block's probabilities are the engine's, not
+  a re-derivation.
+- **bf16 re-check of the oracle path** (`runs/parity_bf16_recheck.md`):
+  **PASS**, 87/87, max |Δp| 0.0000. The milestone-1 records survive the engine
+  refactor bit for bit on the same hardware.
+- **fp32 math-kernel bound** (`runs/parity_fp32_math.md`, `--subset`,
+  `trunc_16k` excluded because the math kernel OOMs there): **PASS** on 86
+  records, max |Δp| **0.0000** against a 0.001 bar. This closes the
+  milestone-1 caveat: the memory-efficient SDPA kernel and the math kernel
+  agree to the printed precision, so the oracle's kernel choice does not move
+  the numbers.
+- **Latency** (batch 1, H100, wall measured client-side over HTTP): median
+  225 ms, p90 449 ms, max 2849 ms (`trunc_16k`, 16,384 tokens); 212 ms median
+  for the 47 records under 400 tokens. HTTP + JSON overhead above the engine's
+  own encode+forward is **1.5 ms median, 2.8 ms p90** — the transport is not
+  the cost, the forward pass is.
+- Engine identity at serve time (`runs/worker_info.json`): revision
+  `8b2e5fd…`, `joint_schema_model.py` sha `0e304cf7c650` (matches the pinned
+  value in `worker/core.py`), torch 2.11.0+cu130, transformers 5.10.2.
+
+Known gaps, carried forward: the queue transport has not been exercised on a
+real endpoint (only `WorkerCore.handle_job` under test); no load-balancing
+endpoint has been deployed; concurrency is one forward at a time, so
+throughput is 1/latency.
