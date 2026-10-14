@@ -15,6 +15,7 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 DEFAULT_REPO = "https://github.com/ashwinsreedhar28/worker-decide"
@@ -31,14 +32,25 @@ def fix_hf_home(env: dict[str, str] | os._Environ = os.environ) -> str | None:
     return None
 
 
-def run_pod_script(script: str, env: dict[str, str] | os._Environ = os.environ) -> None:
+def run_pod_script(
+    script: str, env: dict[str, str] | os._Environ = os.environ, tries: int = 20, wait: float = 6.0
+) -> None:
+    """Clone (retrying: a fresh pod's DNS can take a minute to come up) and exec the script."""
     repo = env.get("REPO_URL", DEFAULT_REPO)
     ref = env.get("REPO_REF", "main")
-    if not POD_CHECKOUT.exists():
-        subprocess.run(
-            ["git", "clone", "--branch", ref, "--depth", "1", repo, str(POD_CHECKOUT)], check=True
-        )
+    cmd = ["git", "clone", "--branch", ref, "--depth", "1", repo, str(POD_CHECKOUT)]
+    for attempt in range(1, tries + 1):
+        if POD_CHECKOUT.exists():
+            break
+        r = subprocess.run(cmd, capture_output=True, text=True)
+        if r.returncode == 0:
+            break
+        print(f"clone attempt {attempt}/{tries} failed: {r.stderr.strip()[-300:]}", flush=True)
+        if attempt == tries:
+            sys.exit("giving up on git clone")
+        time.sleep(wait)
     os.chdir(POD_CHECKOUT)
+    print(f"running {script} in {POD_CHECKOUT}", flush=True)
     os.execvp("bash", ["bash", script])
 
 

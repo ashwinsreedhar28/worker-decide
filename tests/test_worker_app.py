@@ -96,14 +96,43 @@ def test_fix_hf_home_only_rewrites_when_workspace_is_the_mount(monkeypatch, tmp_
 
 
 def test_pod_script_clones_then_execs(monkeypatch, tmp_path):
+    import subprocess
+
     from worker import __main__ as wm
 
     calls = []
+    outcomes = iter([1, 1, 0])  # DNS not up yet, twice; then the clone succeeds
+
+    def fake_run(cmd, capture_output, text):
+        calls.append(("run", cmd))
+        return subprocess.CompletedProcess(cmd, next(outcomes), "", "could not resolve host")
+
     monkeypatch.setattr(wm, "POD_CHECKOUT", tmp_path / "checkout")
-    monkeypatch.setattr(wm.subprocess, "run", lambda cmd, check: calls.append(("run", cmd)))
+    monkeypatch.setattr(wm.subprocess, "run", fake_run)
+    monkeypatch.setattr(wm.time, "sleep", lambda s: calls.append(("sleep", s)))
     monkeypatch.setattr(wm.os, "chdir", lambda p: calls.append(("chdir", str(p))))
     monkeypatch.setattr(wm.os, "execvp", lambda f, a: calls.append(("exec", a)))
-    wm.run_pod_script("scripts/pod_http_parity.sh", {"REPO_REF": "m2/x"})
-    assert calls[0][0] == "run" and "--branch" in calls[0][1] and "m2/x" in calls[0][1]
-    assert calls[1] == ("chdir", str(tmp_path / "checkout"))
-    assert calls[2] == ("exec", ["bash", "scripts/pod_http_parity.sh"])
+    wm.run_pod_script("scripts/pod_http_parity.sh", {"REPO_REF": "m2/x"}, wait=1.5)
+    runs = [c for c in calls if c[0] == "run"]
+    assert len(runs) == 3 and "--branch" in runs[0][1] and "m2/x" in runs[0][1]
+    assert calls.count(("sleep", 1.5)) == 2
+    assert calls[-2] == ("chdir", str(tmp_path / "checkout"))
+    assert calls[-1] == ("exec", ["bash", "scripts/pod_http_parity.sh"])
+
+
+def test_pod_script_gives_up_after_tries(monkeypatch, tmp_path):
+    import subprocess
+
+    import pytest
+
+    from worker import __main__ as wm
+
+    monkeypatch.setattr(wm, "POD_CHECKOUT", tmp_path / "never")
+    monkeypatch.setattr(
+        wm.subprocess,
+        "run",
+        lambda c, capture_output, text: subprocess.CompletedProcess(c, 1, "", "x"),
+    )
+    monkeypatch.setattr(wm.time, "sleep", lambda s: None)
+    with pytest.raises(SystemExit, match="giving up"):
+        wm.run_pod_script("s.sh", {}, tries=3)
