@@ -28,6 +28,9 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_MODEL = "Cloudflare/clef-flash"
+# Runpod Model Store ("cached model" on an endpoint) mounts models here, in Hugging Face hub-cache
+# layout; custom workers must resolve the path themselves (docs.runpod.io model-caching).
+MODEL_STORE_ROOT = Path("/runpod-volume/huggingface-cache/hub")
 TYPE_NAMES = {0: "noul", 1: "choice", 2: "score"}
 CODE_FILE = "joint_schema_model.py"
 
@@ -111,6 +114,87 @@ def images_from_data_urls(urls: list[str]) -> list[Any]:
     return out
 
 
+def resolve_model_store(model: str, revision: str | None, root: Path) -> Path | None:
+    """The Model Store snapshot to load from, or None to fall back to the Hub.
+
+    Only the pinned revision is accepted: if the store holds this model at a different commit,
+    this raises instead of silently serving unpinned weights (the parity reference and the
+    CODE_SHA pin both refer to one commit). Unpinned (revision None) follows refs/main.
+    """
+    repo = root / ("models--" + model.replace("/", "--"))
+    if not repo.is_dir():
+        return None
+    snapshots = repo / "snapshots"
+    if revision:
+        snap = snapshots / revision
+        if snap.is_dir():
+            return snap
+        present = sorted(p.name for p in snapshots.iterdir()) if snapshots.is_dir() else []
+        raise RuntimeError(
+            f"Model Store has {model} at {[r[:7] for r in present] or 'no snapshots'}, but this "
+            f"worker is pinned to {revision[:7]}. Set the endpoint's cached model to that "
+            "revision, or clear MODEL_REVISION and CODE_SHA to serve what the store holds "
+            "(voids parity)."
+        )
+    ref = repo / "refs" / "main"
+    if ref.is_file() and (snapshots / ref.read_text().strip()).is_dir():
+        return snapshots / ref.read_text().strip()
+    return None
+
+
+def process_start_time() -> float | None:
+    """Wall-clock time this process started (Linux /proc), or None elsewhere.
+
+    The cold-start timeline is measured from here, so the in-process segment (fetch, imports,
+    weight load, warm-up) is comparable across runs. What happens before the process exists —
+    scheduling, image pull, container create — is the platform's segment, visible only from
+    outside (Runpod's delayTime, or a client's clock).
+    """
+    try:
+        with open("/proc/self/stat") as f:
+            after_comm = f.read().rsplit(")", 1)[1].split()
+        start_ticks = int(after_comm[19])  # field 22 (starttime); after_comm[0] is field 3
+        with open("/proc/uptime") as f:
+            uptime = float(f.read().split()[0])
+        return time.time() - uptime + start_ticks / os.sysconf("SC_CLK_TCK")
+    except (OSError, ValueError, IndexError):
+        return None
+
+
+def dir_bytes(path: Path) -> int:
+    """Total size of regular files under path (symlinks not followed); 0 if absent."""
+    if not path.is_dir():
+        return 0
+    return sum(p.stat().st_size for p in path.rglob("*") if p.is_file() and not p.is_symlink())
+
+
+def fetch_source(from_store: bool, bytes_before: int, bytes_after: int) -> str:
+    """How the snapshot reached this worker: model_store, hf_cache (nothing new written to the
+    HF cache) or hf_download (the cache's blobs grew)."""
+    if from_store:
+        return "model_store"
+    return "hf_download" if bytes_after > bytes_before else "hf_cache"
+
+
+class Timeline:
+    """Startup marks in seconds since process start (or since engine init, if /proc is not
+    available; `basis` says which)."""
+
+    def __init__(self, origin: float | None = None):
+        start = process_start_time() if origin is None else origin
+        self.basis = "process_start" if start is not None else "engine_init"
+        self.origin = start if start is not None else time.time()
+        self.marks: dict[str, float] = {}
+        self.fetch: dict[str, Any] = {}
+
+    def mark(self, name: str) -> float:
+        self.marks[name] = round(time.time() - self.origin, 3)
+        return self.marks[name]
+
+    def as_dict(self) -> dict[str, Any]:
+        return {"basis": self.basis, "marks": dict(self.marks), "fetch": dict(self.fetch)}
+
+
 def git_commit() -> str | None:
     """HEAD of the checkout, or WORKER_DECIDE_COMMIT (baked into the image at build time)."""
     try:
@@ -148,6 +232,7 @@ class EngineConfig:
     sdp: str = "efficient"  # efficient | math | auto, see oracle.py --sdp
     dry_run: bool = False  # encode only, no weights
     expect_code_sha: str | None = None  # sha256 of joint_schema_model.py; mismatch refuses to load
+    warmup: bool = False  # one throwaway forward at startup so the first request is not cold
 
 
 @dataclass
@@ -167,7 +252,29 @@ class ClefEngine:
         from huggingface_hub import snapshot_download
 
         self.cfg = cfg
-        self.snapshot = Path(snapshot_download(cfg.model, revision=cfg.revision))
+        self.timeline = Timeline()
+        self.timeline.mark("engine_init")
+        store_root = Path(os.environ.get("MODEL_STORE_ROOT", str(MODEL_STORE_ROOT)))
+        stored = resolve_model_store(cfg.model, cfg.revision, store_root)
+        t_fetch = time.perf_counter()
+        if stored is not None:
+            self.snapshot, before, after = stored, 0, 0
+        else:
+            from huggingface_hub import constants
+
+            blobs = (
+                Path(constants.HF_HUB_CACHE) / ("models--" + cfg.model.replace("/", "--")) / "blobs"
+            )
+            before = dir_bytes(blobs)
+            self.snapshot = Path(snapshot_download(cfg.model, revision=cfg.revision))
+            after = dir_bytes(blobs)
+        self.snapshot_source = fetch_source(stored is not None, before, after)
+        self.timeline.fetch = {
+            "source": self.snapshot_source,
+            "bytes_added_to_cache": after - before,
+            "seconds": round(time.perf_counter() - t_fetch, 3),
+        }
+        self.timeline.mark("snapshot_resolved")
         code_sha = hashlib.sha256((self.snapshot / CODE_FILE).read_bytes()).hexdigest()
         if cfg.expect_code_sha and code_sha != cfg.expect_code_sha:
             raise RuntimeError(
@@ -181,6 +288,7 @@ class ClefEngine:
 
         self.jsm, self.torch = jsm, torch
         self.lock = threading.Lock()
+        self.timeline.mark("model_code_imported")
         t0 = time.perf_counter()
         if cfg.dry_run:
             self.model, self.processor = None, AutoProcessor.from_pretrained(self.snapshot)
@@ -189,6 +297,7 @@ class ClefEngine:
                 self.snapshot, device=cfg.device, dtype=getattr(torch, cfg.dtype)
             )
         self.load_s = round(time.perf_counter() - t0, 1)
+        self.timeline.mark("weights_loaded")
         self.device = torch.device(cfg.device if not cfg.dry_run else "cpu")
         self._sdp_backends = None
         if self.device.type == "cuda" and cfg.sdp != "auto":
@@ -212,6 +321,20 @@ class ClefEngine:
             import transformers.integrations.sdpa_attention as sdpa_mod
 
             sdpa_mod.use_gqa_in_sdpa = lambda attention_mask, key: False
+
+        self.warmup_s = None
+        if cfg.warmup and self.model is not None:
+            self.warmup_s = self.warmup()
+            self.timeline.mark("warmup_done")
+
+    WARMUP_BODY = {"state": "warmup", "questions": {"w": {"type": "noul", "instructions": "ok?"}}}
+
+    def warmup(self) -> float:
+        """One throwaway forward: CUDA context, cuBLAS handles and lazily loaded kernels are paid
+        here instead of by the first real request. Returns seconds; the answer is discarded."""
+        t = time.perf_counter()
+        self.decide(self.WARMUP_BODY, rid="warmup")
+        return round(time.perf_counter() - t, 3)
 
     # -- pieces ----------------------------------------------------------------------------
 
@@ -294,6 +417,9 @@ class ClefEngine:
             "model": self.cfg.model,
             "revision": self.snapshot.name,  # snapshots/<commit sha>
             "snapshot_path": str(self.snapshot),
+            "snapshot_source": self.snapshot_source,  # model_store | hf_cache | hf_download
+            "timeline": self.timeline.as_dict(),
+            "warmup_s": self.warmup_s,
             "files": file_shas(self.snapshot),
             "dtype": self.cfg.dtype,
             "device": self.cfg.device,
