@@ -96,7 +96,8 @@ Two gates with different jobs:
 
 - **Correctness, any GPU** (the default): against the fp32 truth — argmax
   agrees outside the near-tie window, max |Δp| ≤ 0.025, mean ≤ 0.0025. Set
-  from measured bf16 noise on an H100 (worst 0.0211) and an A40 (0.0163).
+  from measured bf16 noise on an H100 (worst 0.0211) and an A40 (0.0163);
+  confirmed on an L40S (0.0225, thin margin, set by one question).
 - **Regression, same GPU as the reference** (`--regression`): against a bf16
   run made on the same GPU, at 0.005. It catches code changes. Don't point it
   at a reference from different hardware: two bf16 runs on different GPUs
