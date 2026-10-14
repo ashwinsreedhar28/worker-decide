@@ -23,6 +23,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 export HF_HOME="${HF_HOME:-/runpod-volume/hf}"
+export PYTORCH_CUDA_ALLOC_CONF="${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True}"
 # Runpod mounts a network volume at /workspace by default; /runpod-volume only if the template says so.
 if ! mkdir -p "$HF_HOME" 2>/dev/null; then
   export HF_HOME=/workspace/hf; mkdir -p "$HF_HOME"

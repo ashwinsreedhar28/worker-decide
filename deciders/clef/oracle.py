@@ -114,6 +114,17 @@ class Result:
 # ---- the run ----------------------------------------------------------------------------
 
 
+def _gdn_fast_path() -> bool:
+    """Whether Qwen3.5 Gated DeltaNet runs the fla/causal-conv1d kernels or pure torch."""
+    try:
+        import causal_conv1d  # noqa: F401
+        import fla  # noqa: F401
+
+        return True
+    except ImportError:
+        return False
+
+
 def git_commit() -> str | None:
     try:
         return subprocess.check_output(
@@ -157,6 +168,13 @@ def main() -> None:
     ap.add_argument("--dry-run", action="store_true", help="encode only; no weights loaded")
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--max-length", type=int, default=16384)
+    ap.add_argument(
+        "--sdp",
+        default="efficient",
+        choices=["efficient", "math", "auto"],
+        help="SDPA backend on CUDA: efficient = memory-efficient kernel (O(T) memory, fp32 ok), "
+        "math = materialize T×T (OOMs at 16k in fp32), auto = torch's choice",
+    )
     a = ap.parse_args()
 
     from huggingface_hub import snapshot_download
@@ -181,6 +199,23 @@ def main() -> None:
         )
     load_s = time.perf_counter() - t_load
     device = torch.device(a.device if not a.dry_run else "cpu")
+    sdp_backends = None
+    if device.type == "cuda" and a.sdp != "auto":
+        from torch.nn.attention import SDPBackend
+
+        sdp_backends = (
+            [SDPBackend.EFFICIENT_ATTENTION, SDPBackend.FLASH_ATTENTION, SDPBackend.CUDNN_ATTENTION]
+            if a.sdp == "efficient"
+            else [SDPBackend.MATH]
+        )
+
+    def forward(batch):
+        if sdp_backends is None:
+            return model(batch)[0]
+        from torch.nn.attention import sdpa_kernel
+
+        with sdpa_kernel(sdp_backends):
+            return model(batch)[0]
 
     counts = {"ok": 0, "error": 0}
     for i, line in enumerate(lines, 1):
@@ -197,7 +232,7 @@ def main() -> None:
                 t1 = time.perf_counter()
                 with torch.inference_mode():
                     batch = jsm.collate_records([encoded], processor.tokenizer.pad_token_id, device)
-                    logits = model(batch)[0]
+                    logits = forward(batch)
                     if device.type == "cuda":
                         torch.cuda.synchronize()
                 res.timing_ms["forward"] = round((time.perf_counter() - t1) * 1000, 2)
@@ -227,6 +262,15 @@ def main() -> None:
         except ValueError as e:  # encode_record's own rejections (schema too long, bad question)
             res.error = str(e)
             counts["error"] += 1
+        except torch.OutOfMemoryError as e:  # recorded, not fatal: the run must finish and push
+            res.error = "cuda oom: " + str(e).split(".")[0]
+            counts["error"] += 1
+            torch.cuda.empty_cache()
+        except RuntimeError as e:  # e.g. "No available kernel" from a restricted SDPA backend set
+            res.error = "runtime: " + str(e)[:200]
+            counts["error"] += 1
+            if device.type == "cuda":
+                torch.cuda.empty_cache()
         res.timing_ms["total"] = round((time.perf_counter() - t0) * 1000, 2)
         (a.out / f"{res.id}.json").write_text(json.dumps(asdict(res), ensure_ascii=False))
         tok = res.encoding["input_tokens"] if res.encoding else "-"
@@ -248,6 +292,8 @@ def main() -> None:
         "gpu": torch.cuda.get_device_name(0) if torch.cuda.is_available() else None,
         "dry_run": a.dry_run,
         "max_length": a.max_length,
+        "sdp": a.sdp,
+        "gdn_fast_path": _gdn_fast_path(),
         "versions": {
             "python": platform.python_version(),
             "torch": torch.__version__,
