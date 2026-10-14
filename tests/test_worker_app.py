@@ -82,3 +82,28 @@ def test_main_rejects_unknown_transport(monkeypatch):
     monkeypatch.setenv("TRANSPORT", "carrier-pigeon")
     with pytest.raises(SystemExit, match="TRANSPORT"):
         wm.main()
+
+
+def test_fix_hf_home_only_rewrites_when_workspace_is_the_mount(monkeypatch, tmp_path):
+    from worker import __main__ as wm
+
+    env = {"HF_HOME": "/runpod-volume/.cache/huggingface"}
+    real_exists = wm.Path.exists
+    monkeypatch.setattr(wm.Path, "exists", lambda p: str(p) == "/workspace" or real_exists(p))
+    assert wm.fix_hf_home(env) == "/workspace/.cache/huggingface"
+    env = {"HF_HOME": "/elsewhere"}
+    assert wm.fix_hf_home(env) is None and env["HF_HOME"] == "/elsewhere"
+
+
+def test_pod_script_clones_then_execs(monkeypatch, tmp_path):
+    from worker import __main__ as wm
+
+    calls = []
+    monkeypatch.setattr(wm, "POD_CHECKOUT", tmp_path / "checkout")
+    monkeypatch.setattr(wm.subprocess, "run", lambda cmd, check: calls.append(("run", cmd)))
+    monkeypatch.setattr(wm.os, "chdir", lambda p: calls.append(("chdir", str(p))))
+    monkeypatch.setattr(wm.os, "execvp", lambda f, a: calls.append(("exec", a)))
+    wm.run_pod_script("scripts/pod_http_parity.sh", {"REPO_REF": "m2/x"})
+    assert calls[0][0] == "run" and "--branch" in calls[0][1] and "m2/x" in calls[0][1]
+    assert calls[1] == ("chdir", str(tmp_path / "checkout"))
+    assert calls[2] == ("exec", ["bash", "scripts/pod_http_parity.sh"])

@@ -3,10 +3,13 @@
 #
 # Deploy a pod FROM THE WORKER IMAGE (ghcr.io/ashwinsreedhar28/worker-decide:clef-<sha7>, so
 # torch/transformers are the image's), attach the network volume that holds the weights, and
-# set the start command to
+# set the environment variable
 #
-#   bash -c "git clone https://github.com/ashwinsreedhar28/worker-decide /root/worker-decide \
-#            && cd /root/worker-decide && bash scripts/pod_http_parity.sh"
+#   POD_SCRIPT=scripts/pod_http_parity.sh        (optional REPO_REF=<branch>, default main)
+#
+# The image entry point (python -m worker) then clones the repo to /root/worker-decide and runs
+# this script. (A template start command would do the same, but that field has twice not
+# reached the container on Runpod; env vars always do.)
 #
 # What it does, in order:
 #   1. starts the worker (TRANSPORT=http) on 127.0.0.1:$PORT and waits for /ping = 200

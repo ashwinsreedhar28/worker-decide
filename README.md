@@ -91,7 +91,11 @@ python scripts/parity_http.py https://<ENDPOINT_ID>.api.runpod.ai runs/http-endp
 `scripts/pod_http_parity.sh` runs that on a pod deployed from the worker image
 (same self-driving pattern as the oracle below; results land on a
 `parity/http-<rev7>-<date>` branch), plus a bf16 re-check of the oracle path
-and the fp32 math-kernel bound.
+and the fp32 math-kernel bound. Pod template: the worker image, H100 80 GB, the
+weights volume, 10 GB container disk, env `POD_SCRIPT=scripts/pod_http_parity.sh`
+and `GH_TOKEN={{ RUNPOD_SECRET_GH_TOKEN }}`. The image clones the repo and runs
+the script; no start command needed (that field has not reliably reached the
+container).
 
 ## Running the oracle on a Runpod pod
 
