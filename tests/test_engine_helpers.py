@@ -284,14 +284,24 @@ def test_gdn_kernels_fla_imported_without_a_probe_value_is_none(monkeypatch):
     assert engine.gdn_kernels()["fla_device"] is None  # not the string "None"
 
 
-def test_split_per_record_cuts_by_question_counts_and_refuses_a_mismatch():
-    import pytest
+def test_records_from_output_takes_one_entry_per_record_and_refuses_the_rest():
+    out = [["a1", "a2"], ["b1"], ["c1", "c2", "c3"], ["extra"]]
+    assert engine.records_from_output(out, 3) == [["a1", "a2"], ["b1"], ["c1", "c2", "c3"]]
+    assert engine.records_from_output(out, 0) == []
+    with pytest.raises(RuntimeError, match="no entry per record for 5 records"):
+        engine.records_from_output(out, 5)
 
-    flat = ["a1", "a2", "b1", "c1", "c2", "c3"]
-    assert engine.split_per_record(flat, [2, 1, 3]) == [["a1", "a2"], ["b1"], ["c1", "c2", "c3"]]
-    assert engine.split_per_record([], []) == []
-    with pytest.raises(RuntimeError, match="5 question outputs for 6 questions"):
-        engine.split_per_record(flat[:5], [2, 1, 3])
+    class Tensor:  # an output that is one tensor, not a list per record
+        shape = (5,)
+
+        def __len__(self):
+            return 5
+
+        def __getitem__(self, i):
+            return Tensor()
+
+    with pytest.raises(RuntimeError, match="entry 0 is not a list of question logits"):
+        engine.records_from_output(Tensor(), 2)
 
 
 # -- the batched API against decide(), on an engine built without weights -----------------
@@ -354,9 +364,9 @@ def _bare_engine(logits_for=None):
     def collate_records(recs, pad, dev):
         return {"recs": [r.rec for r in recs], "qs": [r.questions for r in recs]}
 
-    def model(batch):
-        return ([FT(logits_for(r, q)) for r, qs in zip(batch["recs"], batch["qs"], strict=True)
-                 for q in qs],)  # fmt: skip
+    def model(batch):  # one list of per-question logits per record, as the reference returns
+        return [[FT(logits_for(r, q)) for q in qs]
+                for r, qs in zip(batch["recs"], batch["qs"], strict=True)]  # fmt: skip
 
     e.model = model
 
@@ -425,3 +435,21 @@ def test_encode_serializes_tokenizer_use_across_threads():
     for t in ts:
         t.join(2)
     assert peak[0] == 1
+
+
+def test_forward_batch_refuses_an_output_with_too_few_question_entries():
+    e = _bare_engine()
+    real = e.model
+    e.model = lambda batch: [qs[:1] for qs in real(batch)]  # drops each record's second question
+    p = e.prepare({"state": "a b", "questions": {"q1": {"type": "noul"}, "q2": {"type": "noul"}}})
+    with pytest.raises(RuntimeError, match="1 question outputs for 2 questions"):
+        e.forward_batch([p.encoded])
+
+
+def test_forward_batch_does_not_take_only_the_first_records_output():
+    # The Oct 15 A40 bug: indexing the batch's output [0] gave every batch the first record's
+    # answers. Two records with different word counts must get different answers.
+    e = _bare_engine()
+    ps = [e.prepare({"state": "w " * n, "questions": {"q": {"type": "noul"}}}) for n in (2, 9)]
+    per = e.forward_batch([p.encoded for p in ps])
+    assert per[0][0][0][0] == pytest.approx(0.6) and per[1][0][0][0] == pytest.approx(2.7)

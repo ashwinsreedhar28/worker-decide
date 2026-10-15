@@ -289,31 +289,34 @@ class Prepared:
         return len(self.encoded.input_ids)
 
 
-def split_per_record(flat: list[Any], counts: list[int]) -> list[list[Any]]:
-    """Cut the model's per-question outputs into one list per record.
+def records_from_output(out: Any, n: int) -> list[Any]:
+    """The first n entries of the model's output, one per record (its per-question logits).
 
-    Assumes the outputs come record by record, question by question, the order the single-
-    record path sees. For batches of more than one record this is UNVERIFIED until the shape
-    probe's batch preview (scripts/shape_probe.py) has run on a GPU: the model code ships with
-    the weights. A count mismatch raises instead of mis-assigning answers.
+    The model returns one entry per record in batch order; the single-record path has always
+    taken entry [0]. Fewer entries than records, or an entry that is a bare tensor rather than
+    a list of question tensors, raises RuntimeError, which sends each request through the
+    batcher's retry-alone path instead of mis-assigning answers.
     """
-    if sum(counts) != len(flat):
-        raise RuntimeError(
-            f"model returned {len(flat)} question outputs for {sum(counts)} questions"
-        )
-    out, i = [], 0
-    for c in counts:
-        out.append(flat[i : i + c])
-        i += c
-    return out
+    try:
+        entries = [out[i] for i in range(n)]
+    except (IndexError, KeyError, TypeError) as e:
+        raise RuntimeError(f"model output has no entry per record for {n} records: {e}") from e
+    for i, e in enumerate(entries):
+        if hasattr(e, "shape") or not hasattr(e, "__len__"):
+            raise RuntimeError(f"model output entry {i} is not a list of question logits")
+    return entries
 
 
-def check_option_counts(per_record: list[list[Any]], encoded_list: list[Any]) -> None:
-    """Each question's output must have one value per option. A batched output padded to the
-    widest question, or records out of order with different option counts, raises
-    RuntimeError here, inside the forward, so the batcher retries each request alone instead
-    of the mismatch surfacing later as a 400 from assemble()."""
+def check_counts(per_record: list[list[Any]], encoded_list: list[Any]) -> None:
+    """Each record must get one output per question, and each question one value per option.
+    A mismatch (records out of order with different shapes, outputs padded to the widest
+    question) raises RuntimeError inside the forward, so the batcher retries each request alone
+    instead of the mismatch surfacing later as a 400 from assemble()."""
     for r, (outs, e) in enumerate(zip(per_record, encoded_list, strict=True)):
+        if len(outs) != len(e.questions):
+            raise RuntimeError(
+                f"record {r}: {len(outs)} question outputs for {len(e.questions)} questions"
+            )
         for q, (logits, _probs) in zip(e.questions, outs, strict=True):
             if len(logits) != len(q.option_ids):
                 raise RuntimeError(
@@ -441,18 +444,25 @@ class ClefEngine:
             )
 
     def _forward(self, batch):
+        """The first record's per-question logits (the single-record path)."""
+        return self._forward_records(batch)[0]
+
+    def _forward_records(self, batch):
+        """The model's output for a collated batch: one list of per-question logits per record
+        (verified on an A40, Oct 15: a 3-record batch's output indexed [0] held only the first
+        record's one question; the single-record path has always taken [0])."""
         if self._sdp_backends is None:
-            return self.model(batch)[0]
+            return self.model(batch)
         from torch.nn.attention import SDPBackend, sdpa_kernel
 
         try:
             with sdpa_kernel(self._sdp_backends):
-                return self.model(batch)[0]
+                return self.model(batch)
         except RuntimeError as e:
             if "No available kernel" not in str(e) or self._sdp_backends == [SDPBackend.MATH]:
                 raise
             with sdpa_kernel([SDPBackend.MATH]):  # last resort; OOMs at 16k in fp32
-                return self.model(batch)[0]
+                return self.model(batch)
 
     def forward(self, encoded) -> list[tuple[list[float], list[float]]]:
         """(logits, probs) per question, as Python lists. Batch size 1 on purpose."""
@@ -529,16 +539,19 @@ class ClefEngine:
             batch = self.jsm.collate_records(
                 list(encoded_list), self.processor.tokenizer.pad_token_id, self.device
             )
-            logits = self._forward(batch)
+            out = self._forward_records(batch)
             if self.device.type == "cuda":
                 torch.cuda.synchronize()
-        flat = []
-        for ql in logits:
-            lg = ql.float().cpu()
-            flat.append((lg.tolist(), lg.softmax(-1).tolist()))
-        per_record = split_per_record(flat, [len(e.questions) for e in encoded_list])
-        check_option_counts(per_record, encoded_list)
-        return per_record
+        per_record = records_from_output(out, len(encoded_list))
+        result = []
+        for qls in per_record:
+            rec = []
+            for ql in qls:
+                lg = ql.float().cpu()
+                rec.append((lg.tolist(), lg.softmax(-1).tolist()))
+            result.append(rec)
+        check_counts(result, encoded_list)
+        return result
 
     def finish(self, p: Prepared, per_question: list[Any], forward_ms: float) -> Decision:
         """Assemble the SystemOne answer for a prepared request from its forward outputs."""
