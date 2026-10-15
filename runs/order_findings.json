@@ -1,0 +1,75 @@
+{
+ "unsorted_same_ids": true,
+ "unsorted_max_dp": 0.0,
+ "question_orders": {
+  "alphabetical": {
+   "input_tokens": 300,
+   "max_dp_vs_alphabetical": {
+    "department": 0.0,
+    "outage": 0.0,
+    "urgency": 0.0
+   },
+   "probs": {
+    "department": [
+     0.0394,
+     0.9606
+    ],
+    "outage": [
+     0.7774,
+     0.2226
+    ],
+    "urgency": [
+     0.0683,
+     0.0522,
+     0.8795
+    ]
+   }
+  },
+  "card": {
+   "input_tokens": 300,
+   "max_dp_vs_alphabetical": {
+    "department": 0.000127,
+    "outage": 0.058876,
+    "urgency": 0.021289
+   },
+   "probs": {
+    "department": [
+     0.0392,
+     0.9608
+    ],
+    "urgency": [
+     0.0713,
+     0.0705,
+     0.8582
+    ],
+    "outage": [
+     0.8363,
+     0.1637
+    ]
+   }
+  },
+  "reversed": {
+   "input_tokens": 300,
+   "max_dp_vs_alphabetical": {
+    "department": 0.011288,
+    "outage": 0.153619,
+    "urgency": 0.026202
+   },
+   "probs": {
+    "outage": [
+     0.6238,
+     0.3762
+    ],
+    "urgency": [
+     0.0617,
+     0.0326,
+     0.9057
+    ],
+    "department": [
+     0.0506,
+     0.9494
+    ]
+   }
+  }
+ }
+}
