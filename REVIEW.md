@@ -591,3 +591,41 @@ concurrent requests.
 
 Revised optimization order from these numbers: (0) GDN fast path, (1) batching, then CUDA
 graphs / compile if the gap to SGLang's floor remains; the native head drops out.
+
+### Results: SGLang on the H100, Oct 15 (`m4/pod-h100-sglang-20261015`)
+
+SGLang `0.5.22.dev20261009+g37ae292e6f` (the cookbook's pin, Clef's joint head present),
+default attention backend, after the PATH fix.
+
+**SGLang computes Clef-flash.** Correctness gate against the fp32 truth: PASS on all 87
+records (worst question 0.0159, mean of record means 0.00138, 0 clear argmax flips;
+`empty_instructions` refused with 422 as documented and reported SKIP; `schema_overflow`
+refused like the reference). Token counts equal the reference encoder's on all 85 records
+both answer, so the prompt is the same. The order records pass too (worst 0.0060): it keeps
+question order. Against our own bf16 run on the same GPU it differs by up to 0.0286
+(`invoice_extract/overdue`) while each is within the bar of fp32 (ours 0.0211, SGLang
+0.0159): two bf16 implementations erring in different directions, as two GPUs did in
+milestone 2. SGLang is closer to fp32 on 108 of 178 questions, ours on 70.
+
+**SGLang does not reproduce Workers AI.** On the 50 Pulse questions: SGLang vs fp32 worst
+0.0082, Workers AI vs fp32 worst 0.1435, SGLang vs Workers AI worst 0.1374; SGLang is closer to
+fp32 on all 50, and Workers AI has 2 clear argmax flips that SGLang does not. Cloudflare says
+it moved Clef to SGLang on Workers AI (Oct 9 post; it does not say so for Clef-flash). Running
+the published weights in the published SGLang build does not explain the hosted drift, so the
+open question for Brian stands, sharper: the encoder and token counts match, the engine is
+ruled out, what else differs (precision, a different revision, request handling)?
+
+**SGLang is the speed target** (H100, same requests, same harness):
+
+| workload | tokens | ours c=1 p50 | SGLang c=1 p50 | ours c=32 req/s | SGLang c=32 req/s |
+|---|---|---|---|---|---|
+| ticket | 300 | 138 ms | 60 ms | 6.2 | 95.7 |
+| pulse | 843 | 176 ms | 62 ms | 5.1 | 45.9 |
+| article | 2,486 | 284 ms | 77 ms | 3.1 | 16.4 |
+
+2.3–3.7x lower latency per request, 5–15x the throughput under load (it batches concurrent
+requests; ours serializes). Its single-request latency grows only from 60 to 77 ms between
+300 and 2,486 tokens, where ours grows from 138 to 284 ms: consistent with our backbone time
+being dominated by the pure-torch Gated DeltaNet path rather than by sequence length. Tier 0
+(fla kernels) tests that directly; the target for our worker is SGLang's 60–77 ms on this GPU,
+and the A40 numbers are still owed.
