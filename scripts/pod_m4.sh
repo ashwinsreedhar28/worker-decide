@@ -136,9 +136,15 @@ if want 4; then
     apt-get update -qq && apt-get install -y -qq --no-install-recommends gcc g++ libc6-dev \
       >/dev/null && record compilers ok || record compilers FAIL
     apt-get install -y -qq --no-install-recommends cuda-nvcc-13-0 >/dev/null 2>&1 \
-      && export PATH="/usr/local/cuda/bin:$PATH" || echo "cuda-nvcc-13-0 not installed (optional)"
+      || echo "cuda-nvcc-13-0 not installed (optional)"
   fi
-  { gcc --version | head -1; command -v nvcc && nvcc --version | tail -2; } > runs/sglang-toolchain.txt 2>&1
+  # Unconditional, so a rerun in the same container (compilers already there) gets it too.
+  if [ -x /usr/local/cuda/bin/nvcc ]; then
+    export PATH="/usr/local/cuda/bin:$PATH" CUDA_HOME=/usr/local/cuda
+  fi
+  { gcc --version | head -1; command -v nvcc && nvcc --version | tail -2
+    [ -x /opt/sgl/bin/ninja ] && echo "ninja $(/opt/sgl/bin/ninja --version) (venv)"; } \
+    > runs/sglang-toolchain.txt 2>&1
   if [ ! -x /opt/sgl/bin/python ]; then
     python3 -m pip install -q uv   # the image sets PIP_BREAK_SYSTEM_PACKAGES=1
     uv venv /opt/sgl --python 3.10 \
@@ -157,7 +163,9 @@ PY
   cat runs/sglang-head-check.txt
   SGL_PID=""
   start_sglang() {  # extra args...
-    /opt/sgl/bin/python -m sglang.launch_server --model-path Cloudflare/clef-flash \
+    # The venv's bin on PATH: SGLang's JIT kernels run `ninja` (pip-installed into the venv) by
+    # name. Oct 15 H100 run: both starts failed with FileNotFoundError 'ninja' without this.
+    PATH="/opt/sgl/bin:$PATH" /opt/sgl/bin/python -m sglang.launch_server --model-path Cloudflare/clef-flash \
       --revision "$REV" --host 127.0.0.1 --port 30000 "$@" > runs/sglang.log 2>&1 &
     SGL_PID=$!
     wait_200 http://127.0.0.1:30000/health 1800 $SGL_PID
@@ -174,8 +182,13 @@ PY
   echo "sglang attention backend: $BACKEND" | tee runs/sglang-backend.txt
   if [ "$(http_code http://127.0.0.1:30000/health)" = 200 ]; then
     record sglang_start "ok ($BACKEND)"
+    # Our own bf16 answers on this GPU, if we have them (fixtures/clef-flash/bfloat16 is the H100
+    # oracle run; runs/http-a40 the A40 worker run); otherwise the A40 run, read as cross-GPU.
+    OURS=runs/http-a40; OURS_LABEL=ours-A40
+    BF16_GPU=$(python3 -c "import json;print(json.load(open('fixtures/clef-flash/bfloat16/manifest.json'))['gpu'])")
+    if [ "$GPU" = "$BF16_GPU" ]; then OURS=fixtures/clef-flash/bfloat16; OURS_LABEL="ours-$SLUG"; fi
     python3 scripts/parity_sglang.py http://127.0.0.1:30000 "runs/sglang-$SLUG" \
-      --also "runs/http-a40" --json "runs/parity_sglang_$SLUG.json" \
+      --also "$OURS" --json "runs/parity_sglang_$SLUG.json" \
       > "runs/parity_sglang_$SLUG.md" && record parity_sglang PASS || record parity_sglang FAIL
     head -20 "runs/parity_sglang_$SLUG.md"
     if order_oracle_ok; then
@@ -187,8 +200,8 @@ PY
       runs/hosted fixtures/clef-flash/float32 2>/dev/null
     python3 scripts/compare_runs.py fixtures/clef-flash/float32 "runs/sglang-$SLUG" runs/hosted \
       --labels "SGLang-$SLUG,WorkersAI" > "runs/compare_sglang_vs_hosted_$SLUG.md" || true
-    python3 scripts/compare_runs.py fixtures/clef-flash/float32 runs/http-a40 "runs/sglang-$SLUG" \
-      --labels "ours-A40,SGLang-$SLUG" > "runs/compare_ours_vs_sglang_$SLUG.md" || true
+    python3 scripts/compare_runs.py fixtures/clef-flash/float32 "$OURS" "runs/sglang-$SLUG" \
+      --labels "$OURS_LABEL,SGLang-$SLUG" > "runs/compare_ours_vs_sglang_$SLUG.md" || true
     python3 scripts/loadtest.py http://127.0.0.1:30000 "runs/load-sglang-$SLUG" --label "sglang-$SLUG" \
       --model Cloudflare/clef-flash && record load_sglang ok || record load_sglang FAIL
   fi
