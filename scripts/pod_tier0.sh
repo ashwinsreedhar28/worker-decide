@@ -20,12 +20,15 @@
 # Run from the worker image: POD_SCRIPT=scripts/pod_tier0.sh (and REPO_REF=<branch> until it is
 # on main). On a pod that already ran pod_m4.sh (a shallow clone on a local branch, so no
 # `git pull`; REF is main once merged, m5/tier0-fla before), detached so it survives the shell:
-#   cd /root/worker-decide && git fetch -q --depth 1 origin REF && git checkout -q FETCH_HEAD
+#   cd /root/worker-decide && git fetch -q --depth 1 origin REF && git stash -q \
+#     ; git checkout -q FETCH_HEAD
 #   EXIT_WHEN_DONE=1 setsid nohup bash scripts/pod_tier0.sh > /dev/null 2>&1 &
-# (two lines: a trailing & on the first would background the cd too), then follow
-# runs/pod_tier0.log. Commits and pushes only if RUNPOD_POD_ID and GH_TOKEN are set
-# in that shell. It does not stop the pod.
-# Env: FLA_SPEC (default fla-core==0.5.2), GH_TOKEN, EXIT_WHEN_DONE.
+# (the stash: pod_m4.sh's log changes after its commit and blocks the checkout; two lines: a
+# trailing & on the first would background the cd too), then follow runs/pod_tier0.log.
+# Commits only on a Runpod pod (RUNPOD_POD_ID set, or FORCE_PUSH=1, which also rewrites the
+# checkout's git user and branch: never on a dev machine); pushes only if GH_TOKEN is set too.
+# It does not stop the pod.
+# Env: FLA_SPEC (default fla-core==0.5.2), GH_TOKEN, EXIT_WHEN_DONE, FORCE_PUSH.
 set -uo pipefail
 
 cd "$(dirname "$0")/.." || exit 1
@@ -90,6 +93,11 @@ print(json.dumps(json.load(urllib.request.urlopen("http://127.0.0.1:8000/", time
 ready_s() {  # info file (GET /) -> "<s>s", the worker's ready mark since process start
   python3 -c 'import json, sys; print(str(json.load(open(sys.argv[1]))["engine"]["timeline"]["marks"]["ready"]) + "s")' "$1" 2>/dev/null \
     || echo unknown
+}
+
+alive() {  # the worker process still runs (against a dead one, parity_http waits 900 s)
+  if kill -0 "$WPID" 2>/dev/null; then return 0; fi
+  record worker_died "before $1"; tail -n 40 "$2"; return 1
 }
 
 stop_worker() {  # kill, wait up to 30 s, then -9
@@ -167,6 +175,7 @@ if [ "$STEPS_DONE" = 1 ]; then
 
     # ---- 3. correctness ----------------------------------------------------------------------
     step "3. correctness gate"
+    alive "step 3" runs/worker-tier0.log && {
     # Pure-torch baseline on the same GPU if we have one: a worker run for this GPU, else the
     # bf16 oracle fixture if it was made here (H100), else the A40 run (cross-GPU, info only).
     OURS_TORCH=runs/http-a40
@@ -185,11 +194,14 @@ if [ "$STEPS_DONE" = 1 ]; then
     fi
     python3 scripts/compare_runs.py fixtures/clef-flash/float32 "$OURS_TORCH" "runs/http-fla-$SLUG" \
       --labels "torch-gdn,fla-gdn" > "runs/compare_torch_vs_fla_$SLUG.md" || true
+    }
 
     # ---- 4. load ------------------------------------------------------------------------------
     step "4. load test"
-    python3 scripts/loadtest.py http://127.0.0.1:8000 "runs/load-ours-fla-$SLUG" \
-      --label "ours-fla-$SLUG" && record load_fla ok || record load_fla FAIL
+    if alive "step 4" runs/worker-tier0.log; then
+      python3 scripts/loadtest.py http://127.0.0.1:8000 "runs/load-ours-fla-$SLUG" \
+        --label "ours-fla-$SLUG" && record load_fla ok || record load_fla FAIL
+    fi
   else
     record worker_start FAIL; tail -n 40 runs/worker-tier0.log
   fi
