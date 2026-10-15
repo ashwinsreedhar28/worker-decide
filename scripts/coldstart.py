@@ -20,6 +20,17 @@ from here; measure it on a new endpoint and label it as such.
     python scripts/coldstart.py ENDPOINT_ID runs/coldstart-disk-a40 --runs 10 --label disk-a40
 
 Set the endpoint's idle timeout low (5 s) for the benchmark, or each iteration waits it out.
+
+Each sample is classified (Oct 14, arm D: FlashBoot kept the loaded process for 8 of 10 jobs):
+
+- cold: a new process started after the submit (platform estimate >= 0);
+- resumed: the endpoint reported no running worker, yet the job ran in a process that was
+  already up before the submit (platform estimate < 0, i.e. the worker's ready mark is older
+  than Runpod's delay). FlashBoot does this. Reported separately, not mixed into cold stats;
+- suspect warm: under SUSPECT_WARM_DELAY_S with no timeline to tell which, excluded.
+
+--gap S waits S seconds after the endpoint goes cold before submitting, to measure how long
+FlashBoot keeps a process resumable. Sweep it with one output dir per gap.
 The API key comes from $RUNPOD_API_KEY. Writes run-NN.json per iteration and summary.json, and
 prints a markdown summary.
 """
@@ -94,10 +105,11 @@ def wait_until(predicate, poll, interval: float, timeout: float, sleep=time.slee
 def run_job(api, job, interval=1.0, timeout=1800.0, sleep=time.sleep, clock=time.time) -> dict:
     """Submit and poll to a terminal state; returns the final /status plus client wall time."""
     t0 = clock()
+    submitted_unix = time.time()  # wall clock, comparable with the worker's origin_unix
     job_id = api.run(job)["id"]
     final = wait_until(lambda s: s.get("status") in TERMINAL, lambda: api.status(job_id),
                        interval, timeout, sleep, clock)  # fmt: skip
-    return {**final, "client_wall_s": round(clock() - t0, 3)}
+    return {**final, "client_wall_s": round(clock() - t0, 3), "submitted_unix": submitted_unix}
 
 
 def segments(marks: dict[str, float], fetch_s: float | None) -> dict[str, float | None]:
@@ -146,6 +158,13 @@ def extract(status: dict[str, Any]) -> dict[str, Any]:
         # submission -> process start, estimated as Runpod's delay minus the worker's own
         # process-start -> ready time: scheduling, image pull (if any), container create.
         "platform_est_s": round(delay_s - ready_s, 3) if ready_s is not None else None,
+        # How long the process had been up when the job was submitted (worker clock vs this
+        # machine's; NTP-level skew). Only images that report origin_unix (after Oct 14).
+        "process_age_s": (
+            round(status["submitted_unix"] - timeline["origin_unix"], 1)
+            if status.get("submitted_unix") and timeline.get("origin_unix")
+            else None
+        ),
         "error": status.get("error"),
     }
 
@@ -166,15 +185,40 @@ def wait_cold(api, interval, timeout, consecutive=2, sleep=time.sleep, clock=tim
     return wait_until(cold_streak, api.health, interval, timeout, sleep, clock)
 
 
-def iteration(api, job, settle_timeout=900.0, interval=5.0, sleep=time.sleep, clock=time.time):
+def classify(c: dict[str, Any]) -> str:
+    """cold | resumed | suspect_warm | failed, from one extracted cold-job record."""
+    if c.get("status") != "COMPLETED":
+        return "failed"
+    plat = c.get("platform_est_s")
+    if plat is not None:
+        return "resumed" if plat < 0 else "cold"
+    return "suspect_warm" if c.get("delay_s", 0) < SUSPECT_WARM_DELAY_S else "cold"
+
+
+def row_kind(r: dict[str, Any]) -> str:
+    """Always re-derived from the cold record, so run files written before `kind` existed (whose
+    suspect_warm flag lumped resumed processes in with warm starts) get the same treatment."""
+    return classify(r["cold"])
+
+
+def iteration(api, job, settle_timeout=900.0, interval=5.0, gap_s=0.0, sleep=time.sleep,
+              clock=time.time):  # fmt: skip
     health = wait_cold(api, interval, settle_timeout, sleep=sleep, clock=clock)
+    health_after_gap = None
+    if gap_s > 0:
+        sleep(gap_s)
+        health_after_gap = api.health()  # recorded, not gated: a scale-up here is the platform's
     cold = run_job(api, job, sleep=sleep, clock=clock)
     warm = run_job(api, job, sleep=sleep, clock=clock) if cold.get("status") == "COMPLETED" else {}
     c = extract(cold)
+    kind = classify(c)
     return {
         "health_before": health,
         "idle_before": health.get("workers", {}).get("idle"),
-        "suspect_warm": c["status"] == "COMPLETED" and c["delay_s"] < SUSPECT_WARM_DELAY_S,
+        "gap_s": gap_s,
+        "health_after_gap": health_after_gap,
+        "kind": kind,
+        "suspect_warm": kind == "suspect_warm",
         "cold": c,
         "warm": extract(warm) if warm else None,
         # Runpod's responses as received, so a later extraction fix can be re-applied.
@@ -203,7 +247,9 @@ def _stats(values: list[float]) -> dict[str, float] | None:
 
 
 def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
-    ok = [r for r in rows if r["cold"]["status"] == "COMPLETED" and not r.get("suspect_warm")]
+    kinds = [row_kind(r) for r in rows]
+    ok = [r for r, k in zip(rows, kinds, strict=True) if k == "cold"]
+    resumed = [r["cold"] for r, k in zip(rows, kinds, strict=True) if k == "resumed"]
     cold = [r["cold"] for r in ok]
     warm = [r["warm"] for r in ok if r.get("warm")]
 
@@ -216,7 +262,9 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
     return {
         "iterations": len(rows),
         "completed": len(ok),
-        "suspect_warm_excluded": sum(1 for r in rows if r.get("suspect_warm")),
+        "resumed": len(resumed),
+        "suspect_warm_excluded": kinds.count("suspect_warm"),
+        "gaps_s": sorted({r.get("gap_s") or 0 for r in rows}),
         "gpus": sorted({c["gpu"] for c in cold if c["gpu"]}),
         # v1 told hf_download from hf_cache by blob growth (unsound: ~130 KB seen for 19 GB);
         # its model_store label came from the path check and stands.
@@ -244,6 +292,11 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "fetch_gb_per_s": _stats(rate),
         "cold_exec_s": _stats([c["exec_s"] for c in cold]),
         "warm_exec_s": _stats([w["exec_s"] for w in warm]),
+        # resumed: no process start inside the delay; age needs an image reporting origin_unix
+        "resumed_delay_s": _stats([c["delay_s"] for c in resumed]),
+        "resumed_exec_s": _stats([c["exec_s"] for c in resumed]),
+        "resumed_process_age_s": _stats([c.get("process_age_s") for c in resumed]),
+        "resumed_workers_seen": len({c["worker_id"] for c in resumed}),
     }
 
 
@@ -265,8 +318,9 @@ def render(label: str, s: dict[str, Any]) -> str:
     out = [
         f"## Cold start: {label}",
         "",
-        f"{s['completed']}/{s['iterations']} completed cold starts "
-        f"({s['suspect_warm_excluded']} excluded as suspected warm); "
+        f"{s['completed']}/{s['iterations']} cold starts, {s.get('resumed', 0)} resumed "
+        f"(process already up at submit), {s['suspect_warm_excluded']} excluded as suspected "
+        f"warm; gap after cold {', '.join(f'{g:g}' for g in s.get('gaps_s', [0]))} s; "
         f"GPU {', '.join(s['gpus']) or '?'}; "
         f"snapshot {', '.join(s['snapshot_sources']) or 'not measured (v1)'}; "
         f"{s['workers_seen']} distinct workers; idle slots before each submit: {s['idle_before']}",
@@ -279,6 +333,24 @@ def render(label: str, s: dict[str, Any]) -> str:
         if not st:
             continue
         out.append(f"| {name} | {st['median']} | {st['p90']} | {st['min']} | {st['max']} |")
+    if s.get("resumed"):
+        out += [
+            "",
+            f"Resumed samples ({s['resumed']}, {s['resumed_workers_seen']} distinct workers): "
+            "the job ran in a process started before the submit.",
+            "",
+            "| resumed (seconds) | median | p90 | min | max |",
+            "|---|---|---|---|---|",
+        ]
+        for name, key in [
+            ("queue delay (Runpod delayTime)", "resumed_delay_s"),
+            ("first execution", "resumed_exec_s"),
+            ("process up before submit", "resumed_process_age_s"),
+        ]:
+            st = s[key]
+            if not st:
+                continue
+            out.append(f"| {name} | {st['median']} | {st['p90']} | {st['min']} | {st['max']} |")
     if "v1" in s.get("fetch_metrics", []):
         out += [
             "",
@@ -303,6 +375,12 @@ def main() -> None:
     ap.add_argument("--input", type=Path, default=ROOT / "test_input.json")
     ap.add_argument("--settle-timeout", type=float, default=900.0, help="max wait to go cold, s")
     ap.add_argument(
+        "--gap",
+        type=float,
+        default=0.0,
+        help="seconds to wait after the endpoint goes cold before submitting",
+    )
+    ap.add_argument(
         "--summarize",
         action="store_true",
         help="recompute summary.json and the table from OUT_DIR's run files; no API calls",
@@ -324,16 +402,20 @@ def main() -> None:
     a.out_dir.mkdir(parents=True, exist_ok=True)
     rows = []
     for i in range(1, a.runs + 1):
+        gap = f", then {a.gap:g} s" if a.gap else ""
         print(
-            f"[{i}/{a.runs}] waiting for the endpoint to go cold ...", file=sys.stderr, flush=True
+            f"[{i}/{a.runs}] waiting for the endpoint to go cold{gap} ...",
+            file=sys.stderr,
+            flush=True,
         )
-        row = iteration(api, job, settle_timeout=a.settle_timeout)
+        row = iteration(api, job, settle_timeout=a.settle_timeout, gap_s=a.gap)
         rows.append(row)
         (a.out_dir / f"run-{i:02d}.json").write_text(json.dumps(row, indent=1))
         c = row["cold"]
         print(
-            f"[{i}/{a.runs}] {c['status']} delay {c['delay_s']} s, ready {c['marks'].get('ready')} "
-            f"s, platform~{c['platform_est_s']} s, fetch {c['snapshot_source']} {c['fetch_s']} s "
+            f"[{i}/{a.runs}] {c['status']} {row['kind']} delay {c['delay_s']} s, "
+            f"ready {c['marks'].get('ready')} s, platform~{c['platform_est_s']} s, "
+            f"fetch {c['snapshot_source']} {c['fetch_s']} s "
             f"({(c['bytes_written'] or 0) / 1e9:.2f} GB written), "
             f"exec {c['exec_s']} s / warm {(row['warm'] or {}).get('exec_s')} s, "
             f"idle before {row['idle_before']}",
