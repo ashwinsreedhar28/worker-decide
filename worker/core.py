@@ -39,6 +39,7 @@ def config_from_env(env: dict[str, str] | None = None) -> EngineConfig:
         sdp=e.get("SDP", "efficient"),
         expect_code_sha=e.get("CODE_SHA", PINNED_CODE_SHA) or None,
         warmup=e.get("WARMUP", "0").strip().lower() in {"1", "true", "yes"},
+        fused=e.get("FUSED", ""),
     )
 
 
@@ -91,7 +92,7 @@ class WorkerCore:
         m = engine.manifest()
         self.info = {
             k: m.get(k)
-            for k in ("model", "revision", "dtype", "sdp", "gdn_fast_path", "gdn_kernels",
+            for k in ("model", "revision", "dtype", "sdp", "fused", "gdn_fast_path", "gdn_kernels",
                       "versions", "gpu", "worker_decide_commit", "load_s", "snapshot_source",
                       "warmup_s", "timeline")
         }  # fmt: skip

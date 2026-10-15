@@ -117,6 +117,20 @@ def test_warmup_is_off_unless_asked():
     assert wc.config_from_env({"WARMUP": "0"}).warmup is False
 
 
+def test_fused_passes_through_and_the_report_reaches_info():
+    assert wc.config_from_env({}).fused == ""
+    assert wc.config_from_env({"FUSED": "rmsnorm,mlp"}).fused == "rmsnorm,mlp"
+
+    class FusedEngine(FakeEngine):
+        def manifest(self):
+            return {**super().manifest(), "fused": {"rmsnorm": 129, "mlp": 32}}
+
+    c = wc.WorkerCore(FusedEngine())
+    assert c.info["fused"] == {"rmsnorm": 129, "mlp": 32}
+    assert c.decide(BODY, debug=True).body["debug"]["engine"]["fused"] == {"rmsnorm": 129,
+                                                                             "mlp": 32}  # fmt: skip
+
+
 def test_core_marks_ready_and_exposes_the_timeline():
     import time
 

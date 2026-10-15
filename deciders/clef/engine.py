@@ -260,6 +260,7 @@ class EngineConfig:
     dry_run: bool = False  # encode only, no weights
     expect_code_sha: str | None = None  # sha256 of joint_schema_model.py; mismatch refuses to load
     warmup: bool = False  # one throwaway forward at startup so the first request is not cold
+    fused: str = ""  # tier 2 fusions (deciders/clef/fused.py): "" none, "all", or a comma list
 
 
 @dataclass
@@ -329,7 +330,10 @@ class ClefEngine:
     def __init__(self, cfg: EngineConfig):
         from huggingface_hub import snapshot_download
 
+        from deciders.clef import fused
+
         self.cfg = cfg
+        wanted = fused.parse(cfg.fused)  # a bad FUSED fails here, before the 19 GB load
         self.timeline = Timeline()
         self.timeline.mark("engine_init")
         store_root = Path(os.environ.get("MODEL_STORE_ROOT", str(MODEL_STORE_ROOT)))
@@ -417,6 +421,12 @@ class ClefEngine:
             import transformers.integrations.sdpa_attention as sdpa_mod
 
             sdpa_mod.use_gqa_in_sdpa = lambda attention_mask, key: False
+
+        # Tier 2: fusions are applied to the loaded model's own modules, before any forward.
+        self.fused_report: dict[str, Any] = {}
+        if wanted and self.model is not None:
+            self.fused_report = fused.apply(self.model, wanted)
+            self.timeline.mark("fused")
 
         self.warmup_s = None
         if cfg.warmup and self.model is not None:
@@ -586,6 +596,7 @@ class ClefEngine:
             "dry_run": self.cfg.dry_run,
             "max_length": self.cfg.max_length,
             "sdp": self.cfg.sdp,
+            "fused": self.fused_report,
             "gdn_fast_path": gdn_fast_path(),
             "gdn_kernels": gdn_kernels(),
             "versions": {

@@ -457,3 +457,14 @@ def test_forward_batch_does_not_take_only_the_first_records_output():
     ps = [e.prepare({"state": "w " * n, "questions": {"q": {"type": "noul"}}}) for n in (2, 9)]
     per = e.forward_batch([p.encoded for p in ps])
     assert per[0][0][0][0] == pytest.approx(0.6) and per[1][0][0][0] == pytest.approx(2.7)
+
+
+def test_a_bad_fused_spec_fails_before_any_weights_are_fetched(monkeypatch):
+    hub = pytest.importorskip("huggingface_hub")
+
+    def no_fetch(*a, **kw):
+        raise AssertionError("fetched weights for a config that cannot run")
+
+    monkeypatch.setattr(hub, "snapshot_download", no_fetch)
+    with pytest.raises(ValueError, match="unknown FUSED"):
+        engine.ClefEngine(engine.EngineConfig(fused="rmsnorm,flash"))

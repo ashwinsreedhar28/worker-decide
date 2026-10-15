@@ -76,6 +76,7 @@ Defaults are baked into the image.
 | `BATCH_MAX_RATIO` | `2.0` | requests batch together only if their lengths are within this ratio of the oldest's |
 | `BATCH_MAX_WAIT_MS` | `0` | how long to hold a request for more to arrive; `0` batches only what queued during the previous forward |
 | `BATCH_TIMEOUT_S` | `600` | a request waiting longer than this for its batch is answered 500 |
+| `FUSED` | empty | experimental tier 2 kernel fusions (`deciders/clef/fused.py`): `all`, or a comma list of `rmsnorm`, `mlp`, `gdn`, `conv`, `nocache`, `cublaslt`; an unknown name fails at startup. Not yet checked on a GPU |
 
 Weights are found in this order: the Runpod Model Store if it holds the pinned revision (a
 different revision there fails loudly), then the HF cache under `HF_HOME`, then a download.
