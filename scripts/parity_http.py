@@ -33,6 +33,7 @@ import base64
 import json
 import mimetypes
 import sys
+import threading
 import time
 import urllib.error
 import urllib.request
@@ -94,31 +95,48 @@ def collect(
     poster,
     meta: dict[str, Any] | None = None,
     to_record=None,
+    concurrency: int = 1,
 ) -> dict[str, int]:
     """Post every fixture line through `poster(body) -> (status, reply)` and write the records.
     If `meta` is given, the first successful reply's engine info is stored in meta["engine"].
     `to_record(line, status, reply)` turns a reply into a record; the default reads this
-    worker's debug block (scripts/parity_sglang.py passes one for SGLang's /v1/systemone)."""
+    worker's debug block (scripts/parity_sglang.py passes one for SGLang's /v1/systemone).
+    `concurrency` > 1 keeps that many requests in flight, so a batching worker forms batches
+    and the gate checks batched answers; wall times then include queueing."""
     to_record = to_record or record_from_reply
     run_dir.mkdir(parents=True, exist_ok=True)
     counts = {"ok": 0, "error": 0}
-    for i, line in enumerate(lines, 1):
+    lock = threading.Lock()
+    done = [0]
+
+    def one(line: dict[str, Any]) -> None:
         t0 = time.perf_counter()
         status, reply = poster(wire_body(line))
-        if meta is not None and status == 200 and "engine" not in meta:
-            meta["engine"] = (reply.get("debug") or {}).get("engine")
         rec = to_record(line, status, reply)
         rec["timing_ms"]["wall"] = round((time.perf_counter() - t0) * 1000, 1)
         (run_dir / f"{rec['id']}.json").write_text(json.dumps(rec, ensure_ascii=False))
-        counts["error" if rec["error"] else "ok"] += 1
-        tok = rec["encoding"]["input_tokens"] if rec["encoding"] else "-"
-        err = f"  ERROR {rec['error'][:60]}" if rec["error"] else ""
-        print(  # progress goes to stderr; stdout is the report
-            f"[{i:>3}/{len(lines)}] {rec['id']:<24} tokens={tok!s:>6} "
-            f"{rec['timing_ms']['wall']:>9.1f} ms{err}",
-            file=sys.stderr,
-            flush=True,
-        )
+        with lock:
+            if meta is not None and status == 200 and "engine" not in meta:
+                meta["engine"] = (reply.get("debug") or {}).get("engine")
+            counts["error" if rec["error"] else "ok"] += 1
+            done[0] += 1
+            tok = rec["encoding"]["input_tokens"] if rec["encoding"] else "-"
+            err = f"  ERROR {rec['error'][:60]}" if rec["error"] else ""
+            print(  # progress goes to stderr; stdout is the report
+                f"[{done[0]:>3}/{len(lines)}] {rec['id']:<24} tokens={tok!s:>6} "
+                f"{rec['timing_ms']['wall']:>9.1f} ms{err}",
+                file=sys.stderr,
+                flush=True,
+            )
+
+    if concurrency <= 1:
+        for line in lines:
+            one(line)
+    else:
+        from concurrent.futures import ThreadPoolExecutor
+
+        with ThreadPoolExecutor(max_workers=concurrency) as pool:
+            list(pool.map(one, lines))  # list() re-raises a worker thread's exception
     return counts
 
 
@@ -220,6 +238,9 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--timeout", type=float, default=330.0, help="per request, seconds")
     ap.add_argument("--ready-timeout", type=float, default=900.0)
     ap.add_argument("--json", type=Path, help="write the correctness report as JSON")
+    ap.add_argument(
+        "--concurrency", type=int, default=1, help="requests in flight (> 1: batched answers)"
+    )
     return ap
 
 
@@ -233,7 +254,8 @@ def main() -> None:
     wait_ready(a.base, a.token, a.ready_timeout)
     lines = load_requests(a.requests)
     meta: dict[str, Any] = {}
-    counts = collect(lines, a.run_dir, lambda body: post(a.base, body, a.token, a.timeout), meta)
+    counts = collect(lines, a.run_dir, lambda body: post(a.base, body, a.token, a.timeout), meta,
+                     concurrency=a.concurrency)  # fmt: skip
     (a.run_dir / "manifest.json").write_text(
         json.dumps(
             {
@@ -243,6 +265,7 @@ def main() -> None:
                 "engine": meta.get("engine"),
                 "counts": counts,
                 "requests": a.requests,
+                "concurrency": a.concurrency,
                 "finished_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             },
             indent=1,
