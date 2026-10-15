@@ -50,6 +50,7 @@ class BatchSettings:
     max_padded_tokens: int = 32_768
     max_ratio: float = 2.0
     max_wait_ms: float = 0.0
+    timeout_s: float = 600.0  # a request waiting longer than this for its batch gets a 500
 
 
 def batch_settings_from_env(env: dict[str, str] | None = None) -> BatchSettings:
@@ -59,6 +60,7 @@ def batch_settings_from_env(env: dict[str, str] | None = None) -> BatchSettings:
         max_padded_tokens=int(e.get("BATCH_MAX_TOKENS", "32768")),
         max_ratio=float(e.get("BATCH_MAX_RATIO", "2.0")),
         max_wait_ms=float(e.get("BATCH_MAX_WAIT_MS", "0")),
+        timeout_s=float(e.get("BATCH_TIMEOUT_S", "600")),
     )
 
 
@@ -73,7 +75,9 @@ class WorkerCore:
         self.engine = engine
         self.batch = batch or BatchSettings()
         self.batcher: Batcher | None = None
-        if self.batch.max_batch > 1 and hasattr(engine, "forward_batch"):
+        # A dry-run engine has no model (model None): nothing to batch.
+        has_model = getattr(engine, "model", True) is not None
+        if self.batch.max_batch > 1 and hasattr(engine, "forward_batch") and has_model:
             self.batcher = Batcher(
                 self._run_batch,
                 max_batch=self.batch.max_batch,
@@ -129,7 +133,13 @@ class WorkerCore:
         try:
             if self.batcher is not None and not images:  # image requests run alone
                 p = self.engine.prepare(body, None, rid=rid)
-                per_q, forward_ms, batch_info = self.batcher.submit(p, p.tokens).result()
+                fut = self.batcher.submit(p, p.tokens)
+                try:
+                    per_q, forward_ms, batch_info = fut.result(timeout=self.batch.timeout_s)
+                except TimeoutError as e:  # concurrent.futures.TimeoutError since 3.11
+                    raise RuntimeError(
+                        f"no answer from the batcher in {self.batch.timeout_s} s"
+                    ) from e
                 d = self.engine.finish(p, per_q, forward_ms)
             else:
                 d = self.engine.decide(body, images, rid=rid)

@@ -192,6 +192,8 @@ class BatchEngine(FakeEngine):
         self.fail_single = fail_single
         self.gate = None
         self.entered = None
+        self.rids = []
+        self.delay = 0.0
 
     def prepare(self, body, images=None, rid=""):
         from types import SimpleNamespace
@@ -200,6 +202,7 @@ class BatchEngine(FakeEngine):
 
         if body["state"] == "reject":
             raise ValueError("schema exceeds max_length")
+        self.rids.append(rid)
         enc = SimpleNamespace(input_ids=list(range(len(body["state"]))), questions=["q"])
         return Prepared(rid=rid, body=body, encoded=enc,
                         decision=Decision(request_sha=request_sha(body)), t0=0.0)  # fmt: skip
@@ -209,6 +212,10 @@ class BatchEngine(FakeEngine):
             self.entered.set()
         if self.gate is not None:
             self.gate.wait(2)
+        if self.delay:
+            import time
+
+            time.sleep(self.delay)
         self.batches.append([len(e.input_ids) for e in encoded_list])
         if self.fail_batched and len(encoded_list) > 1:
             raise RuntimeError("CUDA out of memory")
@@ -300,3 +307,43 @@ def test_image_requests_bypass_the_batcher():
     assert o.status == 200 and eng.calls and eng.batches == []
     assert o.body["debug"]["batch"] is None
     core.batcher.close()
+
+
+def test_settings_reach_the_batcher_and_forward_time_and_rid_reach_the_answer():
+    eng = BatchEngine()
+    eng.delay = 0.01
+    settings = wc.BatchSettings(max_batch=3, max_padded_tokens=999, max_ratio=1.5, max_wait_ms=7)
+    core = wc.WorkerCore(eng, settings)
+    b = core.batcher
+    assert (b.max_batch, b.max_padded_tokens, b.max_ratio, b.max_wait_s) == (3, 999, 1.5, 0.007)
+    o = core.decide(body_of(40), debug=True)
+    dbg = o.body["debug"]
+    assert dbg["timing_ms"]["forward"] == dbg["batch"]["forward_ms"] >= 10.0
+    assert len(eng.rids) == 1 and len(eng.rids[0]) == 12  # the request id goes to prepare
+    core.batcher.close()
+
+
+def test_a_request_that_waits_past_the_timeout_gets_a_500():
+    import threading
+
+    eng = BatchEngine()
+    eng.gate = threading.Event()  # never set: the forward hangs
+    core = wc.WorkerCore(eng, wc.BatchSettings(max_batch=2, timeout_s=0.1))
+    o = core.decide(body_of(10))
+    assert o.status == 500 and "no answer from the batcher in 0.1 s" in o.body["error"]
+    eng.gate.set()
+    core.batcher.close()
+
+
+def test_a_dry_run_engine_is_not_batched():
+    eng = BatchEngine()
+    eng.model = None
+    assert wc.WorkerCore(eng, wc.BatchSettings(max_batch=4)).batcher is None
+
+
+def test_a_stopped_batcher_answers_500_not_a_hang():
+    eng = BatchEngine()
+    core = wc.WorkerCore(eng, wc.BatchSettings(max_batch=2))
+    core.batcher.close()
+    o = core.decide(body_of(10))
+    assert o.status == 500 and "closed" in o.body["error"]

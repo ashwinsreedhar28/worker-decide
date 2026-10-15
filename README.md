@@ -69,6 +69,7 @@ Environment variables (defaults baked into the image):
 | `BATCH_MAX_TOKENS` | `32768` | cap on longest × count in a batch (the reference pads to the longest) |
 | `BATCH_MAX_RATIO` | `2.0` | requests batch together only if their lengths are within this ratio of the oldest's |
 | `BATCH_MAX_WAIT_MS` | `0` | how long to hold a request for more to arrive; `0` batches only what queued during the previous forward |
+| `BATCH_TIMEOUT_S` | `600` | a request waiting longer than this for its batch is answered 500 |
 
 Weights are found in this order: Runpod Model Store (an endpoint's "cached
 model", mounted at `/runpod-volume/huggingface-cache/hub`) if it holds the
