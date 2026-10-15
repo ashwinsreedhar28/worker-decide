@@ -484,35 +484,51 @@ def order_records() -> list[dict]:
     fixture exercises a non-alphabetical order. Those files stay as they are (the oracle numbers
     are tied to their exact bodies); these records cover the gap:
 
-    - order_choice_unsorted: unsorted_choice's content, options out of order on the wire. The
-      encoder sorts choice ids, so this must encode to the same token ids as unsorted_choice.
-    - order_questions_as_card / _reversed: card_trio's questions in the model card's order and
-      reversed. Questions share one prompt and attend to each other, so order can move the
-      numbers; with card_trio's alphabetical copy that is three orders of one request.
+    - order_choice_unsorted / order_choice_sorted: the same choice with options out of order
+      and sorted on the wire. The encoder sorts choice ids, so both must encode to the same
+      token ids and give the same probabilities.
+    - order_questions_alphabetical / _as_card / _reversed: card_trio in three question orders.
+      Questions share one prompt and attend to each other, so order can move the numbers.
+
+    Every comparison is within this file, so one oracle run (one GPU) answers it; comparing
+    against the committed H100 fixtures would mix GPU noise into the order effect (Oct 15 audit).
     """
     trio = CARD_TRIO["questions"]
     reversed_q = {k: trio[k] for k in reversed(list(trio))}
+    alphabetical_q = {k: trio[k] for k in sorted(trio)}
+    team = {
+        "technical": "Outages, errors, configuration",
+        "billing": "Payments, invoices, refunds",
+        "sales": "Plans and upgrades",
+    }
+
+    def choice(criteria: dict) -> dict:
+        return {
+            "state": TICKET,
+            "questions": {
+                "team": {
+                    "type": "choice",
+                    "instructions": "Which team should handle this?",
+                    "criteria": criteria,
+                }
+            },
+        }
+
     recs = [
         {
             "id": "order_choice_unsorted",
-            "source": {
-                "kind": "order",
-                "targets": "options out of order on the wire; same ids as unsorted_choice expected",
-            },  # fmt: skip
-            "request": {
-                "state": TICKET,
-                "questions": {
-                    "team": {
-                        "type": "choice",
-                        "instructions": "Which team should handle this?",
-                        "criteria": {
-                            "technical": "Outages, errors, configuration",
-                            "billing": "Payments, invoices, refunds",
-                            "sales": "Plans and upgrades",
-                        },
-                    }
-                },
-            },
+            "source": {"kind": "order", "targets": "options out of order on the wire"},
+            "request": choice(dict(team)),
+        },
+        {
+            "id": "order_choice_sorted",
+            "source": {"kind": "order", "targets": "the same options sorted on the wire"},
+            "request": choice({k: team[k] for k in sorted(team)}),
+        },
+        {
+            "id": "order_questions_alphabetical",
+            "source": {"kind": "order", "targets": "card_trio questions alphabetical"},
+            "request": {"state": CARD_TRIO["state"], "questions": alphabetical_q},
         },
         {
             "id": "order_questions_as_card",

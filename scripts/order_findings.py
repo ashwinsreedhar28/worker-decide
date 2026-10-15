@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """What option and question order do to Clef-flash's answers (fixtures/requests-order).
 
-Compares the order records' oracle against the committed key-sorted fixtures:
-- order_choice_unsorted vs unsorted_choice: the encoder sorts choice ids, so the token ids
-  should be identical and the probabilities equal to float noise.
-- order_questions_as_card / _reversed vs card_trio (alphabetical on disk): the same request in
-  three question orders; the max |dp| per question is how much order moves the answer.
+All comparisons are within one oracle run of fixtures/requests-order (same GPU, same session):
+- order_choice_unsorted vs order_choice_sorted: the encoder sorts choice ids, so the token ids
+  should be identical and the probabilities equal.
+- order_questions_alphabetical / _as_card / _reversed: card_trio in three question orders; the
+  max |dp| per question is how much order moves the answer.
 
-    python scripts/order_findings.py fixtures/clef-flash/float32 fixtures/clef-flash/float32-order
+    python scripts/order_findings.py fixtures/clef-flash/float32-order runs/order_findings.json
 """
 
 from __future__ import annotations
@@ -29,16 +29,16 @@ def _maxdp(a: list[float], b: list[float]) -> float:
     return max(abs(x - y) for x, y in zip(a, b, strict=True))
 
 
-def findings(base: Path, order: Path) -> dict:
-    u, o = _load(base / "unsorted_choice.json"), _load(order / "order_choice_unsorted.json")
+def findings(order: Path) -> dict:
+    u, o = _load(order / "order_choice_sorted.json"), _load(order / "order_choice_unsorted.json")
     out = {
         "unsorted_same_ids": u["encoding"]["ids_sha"] == o["encoding"]["ids_sha"],
         "unsorted_max_dp": _maxdp(_probs(u)["team"], _probs(o)["team"]),
         "question_orders": {},
     }
-    ref = _probs(_load(base / "card_trio.json"))
+    ref = _probs(_load(order / "order_questions_alphabetical.json"))
     for name, path in [
-        ("alphabetical", base / "card_trio.json"),
+        ("alphabetical", order / "order_questions_alphabetical.json"),
         ("card", order / "order_questions_as_card.json"),
         ("reversed", order / "order_questions_reversed.json"),
     ]:
@@ -57,7 +57,7 @@ def render(f: dict) -> str:
         "## Order findings",
         "",
         f"- Options out of order on the wire: token ids "
-        f"{'identical' if f['unsorted_same_ids'] else 'DIFFERENT'} to the sorted fixture, "
+        f"{'identical' if f['unsorted_same_ids'] else 'DIFFERENT'} to the sorted copy, "
         f"max |dp| {f['unsorted_max_dp']:.2e}.",
         "",
         "| question order | tokens | max \\|dp\\| vs alphabetical, per question |",
@@ -70,9 +70,11 @@ def render(f: dict) -> str:
 
 
 def main() -> None:
-    base, order = Path(sys.argv[1]), Path(sys.argv[2])
-    f = findings(base, order)
-    (order / "findings.json").write_text(json.dumps(f, indent=1))
+    # The JSON goes outside the oracle directory: parity reads every *.json there as a record
+    # (Oct 15 audit: a findings.json inside it broke both order gates).
+    order, out = Path(sys.argv[1]), Path(sys.argv[2])
+    f = findings(order)
+    out.write_text(json.dumps(f, indent=1))
     print(render(f))
 
 

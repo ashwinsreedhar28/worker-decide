@@ -116,6 +116,10 @@ def test_order_fixtures_keep_their_key_order_on_disk():
         "department", "urgency", "outage"]  # fmt: skip
     assert list(on_disk["order_questions_reversed"]["request"]["questions"]) == [
         "outage", "urgency", "department"]  # fmt: skip
+    assert list(on_disk["order_questions_alphabetical"]["request"]["questions"]) == [
+        "department", "outage", "urgency"]  # fmt: skip
+    sorted_team = on_disk["order_choice_sorted"]["request"]["questions"]["team"]["criteria"]
+    assert list(sorted_team) == ["billing", "sales", "technical"] and sorted_team == team
 
 
 def test_the_sorted_fixture_files_really_are_sorted():
