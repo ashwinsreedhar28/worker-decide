@@ -1,30 +1,33 @@
 {
  "_note": "Prices as of the dates given, for scripts/cost.py. Re-check before publishing numbers.",
  "runpod_serverless_flex_usd_per_hour": {
-  "_source": "Runpod console, Edit endpoint > GPU configuration (flex prices shown to this account), screenshot Oct 14 2026",
+  "_source": "Runpod console, Edit endpoint > GPU configuration (flex prices shown to this account), screenshot Oct 14 2026; matches runpod.io/pricing Serverless table fetched Oct 15 2026, which adds 80 GB (A100) at $2.72/h",
   "16 GB": 0.58,
   "24 GB": 0.69,
-  "24 GB PRO": 1.10,
+  "24 GB PRO": 1.1,
   "32 GB PRO": 1.58,
   "48 GB": 1.22,
   "48 GB PRO": 1.75,
+  "80 GB": 2.72,
   "80 GB PRO": 4.79,
   "96 GB PRO": 3.49,
   "141 GB": 5.93,
   "180 GB PRO": 8.64
  },
  "gpu_tier": {
-  "_source": "Runpod pool ids as used in .runpod/hub.json (AMPERE_48 = A40/A6000, ADA_48_PRO = L40/L40S/6000 Ada, ADA_80_PRO/AMPERE_80 = 80 GB)",
+  "_source": "runpod.io/pricing Serverless table (Oct 15 2026): 48 GB = A6000, A40; 48 GB PRO = L40, L40S, 6000 Ada; 80 GB = A100; 80 GB PRO = H100. GPU names as nvidia-smi reports them.",
   "NVIDIA A40": "48 GB",
   "NVIDIA RTX A6000": "48 GB",
   "NVIDIA L40S": "48 GB PRO",
   "NVIDIA L40": "48 GB PRO",
   "NVIDIA H100 80GB HBM3": "80 GB PRO",
-  "NVIDIA H100 PCIe": "80 GB PRO"
+  "NVIDIA H100 PCIe": "80 GB PRO",
+  "NVIDIA A100 80GB PCIe": "80 GB",
+  "NVIDIA A100-SXM4-80GB": "80 GB"
  },
  "workers_ai_clef_flash": {
   "_source": "developers.cloudflare.com/changelog/post/2026-10-09-clef-omni-workers-ai/ and /workers-ai/models/clef-flash/ (fetched Oct 15 2026): $0.038 per M input tokens, down from $0.090; output tokens not charged; hosted context 24,576 tokens",
   "usd_per_million_input_tokens": 0.038,
-  "previous_usd_per_million_input_tokens": 0.090
+  "previous_usd_per_million_input_tokens": 0.09
  }
 }
