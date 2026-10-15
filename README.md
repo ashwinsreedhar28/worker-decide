@@ -13,11 +13,27 @@ an fp32 reference within measured bf16 tolerance.
 
 ## Status
 
+Development stopped on Oct 15, 2026. vLLM's documentation (latest) lists Clef-flash as natively
+supported (`vllm serve Cloudflare/clef-flash`, with `/v1/systemone`;
+[structured decisions models](https://docs.vllm.ai/en/latest/models/structured_decisions_models/)),
+so a dedicated engine is no longer needed. What stays useful here:
+
+- The fp32 truth fixtures and the parity gates, which run against any SystemOne server
+  (`scripts/parity_http.py`), and the load test (`scripts/loadtest.py`).
+- The optimization record in [REVIEW.md](REVIEW.md). On the A40, pure torch → fla kernels →
+  dynamic batching took one 300-token request from 165 to 90 to 95 ms, and throughput at 32
+  concurrent requests from 4.3 to 8.2 to 15.4 req/s. SGLang on the same GPU: 80 ms and
+  22.0 req/s.
+
+Where it stopped:
+
 - Milestones 1–4 are done: fp32/bf16 references and the parity gate; the worker shell with
   queue and HTTP transports and a CUDA 13 image; cold-start measurements; the SGLang
   comparison.
-- Optimization tiers 0 (fla kernels) and 1 (dynamic batching, off by default) are merged and
-  measured on the A40 and the H100.
+- Optimization tier 0 (fla kernels) is merged and measured on the A40 and the H100; tier 1
+  (dynamic batching, off by default) is merged and measured on the A40 only.
+- Tier 2 (kernel fusions, `deciders/clef/fused.py`) is on the unmerged branch
+  `m5/tier2-fused`, verified on the CPU only; it never ran on a GPU.
 - [REVIEW.md](REVIEW.md) has every result, the audits, and what each finding rests on.
 
 ## Deploy
