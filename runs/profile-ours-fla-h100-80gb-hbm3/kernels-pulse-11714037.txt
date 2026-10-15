@@ -1,0 +1,36 @@
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                                                   Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg     Self CUDA   Self CUDA %    CUDA total  CUDA time avg    # of Calls  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                                           aten::linear         1.01%     581.167us        17.10%       9.851ms      33.280us       0.000us         0.00%      16.326ms      55.155us           296  
+                                           aten::matmul         1.49%     856.120us        13.26%       7.640ms      29.728us       0.000us         0.00%      16.070ms      62.530us           257  
+                                               aten::mm         7.88%       4.542ms        10.85%       6.250ms      24.607us      16.060ms        50.96%      16.060ms      63.230us           254  
+         nvjet_sm90_tst_192x144_64x5_1x2_h_bz_coopB_TNT         0.00%       0.000us         0.00%       0.000us       0.000us       9.805ms        31.11%       9.805ms     102.139us            96  
+         nvjet_sm90_tst_128x216_64x4_2x1_v_bz_coopA_TNT         0.00%       0.000us         0.00%       0.000us       0.000us       5.564ms        17.66%       5.564ms      63.233us            88  
+                                            aten::copy_         3.32%       1.913ms         6.44%       3.714ms       8.517us       4.847ms        15.38%       4.847ms      11.116us           436  
+                                            aten::clone         0.48%     274.135us         3.65%       2.101ms      15.682us       0.000us         0.00%       3.302ms      24.642us           134  
+void at::native::elementwise_kernel<128, 4, at::nati...         0.00%       0.000us         0.00%       0.000us       0.000us       3.301ms        10.48%       3.301ms      24.823us           133  
+                                           aten::conv1d         0.10%      57.051us         2.66%       1.535ms      63.959us       0.000us         0.00%       3.086ms     128.579us            24  
+                                      aten::convolution         0.11%      65.190us         2.56%       1.478ms      61.582us       0.000us         0.00%       3.086ms     128.579us            24  
+                                     aten::_convolution         0.60%     343.427us         2.45%       1.413ms      58.866us       0.000us         0.00%       3.086ms     128.579us            24  
+                            ChunkGatedDeltaRuleFunction        30.09%      17.341ms        35.13%      20.244ms     843.488us       2.035ms         6.46%       2.731ms     113.793us            24  
+                                              aten::mul         2.77%       1.599ms         4.52%       2.607ms       9.800us       2.297ms         7.29%       2.297ms       8.634us           266  
+                                       aten::contiguous         0.11%      64.549us         1.85%       1.064ms      17.727us       0.000us         0.00%       2.042ms      34.026us            60  
+                                aten::_conv_depthwise2d         0.30%     175.198us         0.79%     458.042us      19.085us       1.783ms         5.66%       1.783ms      74.304us            24  
+void at::native::(anonymous namespace)::conv_depthwi...         0.00%       0.000us         0.00%       0.000us       0.000us       1.783ms         5.66%       1.783ms      74.304us            24  
+void at::native::elementwise_kernel<128, 2, at::nati...         0.00%       0.000us         0.00%       0.000us       0.000us       1.565ms         4.97%       1.565ms       8.416us           186  
+                                               aten::to         0.63%     362.020us         7.96%       4.584ms      11.181us       0.000us         0.00%       1.540ms       3.756us           410  
+                                         aten::_to_copy         1.27%     733.583us         7.33%       4.222ms      14.121us       0.000us         0.00%       1.540ms       5.151us           299  
+void at::native::unrolled_elementwise_kernel<at::nat...         0.00%       0.000us         0.00%       0.000us       0.000us       1.056ms         3.35%       1.056ms       5.200us           203  
+                                aten::repeat_interleave         0.35%     199.728us         1.95%       1.122ms      23.379us       0.000us         0.00%       1.023ms      21.312us            48  
+                                             aten::silu         0.70%     404.157us         1.15%     664.780us      11.871us     829.639us         2.63%     829.639us      14.815us            56  
+                                              aten::add         3.35%       1.928ms         5.28%       3.041ms      10.450us     753.124us         2.39%     753.124us       2.588us           291  
+                                             aten::mean         1.57%     906.304us         2.23%       1.282ms      13.937us     738.779us         2.34%     738.779us       8.030us            92  
+void at::native::reduce_kernel<512, 1, at::native::R...         0.00%       0.000us         0.00%       0.000us       0.000us     698.940us         2.22%     698.940us       8.629us            81  
+void at::native::vectorized_elementwise_kernel<8, at...         0.00%       0.000us         0.00%       0.000us       0.000us     605.667us         1.92%     605.667us      14.772us            41  
+                                              aten::pow         1.29%     743.031us         1.97%       1.137ms      14.039us     494.526us         1.57%     494.526us       6.105us            81  
+void at::native::vectorized_elementwise_kernel<4, at...         0.00%       0.000us         0.00%       0.000us       0.000us     494.526us         1.57%     494.526us       6.105us            81  
+                                     chunk_fwd_kernel_o         0.00%       0.000us         0.00%       0.000us       0.000us     490.658us         1.56%     490.658us      20.444us            24  
+            chunk_gated_delta_rule_fwd_kkt_solve_kernel         0.00%       0.000us         0.00%       0.000us       0.000us     487.201us         1.55%     487.201us      20.300us            24  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+Self CPU time total: 57.624ms
+Self CUDA time total: 31.516ms
