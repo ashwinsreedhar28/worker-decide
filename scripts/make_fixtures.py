@@ -11,7 +11,9 @@ English); the pod's `oracle.py --dry-run` reports the real `input_tokens`, and t
 acceptance ranges are checked there, not here.
 
 Usage:
-    python scripts/make_fixtures.py   # writes fixtures/requests/{edge,images}.jsonl + images/
+    python scripts/make_fixtures.py   # writes fixtures/requests/{edge,coverage,images}.jsonl
+                                      # + images/ (key-sorted) and fixtures/requests-order/
+                                      # order.jsonl (order-preserving)
 """
 
 from __future__ import annotations
@@ -474,6 +476,81 @@ def make_images(out_dir: Path = IMG) -> list[dict]:
     return recs
 
 
+def order_records() -> list[dict]:
+    """Records whose key order is the point, for order.jsonl (written order-preserving).
+
+    Oct 15 finding: write_jsonl sorts every dict (sort_keys=True), so on disk the
+    "unsorted_choice" record is sorted and card_trio's questions are alphabetical; no existing
+    fixture exercises a non-alphabetical order. Those files stay as they are (the oracle numbers
+    are tied to their exact bodies); these records cover the gap:
+
+    - order_choice_unsorted / order_choice_sorted: the same choice with options out of order
+      and sorted on the wire. The encoder sorts choice ids, so both must encode to the same
+      token ids and give the same probabilities.
+    - order_questions_alphabetical / _as_card / _reversed: card_trio in three question orders.
+      Questions share one prompt and attend to each other, so order can move the numbers.
+
+    Every comparison is within this file, so one oracle run (one GPU) answers it; comparing
+    against the committed H100 fixtures would mix GPU noise into the order effect (Oct 15 audit).
+    """
+    trio = CARD_TRIO["questions"]
+    reversed_q = {k: trio[k] for k in reversed(list(trio))}
+    alphabetical_q = {k: trio[k] for k in sorted(trio)}
+    team = {
+        "technical": "Outages, errors, configuration",
+        "billing": "Payments, invoices, refunds",
+        "sales": "Plans and upgrades",
+    }
+
+    def choice(criteria: dict) -> dict:
+        return {
+            "state": TICKET,
+            "questions": {
+                "team": {
+                    "type": "choice",
+                    "instructions": "Which team should handle this?",
+                    "criteria": criteria,
+                }
+            },
+        }
+
+    recs = [
+        {
+            "id": "order_choice_unsorted",
+            "source": {"kind": "order", "targets": "options out of order on the wire"},
+            "request": choice(dict(team)),
+        },
+        {
+            "id": "order_choice_sorted",
+            "source": {"kind": "order", "targets": "the same options sorted on the wire"},
+            "request": choice({k: team[k] for k in sorted(team)}),
+        },
+        {
+            "id": "order_questions_alphabetical",
+            "source": {"kind": "order", "targets": "card_trio questions alphabetical"},
+            "request": {"state": CARD_TRIO["state"], "questions": alphabetical_q},
+        },
+        {
+            "id": "order_questions_as_card",
+            "source": {"kind": "order", "targets": "card_trio questions in model-card order"},
+            "request": {"state": CARD_TRIO["state"], "questions": dict(trio)},
+        },
+        {
+            "id": "order_questions_reversed",
+            "source": {"kind": "order", "targets": "card_trio questions reversed"},
+            "request": {"state": CARD_TRIO["state"], "questions": reversed_q},
+        },
+    ]
+    return recs
+
+
+def write_jsonl_ordered(path: Path, recs: list[dict]) -> None:
+    """Key order kept as built: the requests' question and option order is the content."""
+    with path.open("w") as f:
+        for r in recs:
+            f.write(json.dumps(r, ensure_ascii=False) + "\n")
+
+
 def write_jsonl(path: Path, recs: list[dict]) -> None:
     with path.open("w") as f:
         for r in recs:
@@ -489,7 +566,12 @@ def main() -> None:
     write_jsonl(REQ / "coverage.jsonl", cov)
     imgs = make_images()
     write_jsonl(REQ / "images.jsonl", imgs)
-    for r in edge + cov + imgs:
+    order = order_records()
+    # Own directory: everything under fixtures/requests/ has a committed oracle record, which
+    # several tests rely on; these get theirs (fixtures/clef-flash/float32-order) on a pod.
+    (ROOT / "fixtures" / "requests-order").mkdir(exist_ok=True)
+    write_jsonl_ordered(ROOT / "fixtures" / "requests-order" / "order.jsonl", order)
+    for r in edge + cov + imgs + order:
         chars = len(json.dumps(r["request"]["state"]))
         print(f"{r['id']:<22} state_chars={chars:>6}  {r['source']['targets']}")
 

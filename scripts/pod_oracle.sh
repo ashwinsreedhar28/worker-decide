@@ -102,7 +102,9 @@ for dt in "$@"; do git add "fixtures/clef-flash/$dt"; done
 git add -f runs/*.md runs/*.json runs/pod_oracle.log runs/dry runs/hosted   # runs/ is gitignored for local work
 git commit -q -m "oracle: $MODEL $ORACLE_DTYPE on $(nvidia-smi --query-gpu=name --format=csv,noheader | head -1), rev $REV7" \
   -m "Produced by scripts/pod_oracle.sh. manifest: $ORACLE_OUT/manifest.json. Comparison dtypes: $*."
-if [ -n "${GH_TOKEN:-}" ]; then
+if [ -z "${RUNPOD_POD_ID:-}" ] && [ "${FORCE_PUSH:-0}" != "1" ]; then
+  echo "not on a Runpod pod: results committed locally, not pushed (FORCE_PUSH=1 overrides)"
+elif [ -n "${GH_TOKEN:-}" ]; then
   git push -q "https://x-access-token:${GH_TOKEN}@github.com/${GH_REPO}" "$BRANCH"
   echo "pushed $BRANCH"
 else

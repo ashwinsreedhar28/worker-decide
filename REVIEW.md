@@ -471,3 +471,64 @@ Not built, noted: overlapping the torch / transformers import (3.8 s) with the
 fetch would take it off the critical path on A; on B and D, where the fetch is
 0, it would not help.
 
+
+## Milestone 4 — SGLang comparison, and milestone 5a — where our time goes
+
+Goal: find out whether SGLang computes Clef-flash (the correctness gate against the fp32
+truth), how fast it is on the same GPU and inputs (the backbone floor any correct
+implementation sits above), and where our own request time goes. Those three numbers set the
+optimization target. The order after this milestone (decided Oct 15): profile → target
+(SGLang's time + a lean head, on the A40, with an H100 number for context) → optimize in tiers,
+each through the correctness gate (vectorized head, then CUDA graphs / compile, then batching
+concurrent requests) → latency/throughput/cost tables on the optimized worker (5b).
+
+What SGLang is, verified from its source (main 5b12ec1, and the pinned commit 37ae292e6f):
+- Clef support (`joint_schema_head.py`, `systemone/joint_schema.py`) merged after v0.5.21 in
+  sgl-project/sglang#42721; the cookbook pins nightly `0.5.22.dev20261009+g37ae292e6f`
+  (cu130, Python 3.10, torch 2.14.1) and image `lmsysorg/sglang:dev-clef`. Release 0.5.21
+  answers `/v1/systemone` through vocabulary label tokens, which is not Clef's head.
+- For Clef it disables CUDA graphs, the radix cache and chunked prefill; the head is batched
+  (`forward_batch`). Speed comes from batching and kernels, not graphs.
+- `confidence` uses System One adapter formulas, not max p, so only probabilities are compared.
+  It refuses a noul with blank instructions and no criteria (422); the reference answers
+  `empty_instructions` from the question id. That record is SKIP, not FAIL.
+- Published accuracy is GSM8K only (Clef Flash 67.3% on H200). No per-probability comparison
+  with the reference has been published; this is the first.
+
+Run (one pod from the worker image, `POD_SCRIPT=scripts/pod_m4.sh`, A40, ≥ 80 GB container
+disk, no volume; pushes `m4/pod-<gpu>-<date>`):
+
+```
+make check
+python scripts/parity_sglang.py http://127.0.0.1:30000 runs/sglang-a40      # gate
+python scripts/loadtest.py http://127.0.0.1:8000 runs/load-ours-a40          # either engine
+python scripts/profile_engine.py runs/profile-ours-a40 --trace               # in-process split
+```
+
+Fixture finding (Oct 15): `make_fixtures.write_jsonl` writes with `sort_keys=True`, so on disk
+`unsorted_choice` is sorted and card_trio's questions are alphabetical; no committed fixture
+exercises a non-alphabetical order. All parity results stand (the oracle and every run saw the
+same bodies). `fixtures/requests-order/order.jsonl` (written order-preserving) covers options
+out of order and three question orders, with same-run references; its oracle is made on the
+pod (`fixtures/clef-flash/float32-order`, A40 fp32).
+
+Audit points:
+- `parity_sglang` maps choice/score probabilities by option id in the head's order (sorted
+  ids), rebuilds noul from p(true), and has no encoding block: `usage.input_tokens` against the
+  oracle's input_tokens stands in for the span gate on the 85 records both answer. A server that
+  permuted questions would be caught only through the numbers (request_sha sorts keys).
+- `loadtest` is closed-loop; nearest-rank percentiles; exits non-zero on a failed preflight or
+  any errored cell. It adds a `model` field only when asked (SGLang requires one).
+- `profile_engine` splits by CUDA events around the outermost hooked backbone module that ran,
+  falling back to first→last decoder layer; it does not time image decode, assemble or HTTP.
+  Our image runs Gated DeltaNet in pure torch (`gdn_fast_path=False`), so backbone shares are
+  higher here than on SGLang's Triton path.
+- `parity.compare` fails when zero records were compared and ignores non-record JSON files.
+- Pod scripts commit and push only on a Runpod pod (`RUNPOD_POD_ID`): a local smoke test in a
+  workspace with a GitHub token pushed a junk branch on Oct 15.
+
+Independent audit (Oct 15, before any GPU run): 19 findings on the first draft (order findings
+written into the oracle directory, empty oracle gating as PASS, no gcc for Triton in the image,
+the SGLang-refused record failing the gate, loadtest always exiting 0, six surviving test
+mutations, among others), all fixed and re-verified; the re-audit's four follow-ups (hung-server
+guard, oracle error records, loadtest exit test, profile header) fixed too.

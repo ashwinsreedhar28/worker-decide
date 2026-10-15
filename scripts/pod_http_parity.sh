@@ -120,7 +120,9 @@ for p in runs/*.md runs/*.json runs/*.log runs/*.err runs/http-bfloat16 runs/bf1
 done
 git commit -q --allow-empty -m "parity: worker image over HTTP vs bf16 fixture, bf16 recheck, fp32 math bound ($(nvidia-smi --query-gpu=name --format=csv,noheader | head -1))" \
   -m "Produced by scripts/pod_http_parity.sh. Image commit ${WORKER_DECIDE_COMMIT:-unknown}; repo commit $(git rev-parse --short HEAD). HTTP gates (correctness$([ ${#REGRESSION_ARGS[@]} -gt 0 ] && echo " + regression" || echo ", regression skipped: $POD_GPU")): $([ "${HTTP_OK:-0}" = 1 ] && echo PASS || echo FAIL)."
-if [ -n "${GH_TOKEN:-}" ]; then
+if [ -z "${RUNPOD_POD_ID:-}" ] && [ "${FORCE_PUSH:-0}" != "1" ]; then
+  echo "not on a Runpod pod: results committed locally, not pushed (FORCE_PUSH=1 overrides)"
+elif [ -n "${GH_TOKEN:-}" ]; then
   # Token in a header via -c, not in the URL (keeps it out of ps and remote config), the way actions/checkout does.
   AUTH=$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)
   git -c http.extraheader="AUTHORIZATION: basic ${AUTH}" push -q "https://github.com/${GH_REPO}" "$BRANCH"

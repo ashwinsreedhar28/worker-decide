@@ -89,10 +89,17 @@ def record_from_reply(line: dict[str, Any], status: int, reply: dict[str, Any]) 
 
 
 def collect(
-    lines: list[dict[str, Any]], run_dir: Path, poster, meta: dict[str, Any] | None = None
+    lines: list[dict[str, Any]],
+    run_dir: Path,
+    poster,
+    meta: dict[str, Any] | None = None,
+    to_record=None,
 ) -> dict[str, int]:
     """Post every fixture line through `poster(body) -> (status, reply)` and write the records.
-    If `meta` is given, the first successful reply's engine info is stored in meta["engine"]."""
+    If `meta` is given, the first successful reply's engine info is stored in meta["engine"].
+    `to_record(line, status, reply)` turns a reply into a record; the default reads this
+    worker's debug block (scripts/parity_sglang.py passes one for SGLang's /v1/systemone)."""
+    to_record = to_record or record_from_reply
     run_dir.mkdir(parents=True, exist_ok=True)
     counts = {"ok": 0, "error": 0}
     for i, line in enumerate(lines, 1):
@@ -100,7 +107,7 @@ def collect(
         status, reply = poster(wire_body(line))
         if meta is not None and status == 200 and "engine" not in meta:
             meta["engine"] = (reply.get("debug") or {}).get("engine")
-        rec = record_from_reply(line, status, reply)
+        rec = to_record(line, status, reply)
         rec["timing_ms"]["wall"] = round((time.perf_counter() - t0) * 1000, 1)
         (run_dir / f"{rec['id']}.json").write_text(json.dumps(rec, ensure_ascii=False))
         counts["error" if rec["error"] else "ok"] += 1
