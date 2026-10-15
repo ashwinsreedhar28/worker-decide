@@ -1,0 +1,65 @@
+{
+ "health_before": {
+  "jobs": {
+   "completed": 25,
+   "failed": 0,
+   "inProgress": 0,
+   "inQueue": 0,
+   "retried": 0
+  },
+  "workers": {
+   "idle": 1,
+   "initializing": 0,
+   "ready": 1,
+   "running": 0,
+   "throttled": 0,
+   "unhealthy": 0
+  }
+ },
+ "idle_before": 1,
+ "suspect_warm": false,
+ "cold": {
+  "status": "COMPLETED",
+  "worker_id": "r8yd4b5hm41uvz",
+  "delay_s": 26.35,
+  "exec_s": 1.02,
+  "client_wall_s": 27.941,
+  "gpu": "NVIDIA A40",
+  "snapshot_source": "model_store",
+  "fetch_bytes": 0,
+  "fetch_s": 0,
+  "marks": {
+   "engine_init": 1.77,
+   "model_code_imported": 5.557,
+   "ready": 15.873,
+   "snapshot_resolved": 1.77,
+   "weights_loaded": 15.873
+  },
+  "timeline_basis": "process_start",
+  "warmup_s": null,
+  "platform_est_s": 10.477,
+  "error": null
+ },
+ "warm": {
+  "status": "COMPLETED",
+  "worker_id": "r8yd4b5hm41uvz",
+  "delay_s": 0.83,
+  "exec_s": 0.475,
+  "client_wall_s": 2.463,
+  "gpu": "NVIDIA A40",
+  "snapshot_source": "model_store",
+  "fetch_bytes": 0,
+  "fetch_s": 0,
+  "marks": {
+   "engine_init": 1.77,
+   "model_code_imported": 5.557,
+   "ready": 15.873,
+   "snapshot_resolved": 1.77,
+   "weights_loaded": 15.873
+  },
+  "timeline_basis": "process_start",
+  "warmup_s": null,
+  "platform_est_s": -15.043,
+  "error": null
+ }
+}
