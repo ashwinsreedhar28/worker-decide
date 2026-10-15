@@ -252,3 +252,33 @@ def test_gdn_kernels_without_transformers_reports_installed_packages(monkeypatch
         "causal_conv1d": "torch", "fla_device": None,
     }  # fmt: skip
     assert engine.gdn_fast_path() is False
+
+
+def test_gdn_kernels_find_spec_fallback_both_and_neither(monkeypatch):
+    import importlib.util
+    import sys
+
+    monkeypatch.setitem(sys.modules, "transformers", None)
+    real = importlib.util.find_spec
+    for installed, want in (({"fla", "causal_conv1d"}, ("fla", "fla", "causal_conv1d")),
+                            (set(), ("torch", "torch", "torch"))):  # fmt: skip
+
+        def spec(name, *a, inst=installed):
+            if name in {"fla", "causal_conv1d"}:
+                return object() if name in inst else None
+            return real(name, *a)
+
+        monkeypatch.setattr(importlib.util, "find_spec", spec)
+        k = engine.gdn_kernels()
+        assert (k["chunk_gated_delta_rule"], k["fused_rms_norm_gated"], k["causal_conv1d"]) == want
+        assert engine.gdn_fast_path() is (want[2] != "torch")
+
+
+def test_gdn_kernels_fla_imported_without_a_probe_value_is_none(monkeypatch):
+    import sys
+    import types
+
+    _fake_transformers(monkeypatch, chunk_gated_delta_rule=None, FusedRMSNormGated=None,
+                       causal_conv1d_fn=None)  # fmt: skip
+    monkeypatch.setitem(sys.modules, "fla.utils", types.ModuleType("fla.utils"))
+    assert engine.gdn_kernels()["fla_device"] is None  # not the string "None"
