@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 """Closed-loop load test of a SystemOne server: latency percentiles and throughput.
 
+Exits non-zero if the preflight request is not answered 200 or any cell has errors or no
+answers.
+
 Engine-agnostic: our worker (TRANSPORT=http, which aliases /v1/systemone to /v1/decide) and
 SGLang both answer POST /v1/systemone with the same body, so the same requests go to both.
 Each cell is one (workload, concurrency): `concurrency` threads each send a request, wait for
-the answer, and send the next, until `requests` answers are in. Warm-up requests (default one
-per thread) are sent first and not counted.
+the answer, and send the next, until `requests` answers are in. Warm-up requests (default as
+many as there are threads, in total) are sent first and not counted.
 
     python scripts/loadtest.py http://127.0.0.1:8000 runs/load-ours-a40 \\
         --workload ticket=card_trio --workload article=long_2k --concurrency 1 8 32
@@ -118,13 +121,15 @@ def load_line(rid: str | None, requests_glob: str) -> dict:
     raise SystemExit(f"no fixture record {rid!r}")
 
 
-def http_poster(base: str, path: str, model: str, timeout: float):
+def http_poster(base: str, path: str, model: str | None, timeout: float):
+    """`model` is added only when given: SGLang requires it, and our worker has never been sent
+    one (engine.decide passes body keys through to encode_record), so it is left out there."""
     url = base.rstrip("/") + path
 
     def poster(body: dict) -> int:
         req = urllib.request.Request(
             url,
-            data=json.dumps({**body, "model": model}).encode(),
+            data=json.dumps({**body, "model": model} if model else body).encode(),
             headers={"Content-Type": "application/json"},
             method="POST",
         )
@@ -163,7 +168,7 @@ def main() -> None:
     ap.add_argument("out_dir", type=Path)
     ap.add_argument("--label", default=None)
     ap.add_argument("--path", default="/v1/systemone")
-    ap.add_argument("--model", default="Cloudflare/clef-flash")
+    ap.add_argument("--model", default=None, help="add a model field (SGLang needs one)")
     ap.add_argument("--workload", action="append", default=[], help="name=fixture_id")
     ap.add_argument("--concurrency", type=int, nargs="+", default=[1, 8, 32])
     ap.add_argument("--requests", type=int, default=128, help="counted requests per cell")
@@ -177,6 +182,10 @@ def main() -> None:
         workloads = dict(w.split("=", 1) for w in a.workload)
     poster = http_poster(a.base, a.path, a.model, a.timeout)
     oracle = ROOT / "fixtures/clef-flash/float32"
+    first = wire_body(load_line(next(iter(workloads.values())), a.requests_glob))
+    status = poster(first)
+    if status != 200:  # one request before the cells: a wrong path or body fails fast
+        raise SystemExit(f"preflight request answered {status}, not 200")
     cells = []
     for name, rid in workloads.items():
         line = load_line(rid, a.requests_glob)
@@ -204,6 +213,10 @@ def main() -> None:
     text = render(label, cells)
     (a.out_dir / "load.md").write_text(text + "\n")
     print(text)
+    bad = [c for c in cells if c["stats"]["n"] == 0 or c["stats"]["errors"]]
+    if bad:  # Oct 15 audit: a cell where every request failed used to exit 0
+        names = ", ".join(f"{c['workload']}@c={c['concurrency']}" for c in bad)
+        raise SystemExit(f"cells with errors or no answers: {names}")
 
 
 if __name__ == "__main__":
