@@ -160,16 +160,61 @@ def test_a_one_poll_cold_blip_does_not_start_a_run():
     assert len(polled) == 4  # cold, busy (reset), cold, cold
 
 
-def test_a_suspiciously_fast_cold_start_is_flagged_and_excluded():
+def test_a_process_older_than_the_submit_is_resumed_not_cold():
+    # Arm D (FlashBoot, Oct 14): 0.5 s delay, the worker's ready mark 14 s old -> same process.
     api = FakeAPI(
         [LIVE_HEALTH] * 2,
-        {"job1": iter([_status(800, 230, ready=29.5)]), "job2": iter([_status(10, 230, 29.5)])},
+        {"job1": iter([_status(511, 346, ready=13.967)]), "job2": iter([_status(10, 330, 13.967)])},
     )
     clock = Clock()
     row = cs.iteration(api, {"input": {}}, sleep=clock.sleep, clock=clock.time)
-    assert row["suspect_warm"] is True
+    assert row["kind"] == "resumed" and row["suspect_warm"] is False
     s = cs.summarize([row])
-    assert s["completed"] == 0 and s["suspect_warm_excluded"] == 1
+    assert s["completed"] == 0 and s["resumed"] == 1 and s["suspect_warm_excluded"] == 0
+    assert s["resumed_delay_s"]["median"] == 0.511
+    assert s["resumed_process_age_s"] is None  # this image did not report origin_unix
+    text = cs.render("flashboot", s)
+    assert "1 resumed" in text and "| queue delay (Runpod delayTime) | 0.511 |" in text
+    assert "process up before submit" not in text
+
+
+def test_process_age_comes_from_origin_unix_not_the_ready_mark():
+    # The ready mark is seconds from process start to ready, not to the submit: a process
+    # kept for 10 minutes still reports ready = 14 s. Age needs the worker's wall-clock origin.
+    st = _status(511, 346, ready=13.967)
+    st["output"]["debug"]["engine"]["timeline"]["origin_unix"] = 1_760_000_000.0
+    c = cs.extract({**st, "submitted_unix": 1_760_000_600.0})
+    assert c["process_age_s"] == 600.0 and c["platform_est_s"] < 0
+    assert cs.summarize([{"idle_before": 1, "warm": None, "cold": c}])[
+        "resumed_process_age_s"]["median"] == 600.0  # fmt: skip
+
+
+def test_a_fast_start_without_a_timeline_is_still_suspect_warm():
+    c = cs.extract(json.loads((ROOT / "runs" / "queue-a40" / "test_input_response.json")
+                              .read_text()))  # fmt: skip
+    assert cs.classify(c) == "cold"  # 36 s, no timeline: cold by delay
+    assert cs.classify({**c, "delay_s": 0.8}) == "suspect_warm"
+    assert cs.classify({**c, "status": "FAILED"}) == "failed"
+
+
+def test_old_run_files_are_reclassified_from_the_cold_record():
+    # An arm-D file written before `kind`: flagged suspect_warm, actually resumed.
+    old = {"idle_before": 1, "suspect_warm": True, "warm": None,
+           "cold": cs.extract(_status(497, 1267, ready=13.967))}  # fmt: skip
+    assert cs.row_kind(old) == "resumed" and cs.summarize([old])["resumed"] == 1
+
+
+def test_gap_waits_after_cold_and_records_health():
+    api = FakeAPI(
+        [LIVE_HEALTH, LIVE_HEALTH, LIVE_HEALTH],  # two for the cold streak, one after the gap
+        {"job1": iter([_status(20000, 900, ready=14.0)]), "job2": iter([_status(10, 330, 14.0)])},
+    )
+    clock = Clock()
+    row = cs.iteration(api, {"input": {}}, gap_s=600, interval=5, sleep=clock.sleep,
+                       clock=clock.time)  # fmt: skip
+    assert row["gap_s"] == 600 and row["health_after_gap"] == LIVE_HEALTH
+    assert clock.t >= 605 and row["kind"] == "cold"  # one 5-s poll + the gap + job polls
+    assert cs.summarize([row])["gaps_s"] == [600]
 
 
 def test_p90_is_nearest_rank_not_the_max():
