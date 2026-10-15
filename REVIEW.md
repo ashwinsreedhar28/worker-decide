@@ -650,11 +650,13 @@ image.
 **It passes the gate, slightly closer to the truth.** 87 records, worst question 0.0189 (bar
 0.025), mean of record means 0.00137 (bar 0.0025), 0 failed, 19 near-ties not judged; order
 records worst 0.0101. Against the pure-torch bf16 reference run on an H100 (milestone 1's
-bf16 fixture) it differs by up to 0.0229
-(`invoice_extract/overdue`, truth margin 0.204), with 3 argmax flips, none clear; fla is
-closer to fp32 on 95 questions, pure torch on 72.
+bf16 fixture) it differs by up to 0.0229 (`invoice_extract/overdue`, truth margin 0.204), over
+that informational comparison's 0.02 bar (marked FAIL in `parity_fla_*.md`, not gated: two
+bf16 paths can differ by up to twice the gate), with 3 argmax flips, none clear. fla is closer
+to fp32 on 95 questions, pure torch on 72.
 
-**2.5–3.2× lower latency, 2.3–3.0× the throughput** (HTTP, same harness and requests):
+**On a repeated request: 2.5–3.2× lower latency, 2.3–3.0× the throughput at c=32** (HTTP, same
+harness and requests; the load test sends one request 128 times per cell):
 
 | workload | tokens | c=1 p50 torch → fla | SGLang c=1 p50 | c=32 req/s torch → fla | SGLang c=32 req/s |
 |---|---|---|---|---|---|
@@ -662,15 +664,39 @@ closer to fp32 on 95 questions, pure torch on 72.
 | pulse | 843 | 175.8 → 54.2 ms | 62.5 ms | 5.14 → 14.40 | 45.88 |
 | article | 2,486 | 283.6 → 102.6 ms | 77.2 ms | 3.10 → 9.25 | 16.38 |
 
-- One request at a time, our worker now beats SGLang on 300- and 843-token inputs (54 vs
-  60–62 ms) and loses on 2,486 (103 vs 77 ms).
+- One repeated request at a time, our worker now beats SGLang on 300- and 843-token inputs (54
+  vs 60–62 ms) and loses on 2,486 (103 vs 77 ms).
 - Under load SGLang still does 6.8× / 3.2× / 1.8× our throughput, because it batches
   concurrent requests and ours runs one forward at a time. Concurrency now costs us
   throughput: ticket drops from 18.1 req/s at c=1 to 14.2 at c=8 (22%; 9% on the torch
   path). Unverified explanation: the forward is CPU-bound on short inputs (below), so anything
   else holding the GIL (request parsing, encoding of queued requests) slows it.
 
-**Where the time goes now** (in-process, median of 20 passes):
+**A request with a token count the worker has not seen is about 110 ms slower** (found by the
+post-run audit in the parity log, not by the load test). Text requests under 2,048 tokens:
+
+| run | new token count: median (n) | token count seen before: median (n) |
+|---|---|---|
+| fla, this run (H100) | 166.3 ms (67) | 53.6 ms (9) |
+| pure torch, Oct 14 (H100, other pod and image) | 224.9 ms (67) | 130.2 ms (9) |
+
+- Same length is enough: `near_dup_b` and `near_dup_c` (232 tokens, different words from
+  `near_dup_a`) took 55 and 53 ms after `near_dup_a` took 170 ms. The records' own timing puts
+  the extra time in the forward, not the encode.
+- It is not the Triton band cost below (it happens at every new length inside one band), and
+  the pure-torch run has it too, so it is not fla's.
+- Real traffic has a new length on nearly every request. For it, tier 0's gain is about
+  1.35× (224.9 → 166.3 ms, across pods), not 2.5–3.2×, and per-length cost is now the larger
+  part of a short request. Whether SGLang pays it is unmeasured (its load test repeated one
+  request too).
+- Cause not established. `scripts/shape_probe.py` and `scripts/pod_shapes.sh` measure it
+  in-process (new, repeat, same-length sibling), split by segment, count cudaMalloc calls, rank
+  the ops that grow, and test three environment settings (allocator, eager module loading,
+  cuBLASLt). If it is per exact shape, padding requests to length buckets would remove it;
+  right padding leaves a causal model's real-token outputs unchanged, to be confirmed through
+  the gate.
+
+**Where the time goes now** (in-process, repeated record, median of 20 passes):
 
 | record | tokens | backbone torch → fla | head | total | head + overhead |
 |---|---|---|---|---|---|
@@ -678,22 +704,24 @@ closer to fp32 on 95 questions, pure torch on 72.
 | pulse-11714037 | 843 | 219.2 → 50.3 ms | 4.1 ms | 57.0 ms | 11.7% |
 | long_2k | 2,486 | 353.0 → 90.1 ms | 4.9 ms | 100.8 ms | 10.6% |
 
-- Backbone 2.9× / 4.4× / 3.9× faster. The head is unchanged, so its share rose from 3–5% to
-  11–13%: still under the 15% bar for native head work, closer to it.
-- Short inputs are now CPU-bound. Under the profiler, card_trio's kernels sum to 16.3 ms inside
-  a 43.6 ms backbone (pulse 31.5 in 50.3); fla's `ChunkGatedDeltaRuleFunction` alone takes
-  17.1 ms of CPU over its 24 calls (Triton launch overhead, inflated by the profiler). Batching
-  amortizes that per-forward overhead across requests; CUDA graphs would remove it, but SGLang
-  disables them for Clef.
-- long_2k is GPU-bound (87.9 ms of kernels in 90.1 ms). Of those kernels (the categories
-  overlap a little): GEMMs 43.6 ms (50%), copies 14.2 ms (16%), the torch short convolution
-  9.2 ms (10%), fla's recurrence 5.5 ms (6%).
+- Backbone 2.9× / 4.4× / 3.9× faster. The head is unchanged, so the head alone went from
+  1.4–3.4% of the total to 4.9–8.9%, and head plus overhead from 3–5% to 11–13%: still under
+  the 15% bar for native head work, closer to it.
+- Short inputs are now CPU-bound. card_trio's kernels sum to 16.3 ms for the whole pass
+  (profiled), against a 50.3 ms pass without the profiler, so the GPU is busy at most about a
+  third of the time (pulse: 31.4 of 57.0 ms). What the CPU is doing is not measured cleanly:
+  the profiler inflates CPU time (the profiled card_trio pass spans 71.5 ms from first to last
+  kernel). Batching amortizes per-forward CPU work across requests; CUDA graphs would remove
+  launch work, but SGLang disables them for Clef.
+- long_2k is mostly GPU-bound: 87.8 ms of kernels over a 98.7 ms profiled span (whole pass,
+  head included). Of those kernels (the categories overlap a little): GEMMs 43.6 ms (50%),
+  copies 14.2 ms (16%), the torch short convolution 9.2 ms (10%), fla's recurrence 5.5 ms (6%).
   The copies and the convolution are the next kernel-level targets (causal-conv1d or fla's
   Triton convolution; fewer layout conversions).
 
-**A new cold-start cost: Triton compiles on first sight of each shape band.** The worker
-started with WARMUP=0 and an empty `TRITON_CACHE_DIR`; ready took 12.8 s (weights from local
-disk, no compile yet).
+**A cold-start cost: Triton compiles on first sight of each shape band.** The worker started
+with WARMUP=0 and an empty `TRITON_CACHE_DIR`; ready took 12.8 s (weights from local disk, no
+compile yet).
 
 | workload | empty cache: first request, first − steady | warm cache: first request, first − steady |
 |---|---|---|
@@ -703,26 +731,37 @@ disk, no compile yet).
 
 - Persisting the cache saves 33.1 s on the first request and 9.7 s on the first 2,486-token
   request. The cache was 54 MB after this run. What remains on a warm cache (1.1 s on the first
-  request) is first-use setup that Triton's cache does not hold; WARMUP=1, the worker's
-  default, pays it before ready.
+  request; pulse's 133 ms is the per-length cost above) is first-use setup that Triton's cache
+  does not hold. WARMUP is off by default; turned on, its request is tiny (one noul), so it
+  would pay the first-band compile before ready, not avoid it, and would not cover other bands.
 - The parity run on the same worker paid it again for longer inputs: 5,538 tokens 10.4 s,
   8,641 tokens 10.8 s, 16,384 tokens 12.2 s. Requests in a band already compiled took under
   0.7 s (3,321 tokens: 0.54 s), except the first image request (2.2 s, the vision tower's first
-  use).
+  use); most of them were new lengths, so they also carry the per-length cost.
 - Why, from fla 0.5.2's source: the gated RMSNorm and L2-norm kernels autotune with
-  `NB = cdiv(rows, 65536)` in the key (9 and up to 5 × len(BT_LIST) configs). With one row per
-  token per head (32 heads), NB steps every 2,048 tokens. Every slow and fast request above
-  fits: 300/843/1,379 tokens NB 1; 2,486/3,321 NB 2; 5,538 NB 3; 8,641 NB 5; 16,384 NB 8.
+  `NB = cdiv(rows, 65536)` in the key (9 and 25 configs). transformers 5.10.2 repeats q and k
+  to 32 heads before the in-kernel L2 norm and reshapes to one row per head before the gated
+  norm, so rows = tokens × 32 and NB steps every 2,048 tokens. Every slow and fast request
+  above fits: 300/843/1,379 tokens NB 1; 2,486/3,321 NB 2; 5,538 NB 3; 8,641 NB 5; 16,384 NB 8.
 - So a fresh worker with an empty cache can pay about 34 s plus about 10 s per new
   2,048-token band, up to Clef's 16,384-token limit. Autotuning runs the kernels, so the cache
   has to be built on the target GPU type, not on a GPU-less CI runner. Options for the
-  cold-start work:
-  compile all eight bands on a pod per GPU type and persist the cache (network volume, the
-  worker-vllm #351 pattern, or an image layer per GPU type), or pin the autotune configs.
+  cold-start work: compile all eight bands on a pod per GPU type and persist the cache
+  (network volume, the worker-vllm #351 pattern, or an image layer per GPU type), or pin the
+  autotune configs.
 
 Status line `ready_empty_cache` / `ready_warm_cache` printed empty in this run (the script read
 the wrong JSON path; fixed in `93a07dc`). Values from the saved info files: 12.836 s and
 11.91 s.
 
-Next: tier 1, batching concurrent requests. That is where SGLang's lead is (6.8× at c=32 on
-ticket), and it also attacks the CPU-bound short-input path. The A40 numbers are still owed.
+Independent audit of this section and the tier 0 code (Oct 15, after the run): it found the
+per-length cost above, the WARMUP default stated wrong, two like-for-unlike comparisons
+(profiled CPU time against unprofiled backbone time; whole-pass kernel time against backbone
+time), the unreported informational FAIL, and test gaps in `first_requests.py` and
+`gdn_kernels` (8 of 17 mutations survived). All fixed here or on `m5/tier0-fla`
+(`9d7f230`, `9d6c71d`, `8af5f2e`).
+
+Next: run `pod_shapes.sh` to find the per-length cause (and, if it is per shape, try length
+buckets through the gate); then tier 1, batching concurrent requests, where SGLang's lead is
+(6.8× at c=32 on ticket), which also amortizes the CPU-bound short-input path. The A40
+numbers are still owed.
