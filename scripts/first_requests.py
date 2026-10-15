@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 """First-request cost per input shape: what JIT kernels (Triton compile, autotune) add.
 
-Sends each workload `repeat` times in sequence to a freshly started server and records every
-latency. With an empty kernel cache, the first request of a new shape pays compilation (and
-autotuning where a kernel autotunes on a size it has not seen); the later ones show the
-steady state. The difference, per workload, is the cold-start cost a fresh worker pays unless
-the kernel cache is persisted (TRITON_CACHE_DIR on a volume, the worker-vllm #351 pattern).
+Sends each workload `repeat` times in sequence to a freshly started server (started with
+WARMUP=0) and records every latency. first_minus_steady_ms is the first request minus the
+median of the rest. With an empty kernel cache it holds compilation and autotuning for shapes
+not seen yet, plus first-request costs no kernel cache removes (CUDA context and cuBLAS setup,
+allocator growth). So the saving from persisting the kernel cache (TRITON_CACHE_DIR on a
+volume, the worker-vllm #351 pattern) is first_minus_steady on an empty-cache run minus
+first_minus_steady on a warm-cache run, not either number alone.
+
+A request that fails at the connection level (refused, reset, timed out) is recorded as
+status 0 with its elapsed time; main() exits non-zero if any status is not 200.
 
     python scripts/first_requests.py http://127.0.0.1:8000 runs/first-fla-h100 \\
         [--workload ticket=card_trio ...] [--repeat 3]
@@ -14,7 +19,9 @@ the kernel cache is persisted (TRITON_CACHE_DIR on a volume, the worker-vllm #35
 from __future__ import annotations
 
 import argparse
+import http.client
 import json
+import statistics
 import sys
 import time
 from pathlib import Path
@@ -35,9 +42,13 @@ def measure(poster, bodies: dict[str, dict], repeat: int, clock=time.perf_counte
         ms, statuses = [], []
         for _ in range(repeat):
             t0 = clock()
-            statuses.append(poster(body))
+            try:
+                status = poster(body)
+            except (OSError, http.client.HTTPException):  # URLError, timeouts, resets
+                status = 0
+            statuses.append(status)
             ms.append(round((clock() - t0) * 1000, 1))
-        steady = sorted(ms[1:])[len(ms[1:]) // 2] if len(ms) > 1 else None
+        steady = statistics.median(ms[1:]) if len(ms) > 1 else None
         out[name] = {
             "ms": ms,
             "statuses": statuses,
@@ -50,12 +61,13 @@ def render(label: str, result: dict) -> str:
     lines = [f"## First requests: {label}", "", "| workload | requests (ms) | first - steady |",
              "|---|---|---|"]  # fmt: skip
     for name, r in result.items():
+        diff = r["first_minus_steady_ms"]
         lines.append(f"| {name} | {', '.join(str(x) for x in r['ms'])} | "
-                     f"{r['first_minus_steady_ms']} ms |")  # fmt: skip
+                     f"{'-' if diff is None else f'{diff} ms'} |")  # fmt: skip
     return "\n".join(lines)
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
     ap = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
@@ -66,7 +78,7 @@ def main() -> None:
     ap.add_argument("--path", default="/v1/systemone")
     ap.add_argument("--model", default=None)
     ap.add_argument("--label", default=None)
-    a = ap.parse_args()
+    a = ap.parse_args(argv)
     workloads = dict(w.split("=", 1) for w in a.workload) if a.workload else DEFAULT_WORKLOADS
     bodies = {n: wire_body(load_line(rid, "fixtures/requests/*.jsonl")) for n, rid in
               workloads.items()}  # fmt: skip
