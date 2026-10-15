@@ -229,6 +229,22 @@ def wait_ready(base: str, timeout_s: float, every_s: float = 30.0, poll_s: float
         time.sleep(poll_s)
 
 
+def give_up_after(poster, limit: int = 3):
+    """Stop contacting a server after `limit` consecutive unreachable answers (status 0): the
+    rest become error records at once. Without this a hung server costs every record the full
+    timeout (87 x 330 s, about 8 h; Oct 15 re-audit)."""
+    state = {"zeros": 0}
+
+    def guarded(body):
+        if state["zeros"] >= limit:
+            return 0, {"error": f"not sent: server unreachable for {limit} requests in a row"}
+        status, reply = poster(body)
+        state["zeros"] = state["zeros"] + 1 if status == 0 else 0
+        return status, reply
+
+    return guarded
+
+
 def with_model(model: str):
     def poster_body(body: dict[str, Any]) -> dict[str, Any]:
         return {**body, "model": model}
@@ -259,7 +275,7 @@ def main() -> None:
     counts = collect(
         lines,
         a.run_dir,
-        lambda body: post(a.base, body_for(body), a.timeout),
+        give_up_after(lambda body: post(a.base, body_for(body), a.timeout)),
         to_record=record_from_systemone,
     )
     tokens = token_report(a.reference, a.run_dir)

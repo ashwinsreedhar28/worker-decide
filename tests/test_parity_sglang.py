@@ -196,3 +196,22 @@ def test_post_sends_the_body_in_its_order_and_survives_a_dropped_connection(monk
     monkeypatch.setattr(ps.urllib.request, "urlopen", dropped)
     status, reply = ps.post("http://x", body, 5)
     assert status == 0 and "URLError" in reply["error"]
+
+
+def test_a_hung_server_is_given_up_on_after_three_unreachable_requests():
+    calls = []
+
+    def poster(body):
+        calls.append(body)
+        return (200, {}) if len(calls) == 1 else (0, {"error": "TimeoutError"})
+
+    g = ps.give_up_after(poster)
+    statuses = [g({"n": i})[0] for i in range(10)]
+    assert statuses == [200, 0, 0, 0, 0, 0, 0, 0, 0, 0] and len(calls) == 4
+    assert "not sent" in g({})[1]["error"]
+
+
+def test_an_answer_resets_the_unreachable_count():
+    seq = iter([0, 0, 200, 0, 0, 200])
+    g = ps.give_up_after(lambda body: (next(seq), {}))
+    assert [g({})[0] for _ in range(6)] == [0, 0, 200, 0, 0, 200]
