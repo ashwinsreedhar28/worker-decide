@@ -765,3 +765,83 @@ Next: run `pod_shapes.sh` to find the per-length cause (and, if it is per shape,
 buckets through the gate); then tier 1, batching concurrent requests, where SGLang's lead is
 (6.8× at c=32 on ticket), which also amortizes the CPU-bound short-input path. The A40
 numbers are still owed.
+
+### Results: shape probe and tier 1 on the A40, Oct 15 (`m5/shapes-a40-20261015-2029`, `m5/tier1-a40-20261015-2056`)
+
+One A40 pod ran `scripts/pod_shapes.sh` and then `scripts/pod_tier1.sh` (via `pod_chain.sh`),
+fla-core 0.5.2 installed as in tier 0.
+
+**No per-length cost on the A40, in-process or over HTTP.** The probe ran 8 variants of the
+843-token Pulse record (+1 to +8 tokens) and of long_2k, each as new / repeat / sibling (same
+count, other words). Backbone medians, run 1:
+
+| probe | new | repeat | sibling | new − repeat |
+|---|---|---|---|---|
+| default (expandable segments, the image's) | 168.1 ms | 167.8 ms | 167.6 ms | +0.2 ms |
+| noexpand (plain allocator) | 168.4 ms | 168.6 ms | 168.9 ms | −0.1 ms |
+| eager (CUDA_MODULE_LOADING=EAGER) | 168.7 ms | 168.8 ms | 169.2 ms | −0.0 ms |
+| lt (cuBLASLt) | 162.9 ms | 162.7 ms | 163.3 ms | +0.2 ms |
+| long_2k, default | 459.0 ms | 459.1 ms | 459.8 ms | −0.1 ms |
+
+- Two more runs of all five probes (a container restart reran the chain:
+  `runs/shapes-a40-run2`, `run3`) agree within ±0.4 ms. No device allocations in any pass, and
+  the traced pair's op diff has nothing above 0.5 ms.
+- Over HTTP, the tier 1 run's sequential gate shows the same: `near_dup_a/b/c` (232 tokens)
+  took 76.3 / 75.6 / 75.5 ms. On the H100 the same three took 169.7 / 55.1 / 52.7 ms.
+- So the H100's ~110 ms per new length is not in our code path or the allocator, and not on
+  the A40. It hit fla and pure torch alike on the H100. The leading hypothesis is Hopper's GEMM
+  selection: cuBLAS picks among nvjet kernels per new matrix shape there (the H100 traces show
+  nvjet kernels; the A40 runs cutlass sm80 kernels). Unverified until `pod_shapes.sh` runs on
+  an H100.
+- cuBLASLt was 3.5% faster on the A40 backbone (163 vs 169 ms, all three runs): a candidate
+  default, after the gate.
+
+**The A40 is compute-bound even at 843 tokens.** With the forward approximated as 2 × 7.94B
+backbone parameters × tokens: pulse takes 168 ms for 13.4 TFLOP (80 TFLOP/s, 53% of the A40's
+149.7 dense bf16), long_2k 459 ms for 39.5 TFLOP (86 TFLOP/s, 57%). The H100 ran pulse in 50 ms
+(266 TFLOP/s, 27% of 989). Batching can only fill idle GPU time, so on the A40 it should mostly
+help short inputs.
+
+**Tier 1 on the A40 (BATCH_MAX=8).**
+- First attempt: the batched path read only the first record's output. The model returns one
+  entry per record; the single-record path has always taken `[0]`. The count check turned this
+  into retries, not wrong answers. Fixed in `046dcde` before the measured run.
+- Process note: my first command to stop that run matched PID 1
+  (`/sbin/docker-init -- python3 -m worker`) and restarted the container. On a pod, stop
+  session scripts by their own names only.
+- Gates:
+  - Batched answers vs fp32: PASS, worst question 0.0154, mean of record means 0.00121 (bar
+    0.025 / 0.0025).
+  - Order records: PASS.
+  - Batching really happened: 71 of 87 records were answered in batches of 2–7, 0 retried
+    alone (`batch_report_a40.md`).
+  - The same worker one at a time: PASS, worst 0.0160, mean 0.00142.
+- **Batched vs single on the same GPU: FAIL** against the regression bar (0.005 / 0.001). 11
+  records are over it; worst `invoice_extract/overdue` 0.0233, mean of record means 0.00114.
+  - Padding changes the GEMM shapes, so bf16 rounding differs.
+  - That question is the most sensitive in the set: SGLang vs ours 0.0286, fla vs torch 0.0229,
+    cross-GPU up to 0.029.
+  - Both runs are within the truth bar, and the batched one is closer to fp32 on average.
+    Padding that leaked into real tokens would move answers away from fp32, and it did not.
+  - So the 0.005 bar (built for same code, same shapes) does not fit batched vs single. The
+    result stands as a property, not hidden by a looser bar: a request's probabilities can move
+    by up to about 0.02 with what it is batched with. Batching servers in general share this;
+    SGLang's own batched answers were not tested for it.
+
+Throughput, req/s (HTTP, same harness; one at a time → batched):
+
+| workload | tokens | c=1 | c=8 | c=32 |
+|---|---|---|---|---|
+| ticket | 300 | 11.05 → 10.54 | 8.03 → 14.23 (+77%) | 8.16 → 15.39 (+89%) |
+| pulse | 843 | 5.49 → 5.25 | 5.33 → 6.27 (+18%) | 5.35 → 6.31 (+18%) |
+| article | 2,486 | 2.07 → 2.01 | 2.04 → 2.21 (+8%) | 2.04 → 2.22 (+9%) |
+
+- As the compute bound predicts: large gains for short inputs, small ones above about 800
+  tokens on this GPU.
+- One at a time, concurrency costs throughput (ticket 11.05 → 8.03 req/s from c=1 to c=8);
+  batching removes that.
+- The batched path adds 4.9 / 8.1 / 14.6 ms at c=1 (p50 90.0 → 94.9, 182.0 → 190.1,
+  482.4 → 497.0 ms). Not yet explained.
+- Tier 0 on the A40 (one at a time): c=1 p50 90.0 / 182.0 / 482.4 ms. Pure torch and SGLang on
+  the same A40 are being measured (`pod_m4.sh` steps 3 and 4 on the same pod, fla
+  uninstalled).
