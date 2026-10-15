@@ -117,3 +117,82 @@ def test_the_model_field_is_overridden_for_the_server():
     assert ps.with_model("Cloudflare/clef-flash")({"model": "x", "state": "s"})["model"] == (
         "Cloudflare/clef-flash"
     )
+
+
+def _write(tmp_path, rid, status, reply):
+    rec = ps.record_from_systemone(_line(rid), status, reply)
+    (tmp_path / f"{rid}.json").write_text(json.dumps(rec))
+
+
+def test_a_known_refusal_is_skipped_and_any_other_refusal_fails(tmp_path):
+    o = json.loads((ORACLE / "empty_instructions.json").read_text())
+    assert not o["error"]  # the reference answers it; SGLang's request model refuses it
+    _write(tmp_path, "card_trio", 200, _reply_from_oracle("card_trio"))
+    _write(tmp_path, "empty_instructions", 422, {"detail": [{"msg": "noul needs instructions"}]})
+    report = compare(ORACLE, tmp_path, max_dp=0.025, mean_dp=0.0025, subset=True)
+    assert not report.passed
+    assert ps.apply_known_refusals(report, tmp_path) == ["empty_instructions"]
+    assert report.passed
+    # The same refusal on a record the server should answer is a failure.
+    _write(tmp_path, "noul_custom", 422, {"detail": "nope"})
+    report = compare(ORACLE, tmp_path, max_dp=0.025, mean_dp=0.0025, subset=True)
+    ps.apply_known_refusals(report, tmp_path)
+    assert not report.passed
+    # A known record refused with a different status is not the known difference.
+    (tmp_path / "noul_custom.json").unlink()
+    _write(tmp_path, "empty_instructions", 500, {"error": "boom"})
+    report = compare(ORACLE, tmp_path, max_dp=0.025, mean_dp=0.0025, subset=True)
+    assert ps.apply_known_refusals(report, tmp_path) == [] and not report.passed
+
+
+def test_skips_alone_do_not_pass(tmp_path):
+    _write(tmp_path, "empty_instructions", 422, {"detail": "x"})
+    report = compare(ORACLE, tmp_path, subset=True)
+    ps.apply_known_refusals(report, tmp_path)
+    assert not report.passed
+
+
+def test_an_extra_option_in_the_reply_is_unreadable():
+    reply = _reply_from_oracle("card_trio")
+    reply["answers"]["department"]["probabilities"]["sales"] = 0.0
+    rec = ps.record_from_systemone(_line("card_trio"), 200, reply)
+    assert rec["error"].startswith("unreadable reply")
+
+
+def test_noul_probability_is_p_true_first():
+    q = {"type": "noul"}
+    assert ps.probs_from_answer(q, {"noul": 0.8}) == [0.8, pytest.approx(0.2)]
+
+
+def test_post_sends_the_body_in_its_order_and_survives_a_dropped_connection(monkeypatch):
+    import urllib.error
+
+    sent = {}
+
+    class Resp:
+        status = 200
+
+        def read(self):
+            return b'{"answers": {}}'
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+    def fake_urlopen(req, timeout):
+        sent["body"] = req.data
+        return Resp()
+
+    monkeypatch.setattr(ps.urllib.request, "urlopen", fake_urlopen)
+    body = {"state": "s", "questions": {"z": {"type": "noul"}, "a": {"type": "noul"}}}
+    assert ps.post("http://x", body, 5)[0] == 200
+    assert list(json.loads(sent["body"])["questions"]) == ["z", "a"]  # not sorted
+
+    def dropped(req, timeout):
+        raise urllib.error.URLError(ConnectionResetError("reset"))
+
+    monkeypatch.setattr(ps.urllib.request, "urlopen", dropped)
+    status, reply = ps.post("http://x", body, 5)
+    assert status == 0 and "URLError" in reply["error"]

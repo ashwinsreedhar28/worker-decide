@@ -15,9 +15,18 @@ python/sglang/srt/entrypoints/systemone/{serving,joint_schema}.py at main 5b12ec
 - noul: only `noul` = p(true); the head scores (true, false), so probs = [p, 1 - p].
 - score: `probabilities` keyed "0".."n-1".
 - `confidence` uses SGLang's System One adapter formulas, not the reference's max p, so it is
-  not compared. `usage.input_tokens` is kept: there is no encoding block to run the span gate
-  on, so token counts against the oracle's `encoding.input_tokens` stand in for it (equal
-  counts on all 87 records are strong, not complete, evidence that the prompt is the same).
+  not compared. `usage.input_tokens` is kept (counted after image expansion, like the
+  reference): there is no encoding block to run the span gate on, so token counts against the
+  oracle's `encoding.input_tokens` stand in for it, on the records both answer (85 of the 87:
+  schema_overflow is refused by both, empty_instructions by SGLang). Equal counts are strong,
+  not complete, evidence of the same prompt: a permutation of questions keeps the count, and
+  request_sha sorts keys, so a server that reordered questions is caught only through the
+  numbers, i.e. only if order moves them by more than the gate's bar.
+
+Known API differences are not failures: SGLang's request model refuses a noul with blank
+instructions and no criteria (422) where the reference answers from the question id; such
+records are reported as SKIP with the reason (KNOWN_REFUSALS), and a refusal anywhere else is a
+failure as usual.
 
     python scripts/parity_sglang.py http://127.0.0.1:30000 runs/sglang-a40 \\
         [--also runs/http-a40] [--model Cloudflare/clef-flash]
@@ -45,6 +54,9 @@ from parity_http import CORRECTNESS, collect  # noqa: E402
 
 from deciders.clef.engine import request_sha  # noqa: E402
 from deciders.clef.oracle import load_requests  # noqa: E402
+
+# record id -> HTTP status SGLang returns for it by design (verified against its protocol.py).
+KNOWN_REFUSALS = {"empty_instructions": 422}
 
 
 def option_ids(question: dict[str, Any]) -> list[str]:
@@ -107,6 +119,29 @@ def record_from_systemone(line: dict[str, Any], status: int, reply: dict[str, An
     return rec
 
 
+def apply_known_refusals(report, run_dir: Path, known: dict[str, int] = KNOWN_REFUSALS):
+    """Re-mark records the server refuses by design as SKIP and recompute the verdict. Only a
+    refusal with exactly the expected status counts; anything else stays a failure."""
+    skipped = []
+    for r in report.records:
+        status = known.get(r.record)
+        if status is None or r.status != "FAIL":
+            continue
+        rp = run_dir / f"{r.record}.json"
+        err = json.loads(rp.read_text()).get("error") if rp.exists() else None
+        if err and err.startswith(f"http {status}"):
+            r.status = "SKIP"
+            r.reasons = [f"known API difference: server refuses this request ({err[:80]})"]
+            skipped.append(r.record)
+    means = [r.mean_dp for r in report.records if r.mean_dp is not None]
+    report.passed = (
+        any(r.status == "PASS" for r in report.records)
+        and all(r.status != "FAIL" for r in report.records)
+        and (not means or sum(means) / len(means) <= report.mean_dp)
+    )
+    return skipped
+
+
 def token_report(oracle_dir: Path, run_dir: Path) -> dict[str, Any]:
     """usage.input_tokens vs the oracle's encoding.input_tokens, per record that both answered."""
     equal, diffs, missing = 0, [], 0
@@ -158,6 +193,10 @@ def post(base: str, body: dict[str, Any], timeout: float) -> tuple[int, dict]:
             return e.code, json.loads(raw)
         except ValueError:
             return e.code, {"error": raw[:300].decode("utf-8", "replace")}
+    except (urllib.error.URLError, TimeoutError, ConnectionError) as e:
+        # A dropped connection (e.g. the server dying on one record) is that record's error,
+        # not the end of the run (Oct 15 audit).
+        return 0, {"error": f"{type(e).__name__}: {e}"}
 
 
 def get_json(base: str, path: str) -> dict | None:
@@ -243,7 +282,10 @@ def main() -> None:
     )
     print("## Correctness gate (vs fp32 truth)\n")
     report = compare(a.reference, a.run_dir, max_dp=a.max_dp, mean_dp=a.mean_dp)
+    skipped = apply_known_refusals(report, a.run_dir)
     print(render(report))
+    if skipped:
+        print(f"\nKnown API differences (SKIP, not judged): {', '.join(skipped)}")
     if a.json:
         a.json.write_text(json.dumps(report.__dict__, default=lambda o: o.__dict__, indent=1))
     print("\n## Prompt length (stand-in for the span gate)\n")
