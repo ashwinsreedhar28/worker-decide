@@ -211,7 +211,14 @@ class Timeline:
         return self.marks[name]
 
     def as_dict(self) -> dict[str, Any]:
-        return {"basis": self.basis, "marks": dict(self.marks), "fetch": dict(self.fetch)}
+        # origin_unix: wall-clock start of the basis, so a client can tell how long a process
+        # was up before a job reached it (FlashBoot keeps processes across scale-to-idle).
+        return {
+            "basis": self.basis,
+            "origin_unix": round(self.origin, 3),
+            "marks": dict(self.marks),
+            "fetch": dict(self.fetch),
+        }
 
 
 def git_commit() -> str | None:

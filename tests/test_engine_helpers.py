@@ -132,13 +132,15 @@ def test_process_start_is_in_the_past_and_recent():
 def test_timeline_marks_are_seconds_since_origin_and_monotonic():
     import time
 
-    tl = engine.Timeline(origin=time.time() - 10.0)  # pretend the process started 10 s ago
+    origin = time.time() - 10.0
+    tl = engine.Timeline(origin=origin)  # pretend the process started 10 s ago
     a = tl.mark("snapshot_resolved")
     b = tl.mark("weights_loaded")
     assert 9.9 < a <= b < 60 and tl.basis == "process_start"
     tl.fetch = {"source": "hf_download", "bytes_added_to_cache": 5, "seconds": 1.0}
     d = tl.as_dict()
     assert list(d["marks"]) == ["snapshot_resolved", "weights_loaded"] and d["fetch"]["source"]
+    assert d["origin_unix"] == round(origin, 3)
 
 
 def test_fetch_accounting(tmp_path):
