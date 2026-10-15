@@ -8,7 +8,8 @@
 #
 #   1. fla-core installed and bound on the GPU (as pod_tier0.sh step 1, check only)
 #   2. probes, pulse record (843 tokens), 8 variants each:
-#        default  (with a profiler trace of one new/repeat pair)
+#        default  (with a profiler trace of one new/repeat pair, and the batch preview:
+#                 pulse + card_trio + long_2k in one batch vs one at a time)
 #        alloc    PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True   (allocator growth?)
 #        eager    CUDA_MODULE_LOADING=EAGER                          (lazy kernel loading?)
 #        lt       TORCH_BLAS_PREFER_CUBLASLT=1                       (GEMM path / heuristics?)
@@ -88,10 +89,10 @@ if [ "$FLA_OK" = 1 ]; then
       && record "probe_$name" ok || record "probe_$name" FAIL
   }
   probe default pulse --trace
-  PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True probe alloc pulse
-  CUDA_MODULE_LOADING=EAGER probe eager pulse
-  TORCH_BLAS_PREFER_CUBLASLT=1 probe lt pulse
-  probe long long_2k
+  PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True probe alloc pulse --batch-records
+  CUDA_MODULE_LOADING=EAGER probe eager pulse --batch-records
+  TORCH_BLAS_PREFER_CUBLASLT=1 probe lt pulse --batch-records
+  probe long long_2k --batch-records
 fi
 
 # ---- 3. push ---------------------------------------------------------------------------------
