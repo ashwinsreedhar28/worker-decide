@@ -15,7 +15,7 @@
 #   4. load test (same workloads as the baseline)
 #   5. restart with the cache now WARM: first requests again (what persisting the cache buys)
 #   6. in-process profile with traces
-#   7. on a Runpod pod only: commit runs/ to m5/tier0-fla-<gpu>-<date> and push
+#   7. on a Runpod pod only: commit runs/ to m5/tier0-fla-<gpu>-<date>-<hhmm> and push
 #
 # Run from the worker image (POD_SCRIPT=scripts/pod_tier0.sh) or, on a pod that already ran
 # pod_m4.sh, from its checkout:  cd /root/worker-decide && git pull && bash scripts/pod_tier0.sh
@@ -158,7 +158,7 @@ fi
 # ---- 7. push ---------------------------------------------------------------------------------
 step "7. push"
 [ ${#STATUS[@]} -gt 0 ] && printf '%s\n' "${STATUS[@]}" | tee runs/pod_tier0_status.txt
-BRANCH="m5/tier0-fla-$SLUG-$(date -u +%Y%m%d)"
+BRANCH="m5/tier0-fla-$SLUG-$(date -u +%Y%m%d-%H%M)"
 if [ -z "${RUNPOD_POD_ID:-}" ] && [ "${FORCE_PUSH:-0}" != "1" ]; then
   echo "not on a Runpod pod: nothing committed or pushed (results are under runs/)"
 else
