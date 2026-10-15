@@ -55,9 +55,9 @@ class WorkerCore:
         m = engine.manifest()
         self.info = {
             k: m.get(k)
-            for k in ("model", "revision", "dtype", "sdp", "gdn_fast_path", "versions", "gpu",
-                      "worker_decide_commit", "load_s", "snapshot_source", "warmup_s",
-                      "timeline")
+            for k in ("model", "revision", "dtype", "sdp", "gdn_fast_path", "gdn_kernels",
+                      "versions", "gpu", "worker_decide_commit", "load_s", "snapshot_source",
+                      "warmup_s", "timeline")
         }  # fmt: skip
         self.info["code_sha"] = (m.get("files", {}).get("joint_schema_model.py") or {}).get(
             "sha256"

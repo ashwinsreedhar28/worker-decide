@@ -21,6 +21,7 @@ class FakeEngine:
         return {
             "model": "Cloudflare/clef-flash", "revision": "8b2e5fd", "dtype": "bfloat16",
             "sdp": "efficient", "gdn_fast_path": False, "gpu": "fake", "load_s": 0.1,
+            "gdn_kernels": {"chunk_gated_delta_rule": "fla", "fla_device": "cuda"},
             "versions": {"torch": "0"}, "worker_decide_commit": "abc",
             "files": {"joint_schema_model.py": {"sha256": "deadbeef"}},
         }  # fmt: skip
@@ -169,3 +170,9 @@ def test_test_input_json_is_a_valid_request():
 def test_missing_top_level_keys_are_rejected(key):
     body = {k: v for k, v in BODY.items() if k != key}
     assert wc.WorkerCore(FakeEngine()).decide(body).status == 400
+
+
+def test_info_carries_the_gdn_kernels_report():
+    info = wc.WorkerCore(FakeEngine()).info
+    assert info["gdn_kernels"] == {"chunk_gated_delta_rule": "fla", "fla_device": "cuda"}
+    assert info["gdn_fast_path"] is False
