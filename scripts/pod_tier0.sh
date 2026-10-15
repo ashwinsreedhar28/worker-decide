@@ -87,8 +87,9 @@ print(json.dumps(json.load(urllib.request.urlopen("http://127.0.0.1:8000/", time
   return 1
 }
 
-ready_s() {  # info file -> the worker's ready mark (seconds since process start)
-  python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))["timeline"]["marks"].get("ready"))' "$1" 2>/dev/null
+ready_s() {  # info file (GET /) -> "<s>s", the worker's ready mark since process start
+  python3 -c 'import json, sys; print(str(json.load(open(sys.argv[1]))["engine"]["timeline"]["marks"]["ready"]) + "s")' "$1" 2>/dev/null \
+    || echo unknown
 }
 
 stop_worker() {  # kill, wait up to 30 s, then -9
@@ -160,7 +161,7 @@ if [ "$STEPS_DONE" = 1 ]; then
   EMPTY_OK=0
   if start_worker runs/worker-tier0.log runs/worker-tier0-info.json; then
     EMPTY_OK=1
-    record ready_empty_cache "$(ready_s runs/worker-tier0-info.json)s"
+    record ready_empty_cache "$(ready_s runs/worker-tier0-info.json)"
     python3 scripts/first_requests.py http://127.0.0.1:8000 "runs/first-fla-$SLUG" \
       --label "fla, empty cache, $SLUG" && record first_empty ok || record first_empty FAIL
 
@@ -199,7 +200,7 @@ if [ "$STEPS_DONE" = 1 ]; then
   if [ "$EMPTY_OK" != 1 ]; then
     record warm_cache "skipped (the empty-cache run did not start)"
   elif start_worker runs/worker-tier0-warm.log runs/worker-tier0-warm-info.json; then
-    record ready_warm_cache "$(ready_s runs/worker-tier0-warm-info.json)s"
+    record ready_warm_cache "$(ready_s runs/worker-tier0-warm-info.json)"
     python3 scripts/first_requests.py http://127.0.0.1:8000 "runs/first-fla-warmcache-$SLUG" \
       --label "fla, warm cache, $SLUG" && record first_warm ok || record first_warm FAIL
   else
