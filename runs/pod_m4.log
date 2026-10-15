@@ -1,0 +1,621 @@
+== pod_m4.sh 2026-10-15T17:36:56Z ==
+commit 156bdc2  image acf2fc47810fd456d7586f72fdc6f561b19e6f2a  gpu NVIDIA H100 80GB HBM3 (h100-80gb-hbm3)  rev 8b2e5fd
+NVIDIA H100 80GB HBM3, 81559 MiB, 580.126.09
+
+==== 1. order oracle (17:36:56) ====
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Fetching 17 files:   6%|▌         | 1/17 [00:00<00:03,  4.02it/s]Fetching 17 files:  41%|████      | 7/17 [00:00<00:00, 24.16it/s]Fetching 17 files:  65%|██████▍   | 11/17 [00:00<00:00, 12.82it/s]Fetching 17 files:  82%|████████▏ | 14/17 [00:09<00:03,  1.04s/it]Fetching 17 files:  94%|█████████▍| 16/17 [00:13<00:01,  1.22s/it]Fetching 17 files: 100%|██████████| 17/17 [00:14<00:00,  1.17s/it]Fetching 17 files: 100%|██████████| 17/17 [00:14<00:00,  1.19it/s]
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+Loading weights:   0%|          | 0/760 [00:00<?, ?it/s]Loading weights:   0%|          | 1/760 [00:00<11:34,  1.09it/s]Loading weights:   0%|          | 2/760 [00:01<08:38,  1.46it/s]Loading weights:   2%|▏         | 15/760 [00:01<01:02, 11.83it/s]Loading weights:   4%|▍         | 33/760 [00:01<00:24, 29.66it/s]Loading weights:   5%|▌         | 41/760 [00:02<00:32, 21.92it/s]Loading weights:   6%|▌         | 47/760 [00:02<00:37, 18.86it/s]Loading weights:   7%|▋         | 54/760 [00:03<00:41, 17.01it/s]Loading weights:   9%|▊         | 66/760 [00:03<00:27, 25.58it/s]Loading weights:  10%|█         | 76/760 [00:04<00:30, 22.41it/s]Loading weights:  12%|█▏        | 89/760 [00:04<00:22, 29.90it/s]Loading weights:  12%|█▏        | 94/760 [00:04<00:29, 22.75it/s]Loading weights:  13%|█▎        | 98/760 [00:04<00:28, 23.43it/s]Loading weights:  13%|█▎        | 102/760 [00:05<00:37, 17.39it/s]Loading weights:  15%|█▌        | 114/760 [00:05<00:25, 25.71it/s]Loading weights:  16%|█▌        | 118/760 [00:06<00:32, 19.47it/s]Loading weights:  17%|█▋        | 129/760 [00:06<00:32, 19.36it/s]Loading weights:  18%|█▊        | 137/760 [00:06<00:24, 25.02it/s]Loading weights:  19%|█▉        | 143/760 [00:07<00:31, 19.54it/s]Loading weights:  20%|█▉        | 149/760 [00:07<00:26, 23.43it/s]Loading weights:  20%|██        | 153/760 [00:07<00:35, 16.88it/s]Loading weights:  22%|██▏       | 168/760 [00:08<00:30, 19.46it/s]Loading weights:  23%|██▎       | 174/760 [00:08<00:25, 22.89it/s]Loading weights:  24%|██▍       | 182/760 [00:09<00:26, 21.74it/s]Loading weights:  26%|██▌       | 196/760 [00:09<00:23, 23.53it/s]Loading weights:  27%|██▋       | 202/760 [00:09<00:22, 25.02it/s]Loading weights:  27%|██▋       | 206/760 [00:10<00:27, 20.04it/s]Loading weights:  28%|██▊       | 213/760 [00:10<00:28, 19.07it/s]Loading weights:  29%|██▉       | 221/760 [00:10<00:25, 21.30it/s]Loading weights:  30%|███       | 229/760 [00:11<00:19, 27.68it/s]Loading weights:  31%|███       | 235/760 [00:11<00:27, 19.24it/s]Loading weights:  32%|███▏      | 241/760 [00:11<00:22, 23.41it/s]Loading weights:  32%|███▎      | 247/760 [00:11<00:20, 25.41it/s]Loading weights:  33%|███▎      | 251/760 [00:12<00:23, 21.51it/s]Loading weights:  34%|███▎      | 255/760 [00:12<00:30, 16.51it/s]Loading weights:  34%|███▍      | 260/760 [00:12<00:25, 19.43it/s]Loading weights:  35%|███▌      | 266/760 [00:13<00:29, 16.80it/s]Loading weights:  36%|███▌      | 274/760 [00:13<00:21, 22.26it/s]Loading weights:  38%|███▊      | 288/760 [00:14<00:24, 19.62it/s]Loading weights:  40%|███▉      | 302/760 [00:14<00:20, 22.41it/s]Loading weights:  41%|████      | 308/760 [00:14<00:17, 25.21it/s]Loading weights:  41%|████      | 312/760 [00:15<00:21, 21.29it/s]Loading weights:  42%|████▏     | 319/760 [00:15<00:17, 24.97it/s]Loading weights:  43%|████▎     | 328/760 [00:15<00:20, 20.62it/s]Loading weights:  44%|████▎     | 331/760 [00:16<00:22, 18.78it/s]Loading weights:  45%|████▍     | 341/760 [00:16<00:24, 17.13it/s]Loading weights:  47%|████▋     | 355/760 [00:17<00:19, 20.55it/s]Loading weights:  47%|████▋     | 360/760 [00:17<00:17, 22.39it/s]Loading weights:  48%|████▊     | 364/760 [00:17<00:21, 18.76it/s]Loading weights:  49%|████▉     | 372/760 [00:18<00:18, 21.00it/s]Loading weights:  50%|█████     | 380/760 [00:18<00:20, 18.97it/s]Loading weights:  51%|█████     | 384/760 [00:18<00:18, 20.54it/s]Loading weights:  52%|█████▏    | 394/760 [00:19<00:17, 21.00it/s]Loading weights:  52%|█████▏    | 398/760 [00:19<00:15, 23.00it/s]Loading weights:  54%|█████▎    | 408/760 [00:19<00:17, 20.20it/s]Loading weights:  54%|█████▍    | 414/760 [00:20<00:14, 23.78it/s]Loading weights:  55%|█████▌    | 418/760 [00:20<00:18, 18.14it/s]Loading weights:  56%|█████▌    | 425/760 [00:20<00:15, 22.15it/s]Loading weights:  68%|██████▊   | 515/760 [00:20<00:01, 135.13it/s]Loading weights:  78%|███████▊  | 589/760 [00:20<00:00, 227.78it/s]Loading weights:  87%|████████▋ | 663/760 [00:20<00:00, 317.51it/s]Loading weights:  97%|█████████▋| 735/760 [00:21<00:00, 397.70it/s]Loading weights: 100%|██████████| 760/760 [00:21<00:00, 35.97it/s] 
+[  1/5] order_choice_unsorted    tokens=   194     501.5 ms
+[  2/5] order_choice_sorted      tokens=   194     127.9 ms
+[  3/5] order_questions_alphabetical tokens=   300     156.5 ms
+[  4/5] order_questions_as_card  tokens=   300     157.0 ms
+[  5/5] order_questions_reversed tokens=   300     161.2 ms
+{"revision": "8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3", "dtype": "float32", "gpu": "NVIDIA H100 80GB HBM3", "versions": {"python": "3.12.3", "torch": "2.11.0+cu130", "transformers": "5.10.2", "cuda": "13.0"}, "counts": {"ok": 5, "error": 0}, "load_s": 26.0}
+[status] order_oracle_fp32: ok
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 1549.87it/s]
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+Loading weights:   0%|          | 0/760 [00:00<?, ?it/s]Loading weights:   0%|          | 1/760 [00:00<02:43,  4.65it/s]Loading weights:   0%|          | 2/760 [00:00<03:11,  3.96it/s]Loading weights:   3%|▎         | 24/760 [00:00<00:12, 56.88it/s]Loading weights:   5%|▌         | 38/760 [00:00<00:09, 77.58it/s]Loading weights:   7%|▋         | 50/760 [00:00<00:08, 81.01it/s]Loading weights:   9%|▉         | 68/760 [00:00<00:06, 99.79it/s]Loading weights:  11%|█         | 82/760 [00:01<00:06, 107.60it/s]Loading weights:  13%|█▎        | 96/760 [00:01<00:05, 113.28it/s]Loading weights:  14%|█▍        | 109/760 [00:01<00:05, 116.71it/s]Loading weights:  16%|█▌        | 122/760 [00:01<00:05, 117.05it/s]Loading weights:  18%|█▊        | 135/760 [00:01<00:05, 117.98it/s]Loading weights:  20%|█▉        | 149/760 [00:01<00:05, 120.85it/s]Loading weights:  21%|██▏       | 162/760 [00:01<00:04, 122.40it/s]Loading weights:  23%|██▎       | 175/760 [00:01<00:04, 121.47it/s]Loading weights:  25%|██▍       | 188/760 [00:01<00:04, 119.83it/s]Loading weights:  27%|██▋       | 202/760 [00:02<00:04, 119.69it/s]Loading weights:  28%|██▊       | 215/760 [00:02<00:04, 118.82it/s]Loading weights:  30%|██▉       | 227/760 [00:02<00:04, 114.08it/s]Loading weights:  32%|███▏      | 241/760 [00:02<00:04, 115.72it/s]Loading weights:  34%|███▎      | 255/760 [00:02<00:04, 116.85it/s]Loading weights:  35%|███▌      | 267/760 [00:02<00:04, 114.50it/s]Loading weights:  37%|███▋      | 279/760 [00:02<00:04, 110.88it/s]Loading weights:  39%|███▊      | 294/760 [00:02<00:04, 115.83it/s]Loading weights:  41%|████      | 308/760 [00:02<00:03, 117.40it/s]Loading weights:  42%|████▏     | 320/760 [00:03<00:03, 115.27it/s]Loading weights:  44%|████▎     | 332/760 [00:03<00:03, 110.50it/s]Loading weights:  46%|████▌     | 347/760 [00:03<00:03, 115.35it/s]Loading weights:  48%|████▊     | 361/760 [00:03<00:03, 116.73it/s]Loading weights:  49%|████▉     | 373/760 [00:03<00:03, 114.56it/s]Loading weights:  51%|█████     | 386/760 [00:03<00:03, 113.58it/s]Loading weights:  52%|█████▎    | 399/760 [00:03<00:03, 112.76it/s]Loading weights:  54%|█████▍    | 413/760 [00:03<00:03, 114.78it/s]Loading weights:  56%|█████▌    | 425/760 [00:04<00:02, 113.36it/s]Loading weights:  73%|███████▎  | 553/760 [00:04<00:00, 428.97it/s]Loading weights:  89%|████████▉ | 680/760 [00:04<00:00, 663.25it/s]Loading weights: 100%|██████████| 760/760 [00:04<00:00, 176.74it/s]
+[  1/5] order_choice_unsorted    tokens=   194    2130.1 ms
+[  2/5] order_choice_sorted      tokens=   194     138.5 ms
+[  3/5] order_questions_alphabetical tokens=   300     311.3 ms
+[  4/5] order_questions_as_card  tokens=   300     143.0 ms
+[  5/5] order_questions_reversed tokens=   300     141.7 ms
+{"revision": "8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3", "dtype": "bfloat16", "gpu": "NVIDIA H100 80GB HBM3", "versions": {"python": "3.12.3", "torch": "2.11.0+cu130", "transformers": "5.10.2", "cuda": "13.0"}, "counts": {"ok": 5, "error": 0}, "load_s": 8.0}
+[status] order_oracle_bf16: ok
+## Order findings
+
+- Options out of order on the wire: token ids identical to the sorted copy, max |dp| 0.00e+00.
+
+| question order | tokens | max \|dp\| vs alphabetical, per question |
+|---|---|---|
+| alphabetical | 300 | department 0.0000, outage 0.0000, urgency 0.0000 |
+| card | 300 | department 0.0001, outage 0.0589, urgency 0.0213 |
+| reversed | 300 | department 0.0113, outage 0.1536, urgency 0.0262 |
+
+==== 2. profile our engine (bf16) (17:37:58) ====
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 1638.93it/s]
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+Loading weights:   0%|          | 0/760 [00:00<?, ?it/s]Loading weights:   0%|          | 1/760 [00:00<02:26,  5.18it/s]Loading weights:   0%|          | 2/760 [00:00<02:58,  4.25it/s]Loading weights:   3%|▎         | 24/760 [00:00<00:12, 59.64it/s]Loading weights:   5%|▌         | 41/760 [00:00<00:08, 84.61it/s]Loading weights:   7%|▋         | 53/760 [00:00<00:07, 88.83it/s]Loading weights:   9%|▉         | 68/760 [00:00<00:06, 98.90it/s]Loading weights:  11%|█         | 82/760 [00:01<00:06, 107.73it/s]Loading weights:  13%|█▎        | 96/760 [00:01<00:05, 115.18it/s]Loading weights:  15%|█▍        | 113/760 [00:01<00:04, 130.27it/s]Loading weights:  17%|█▋        | 127/760 [00:01<00:04, 131.17it/s]Loading weights:  19%|█▊        | 141/760 [00:01<00:04, 126.44it/s]Loading weights:  20%|██        | 155/760 [00:01<00:05, 111.97it/s]Loading weights:  23%|██▎       | 172/760 [00:01<00:04, 123.97it/s]Loading weights:  25%|██▍       | 187/760 [00:01<00:04, 128.26it/s]Loading weights:  26%|██▋       | 201/760 [00:01<00:04, 125.69it/s]Loading weights:  28%|██▊       | 214/760 [00:02<00:04, 115.48it/s]Loading weights:  30%|██▉       | 227/760 [00:02<00:04, 114.20it/s]Loading weights:  32%|███▏      | 241/760 [00:02<00:04, 115.98it/s]Loading weights:  33%|███▎      | 254/760 [00:02<00:04, 114.47it/s]Loading weights:  35%|███▌      | 266/760 [00:02<00:04, 113.13it/s]Loading weights:  37%|███▋      | 280/760 [00:02<00:04, 114.42it/s]Loading weights:  39%|███▊      | 294/760 [00:02<00:04, 116.04it/s]Loading weights:  41%|████      | 308/760 [00:02<00:03, 117.19it/s]Loading weights:  42%|████▏     | 320/760 [00:03<00:03, 112.73it/s]Loading weights:  44%|████▍     | 333/760 [00:03<00:03, 112.50it/s]Loading weights:  46%|████▌     | 347/760 [00:03<00:03, 114.18it/s]Loading weights:  48%|████▊     | 361/760 [00:03<00:03, 116.13it/s]Loading weights:  49%|████▉     | 373/760 [00:03<00:03, 113.82it/s]Loading weights:  51%|█████     | 386/760 [00:03<00:03, 113.74it/s]Loading weights:  53%|█████▎    | 400/760 [00:03<00:03, 115.90it/s]Loading weights:  54%|█████▍    | 414/760 [00:03<00:02, 117.12it/s]Loading weights:  56%|█████▌    | 426/760 [00:03<00:02, 115.72it/s]Loading weights:  73%|███████▎  | 553/760 [00:04<00:00, 427.19it/s]Loading weights:  90%|█████████ | 684/760 [00:04<00:00, 673.31it/s]Loading weights: 100%|██████████| 760/760 [00:04<00:00, 179.88it/s]
+[profile] card_trio: {'input_tokens': 300, 'backbone_path': 'language_model.model.language_model', 'passes': 20, 'median_ms': {'encode': 1.807, 'collate': 0.214, 'pre': 0.083, 'backbone': 128.614, 'head': 4.642, 'post': 0.123, 'total': 135.433}, 'share_of_total': {'encode': 0.013, 'collate': 0.002, 'pre': 0.001, 'backbone': 0.95, 'head': 0.034, 'post': 0.001}, 'head_plus_overhead_share': 0.05}
+/usr/local/lib/python3.12/dist-packages/torch/profiler/profiler.py:224: UserWarning: Warning: Profiler clears events at the end of each cycle.Only events from the current cycle will be reported.To keep events across cycles, set acc_events=True.
+  _warn_once(
+[profile] pulse-11714037: {'input_tokens': 843, 'backbone_path': 'language_model.model.language_model', 'passes': 20, 'median_ms': {'encode': 2.312, 'collate': 0.34, 'pre': 0.09, 'backbone': 219.241, 'head': 4.496, 'post': 0.078, 'total': 226.7}, 'share_of_total': {'encode': 0.01, 'collate': 0.001, 'pre': 0.0, 'backbone': 0.967, 'head': 0.02, 'post': 0.0}, 'head_plus_overhead_share': 0.033}
+[profile] long_2k: {'input_tokens': 2486, 'backbone_path': 'language_model.model.language_model', 'passes': 20, 'median_ms': {'encode': 5.188, 'collate': 0.578, 'pre': 0.096, 'backbone': 353.043, 'head': 5.241, 'post': 0.115, 'total': 364.431}, 'share_of_total': {'encode': 0.014, 'collate': 0.002, 'pre': 0.0, 'backbone': 0.969, 'head': 0.014, 'post': 0.0}, 'head_plus_overhead_share': 0.031}
+## Profile (NVIDIA H100 80GB HBM3, backbone = `language_model.model.language_model`, 7.94B of 9.53B params, gdn_fast_path=False)
+
+| record | tokens | encode | collate | pre | backbone | head | post | total ms | backbone share |
+|---|---|---|---|---|---|---|---|---|---|
+| card_trio | 300 | 1.8 | 0.2 | 0.1 | 128.6 | 4.6 | 0.1 | 135.4 | 95% |
+| pulse-11714037 | 843 | 2.3 | 0.3 | 0.1 | 219.2 | 4.5 | 0.1 | 226.7 | 97% |
+| long_2k | 2486 | 5.2 | 0.6 | 0.1 | 353.0 | 5.2 | 0.1 | 364.4 | 97% |
+[status] profile: ok
+
+==== 3. our worker: load test + order records (17:39:05) ====
+[load] ticket (card_trio) c=1 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 17.947, 'req_per_s': 7.132, 'p50_ms': 137.8, 'p90_ms': 149.3, 'p99_ms': 163.1, 'mean_ms': 140.2, 'min_ms': 136.3, 'max_ms': 166.2}
+[load] ticket (card_trio) c=8 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 19.649, 'req_per_s': 6.514, 'p50_ms': 1218.5, 'p90_ms': 1281.3, 'p99_ms': 1312.6, 'mean_ms': 1195.8, 'min_ms': 162.2, 'max_ms': 1312.8}
+[load] ticket (card_trio) c=32 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 20.603, 'req_per_s': 6.213, 'p50_ms': 5145.2, 'p90_ms': 5418.3, 'p99_ms': 5515.7, 'mean_ms': 4567.4, 'min_ms': 165.8, 'max_ms': 5522.8}
+[load] pulse (pulse-11714037) c=1 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 22.721, 'req_per_s': 5.634, 'p50_ms': 175.8, 'p90_ms': 182.9, 'p99_ms': 191.9, 'mean_ms': 177.5, 'min_ms': 174.7, 'max_ms': 248.0}
+[load] pulse (pulse-11714037) c=8 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 24.514, 'req_per_s': 5.222, 'p50_ms': 1534.9, 'p90_ms': 1584.6, 'p99_ms': 1699.9, 'mean_ms': 1493.6, 'min_ms': 223.3, 'max_ms': 1711.5}
+[load] pulse (pulse-11714037) c=32 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 24.884, 'req_per_s': 5.144, 'p50_ms': 6201.1, 'p90_ms': 6492.5, 'p99_ms': 6547.2, 'mean_ms': 5506.0, 'min_ms': 205.5, 'max_ms': 6551.5}
+[load] article (long_2k) c=1 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 36.539, 'req_per_s': 3.503, 'p50_ms': 283.6, 'p90_ms': 296.0, 'p99_ms': 302.3, 'mean_ms': 285.5, 'min_ms': 280.1, 'max_ms': 308.2}
+[load] article (long_2k) c=8 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 38.389, 'req_per_s': 3.334, 'p50_ms': 2370.4, 'p90_ms': 2502.5, 'p99_ms': 2569.0, 'mean_ms': 2335.3, 'min_ms': 303.7, 'max_ms': 2585.1}
+[load] article (long_2k) c=32 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 41.303, 'req_per_s': 3.099, 'p50_ms': 9833.9, 'p90_ms': 11950.4, 'p99_ms': 12062.9, 'mean_ms': 9190.5, 'min_ms': 323.9, 'max_ms': 12076.7}
+## Load: ours-h100-80gb-hbm3
+
+| workload | tokens | concurrency | n | errors | req/s | p50 ms | p90 ms | p99 ms |
+|---|---|---|---|---|---|---|---|---|
+| ticket | 300 | 1 | 128 | 0 | 7.132 | 137.8 | 149.3 | 163.1 |
+| ticket | 300 | 8 | 128 | 0 | 6.514 | 1218.5 | 1281.3 | 1312.6 |
+| ticket | 300 | 32 | 128 | 0 | 6.213 | 5145.2 | 5418.3 | 5515.7 |
+| pulse | 843 | 1 | 128 | 0 | 5.634 | 175.8 | 182.9 | 191.9 |
+| pulse | 843 | 8 | 128 | 0 | 5.222 | 1534.9 | 1584.6 | 1699.9 |
+| pulse | 843 | 32 | 128 | 0 | 5.144 | 6201.1 | 6492.5 | 6547.2 |
+| article | 2486 | 1 | 128 | 0 | 3.503 | 283.6 | 296.0 | 302.3 |
+| article | 2486 | 8 | 128 | 0 | 3.334 | 2370.4 | 2502.5 | 2569.0 |
+| article | 2486 | 32 | 128 | 0 | 3.099 | 9833.9 | 11950.4 | 12062.9 |
+[status] load_ours: ok
+[wait] polling http://127.0.0.1:8000/ping until the worker is ready
+[  1/5] order_choice_unsorted    tokens=   194     276.8 ms
+[  2/5] order_choice_sorted      tokens=   194     147.3 ms
+[  3/5] order_questions_alphabetical tokens=   300     284.5 ms
+[  4/5] order_questions_as_card  tokens=   300     139.9 ms
+[  5/5] order_questions_reversed tokens=   300     139.1 ms
+[status] parity_ours_order: PASS
+
+==== 4. SGLang (sglang==0.5.22.dev20261009+g37ae292e6f) (17:44:08) ====
+W: https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/InRelease: Key is stored in legacy trusted.gpg keyring (/etc/apt/trusted.gpg), see the DEPRECATION section in apt-key(8) for details.
+debconf: delaying package configuration, since apt-utils is not installed
+[status] compilers: ok
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+Downloading cpython-3.10.22-linux-x86_64-gnu (download) (28.0MiB)
+ Downloaded cpython-3.10.22-linux-x86_64-gnu (download)
+Using CPython 3.10.22
+warning: The requested interpreter resolved to Python 3.10.22, which is incompatible with the project's Python requirement: `>=3.11` (from `project.requires-python`)
+Creating virtual environment at: /opt/sgl
+Activate with: source /opt/sgl/bin/activate
+Using Python 3.10.22 environment at: /opt/sgl
+Resolved 212 packages in 1m 08s
+Downloading nvidia-cusparse (139.2MiB)
+Downloading nvidia-cuda-nvrtc (86.0MiB)
+Downloading nvidia-nvshmem-cu13 (57.6MiB)
+Downloading nvidia-curand (56.8MiB)
+Downloading nvidia-nvjitlink (40.5MiB)
+Downloading transformers (12.0MiB)
+Downloading nvidia-cuda-cupti (10.2MiB)
+Downloading sympy (6.0MiB)
+Downloading nvidia-cusparselt-cu13 (162.3MiB)
+Downloading numpy (16.0MiB)
+Downloading pandas (12.2MiB)
+Downloading cuda-bindings (6.8MiB)
+Downloading pycountry (7.7MiB)
+Downloading nvidia-cudnn-cu13 (527.5MiB)
+Downloading nvidia-cuda-nvcc (45.5MiB)
+Downloading nvidia-nccl-cu13 (206.0MiB)
+Downloading pyarrow (47.7MiB)
+Downloading nvidia-cublas (403.5MiB)
+Downloading nvidia-cusolver (191.6MiB)
+Downloading nvidia-cufft (204.2MiB)
+Downloading mistral-common (6.3MiB)
+Downloading pillow (6.6MiB)
+Downloading zstandard (5.3MiB)
+Downloading scipy (35.9MiB)
+Downloading nvidia-cudnn-frontend (9.7MiB)
+Downloading lxml (5.1MiB)
+Downloading z3-solver (27.9MiB)
+Downloading nvidia-nvvm (69.2MiB)
+Downloading torch (528.9MiB)
+Downloading grpcio (7.1MiB)
+Downloading torchvision (7.1MiB)
+Downloading nccl-extensions (21.4MiB)
+Downloading flashinfer-python (32.1MiB)
+Downloading tilelang (48.2MiB)
+Downloading modelscope (5.8MiB)
+Downloading cuda-core (6.2MiB)
+Downloading jedi (4.7MiB)
+Downloading nvidia-mathdx (21.9MiB)
+Downloading triton (236.4MiB)
+Downloading nvidia-cutlass-dsl-libs-cu12 (87.4MiB)
+Downloading nvidia-cutlass-dsl-libs-cu13 (87.7MiB)
+Downloading tokenspeed-triton (95.3MiB)
+Downloading torchcodec (9.5MiB)
+Downloading sgl-deep-gemm (5.2MiB)
+Downloading sgl-deep-ep (14.7MiB)
+Downloading sglang-kernel (354.2MiB)
+Downloading cryptography (4.6MiB)
+Downloading sglang (28.9MiB)
+Downloading llvmlite (53.7MiB)
+ Downloaded sgl-deep-gemm
+Downloading hf-xet (4.0MiB)
+Downloading nvshmem4py-cu13 (4.6MiB)
+ Downloaded sgl-deep-ep
+Downloading nvidia-cuda-cccl (3.7MiB)
+ Downloaded sglang
+Downloading uvloop (3.7MiB)
+ Downloaded jedi
+ Downloaded cryptography
+Downloading nccl4py (3.4MiB)
+ Downloaded lxml
+ Downloaded zstandard
+Downloading cython (3.3MiB)
+Downloading tokenizers (3.2MiB)
+ Downloaded hf-xet
+Downloading llguidance (2.9MiB)
+ Downloaded modelscope
+Downloading nvidia-cutlass-dsl-libs-base (2.9MiB)
+ Downloaded sympy
+Downloading openai-harmony (2.9MiB)
+ Downloaded nvidia-cuda-cccl
+ Downloaded cuda-core
+Downloading py-spy (2.8MiB)
+ Downloaded mistral-common
+Downloading apache-tvm-ffi (2.6MiB)
+ Downloaded pillow
+Downloading torch-memory-saver (2.5MiB)
+ Downloaded cuda-bindings
+Downloading timm (2.4MiB)
+Downloading pycryptodomex (2.2MiB)
+ Downloaded torchvision
+ Downloaded grpcio
+Downloading numba (3.6MiB)
+Downloading nvidia-cuda-runtime (2.1MiB)
+Downloading pydantic-core (2.1MiB)
+ Downloaded pycountry
+Downloading anthropic (1.9MiB)
+ Downloaded uvloop
+Downloading aiohttp (1.8MiB)
+ Downloaded cython
+ Downloaded tokenizers
+ Downloaded llguidance
+Downloading networkx (1.6MiB)
+Downloading torchaudio (1.7MiB)
+Downloading nvidia-cutlass-dsl-libs-core (1.6MiB)
+ Downloaded nvidia-cutlass-dsl-libs-base
+Downloading sentencepiece (1.3MiB)
+ Downloaded openai-harmony
+ Downloaded torch-memory-saver
+ Downloaded py-spy
+ Downloaded timm
+ Downloaded pycryptodomex
+Downloading soundfile (1.3MiB)
+Downloading kernels-data (1.2MiB)
+Downloading xgrammar (1.2MiB)
+Downloading pygments (1.2MiB)
+Downloading nvidia-cufile (1.2MiB)
+ Downloaded pydantic-core
+ Downloaded nvidia-cuda-runtime
+ Downloaded anthropic
+   Building cuda-tile==1.6.0rc5
+ Downloaded nvidia-cuda-cupti
+ Downloaded aiohttp
+ Downloaded nvidia-cudnn-frontend
+ Downloaded torchaudio
+ Downloaded networkx
+ Downloaded nvidia-cufile
+ Downloaded nvidia-cutlass-dsl-libs-core
+ Downloaded sentencepiece
+ Downloaded kernels-data
+ Downloaded soundfile
+ Downloaded pygments
+ Downloaded xgrammar
+ Downloaded apache-tvm-ffi
+ Downloaded transformers
+Downloading tiktoken (1.2MiB)
+ Downloaded pandas
+ Downloaded torchcodec
+ Downloaded nccl4py
+ Downloaded tiktoken
+ Downloaded numpy
+ Downloaded numba
+ Downloaded nvshmem4py-cu13
+ Downloaded nvidia-mathdx
+ Downloaded z3-solver
+ Downloaded nccl-extensions
+ Downloaded scipy
+ Downloaded flashinfer-python
+ Downloaded nvidia-nvjitlink
+ Downloaded nvidia-cuda-nvcc
+ Downloaded pyarrow
+ Downloaded tilelang
+ Downloaded nvidia-curand
+ Downloaded nvidia-nvshmem-cu13
+ Downloaded nvidia-nvvm
+ Downloaded nvidia-cuda-nvrtc
+ Downloaded nvidia-cutlass-dsl-libs-cu13
+      Built cuda-tile==1.6.0rc5
+ Downloaded nvidia-cutlass-dsl-libs-cu12
+ Downloaded sglang-kernel
+ Downloaded nvidia-cusparse
+ Downloaded nvidia-cusparselt-cu13
+ Downloaded nvidia-cusolver
+ Downloaded nvidia-cufft
+ Downloaded nvidia-nccl-cu13
+ Downloaded llvmlite
+ Downloaded triton
+ Downloaded nvidia-cublas
+ Downloaded nvidia-cudnn-cu13
+ Downloaded torch
+ Downloaded tokenspeed-triton
+Prepared 212 packages in 9.15s
+Installed 212 packages in 1.40s
+ + aiohappyeyeballs==2.7.1
+ + aiohttp==3.14.5
+ + aiosignal==1.4.0
+ + airportsdata==20260315
+ + annotated-doc==0.0.5
+ + annotated-types==0.8.0
+ + anthropic==1.14.0
+ + anyio==4.15.1
+ + apache-tvm-ffi==0.1.11
+ + asttokens==3.0.2
+ + async-timeout==5.0.1
+ + attrs==26.1.0
+ + backports-strenum==1.3.1
+ + blobfile==3.0.0
+ + build==1.6.1
+ + certifi==2026.7.22
+ + cffi==2.1.1
+ + charset-normalizer==3.5.2
+ + click==8.5.0
+ + cloudpickle==3.1.2
+ + compressed-tensors==0.18.0
+ + cryptography==50.0.2
+ + cuda-bindings==13.4.4
+ + cuda-core==1.2.1
+ + cuda-pathfinder==1.8.3
+ + cuda-python==13.4.4
+ + cuda-tile==1.6.0rc5
+ + cuda-toolkit==13.0.3.0
+ + cython==3.3.0
+ + datasets==5.1.0
+ + decorator==5.3.1
+ + dill==0.4.1
+ + diskcache==5.6.3
+ + distro==1.9.0
+ + docstring-parser==0.18.0
+ + easydict==1.13
+ + einops==0.9.0.dev0
+ + exceptiongroup==1.3.1
+ + executing==2.3.0
+ + fastapi==0.143.2
+ + filelock==4.1.0
+ + flash-attn-4==4.0.0b35
+ + flashinfer-python==0.7.0.post1
+ + frozenlist==1.8.0
+ + fsspec==2026.7.0
+ + gguf==0.19.0
+ + grpcio==1.85.0rc1
+ + grpcio-health-checking==1.85.0rc1
+ + grpcio-reflection==1.85.0rc1
+ + h11==0.16.0
+ + hf-xet==1.7.0
+ + httpcore==1.0.9
+ + httpcore2==2.13.1
+ + httpx==0.28.1
+ + httpx2==2.13.1
+ + huggingface-hub==1.33.0
+ + humming-kernels==0.1.12
+ + idna==3.20
+ + interegular==0.3.3
+ + ipython==8.39.0
+ + jedi==0.20.1
+ + jinja2==3.1.6
+ + jiter==0.17.0
+ + jsonschema==4.26.0
+ + jsonschema-specifications==2025.9.1
+ + kernels==0.14.1
+ + kernels-data==0.16.2
+ + lark==1.3.1
+ + llguidance==1.9.1
+ + llvmlite==0.47.0
+ + loguru==0.7.3
+ + lxml==7.0.0b1
+ + markdown-it-py==4.2.0
+ + markupsafe==3.0.4
+ + matplotlib-inline==0.2.2
+ + mdurl==0.1.2
+ + mistral-common==1.12.0
+ + ml-dtypes==0.6.0
+ + modelscope==1.40.2
+ + modelscope-hub==0.4.6
+ + mpmath==1.3.0
+ + msgspec==0.22.0
+ + multidict==7.1.0
+ + multiprocess==0.70.19
+ + nccl-extensions==0.1.0
+ + nccl4py==0.6.0
+ + nest-asyncio==1.6.0
+ + networkx==3.4.2
+ + ninja==1.13.2
+ + numba==0.65.1
+ + numpy==2.2.6
+ + nvidia-cublas==13.1.1.3
+ + nvidia-cuda-cccl==13.3.4.3.1
+ + nvidia-cuda-crt==13.4.92
+ + nvidia-cuda-cupti==13.0.85
+ + nvidia-cuda-nvcc==13.4.92
+ + nvidia-cuda-nvrtc==13.0.88
+ + nvidia-cuda-runtime==13.0.96
+ + nvidia-cudnn-cu13==9.24.0.43
+ + nvidia-cudnn-frontend==1.31.0
+ + nvidia-cufft==12.0.0.61
+ + nvidia-cufile==1.15.1.6
+ + nvidia-curand==10.4.0.35
+ + nvidia-cusolver==12.0.4.66
+ + nvidia-cusparse==12.6.3.3
+ + nvidia-cusparselt-cu13==0.8.1
+ + nvidia-cutlass-dsl==4.8.0
+ + nvidia-cutlass-dsl-libs-base==4.8.0
+ + nvidia-cutlass-dsl-libs-core==4.8.0
+ + nvidia-cutlass-dsl-libs-cu12==4.8.0
+ + nvidia-cutlass-dsl-libs-cu13==4.8.0
+ + nvidia-mathdx==25.6.0
+ + nvidia-ml-py==13.615.71
+ + nvidia-nccl-cu13==2.30.7
+ + nvidia-nvjitlink==13.4.92
+ + nvidia-nvshmem-cu13==3.4.5
+ + nvidia-nvtx==13.0.85
+ + nvidia-nvvm==13.4.92
+ + nvshmem4py-cu13==0.4.1
+ + openai==2.6.1
+ + openai-harmony==0.0.4
+ + opentelemetry-api==1.45.1
+ + orjson==3.13.0
+ + outlines==0.1.11
+ + outlines-core==0.1.26
+ + packaging==26.3
+ + pandas==2.3.3
+ + parso==0.8.7
+ + partial-json-parser==0.2.1.1.post7
+ + pexpect==4.9.0
+ + pillow==12.3.0
+ + prometheus-client==0.26.0
+ + prompt-toolkit==3.0.53
+ + propcache==0.5.4
+ + protobuf==7.36.2
+ + psutil==7.2.2
+ + ptyprocess==0.7.0
+ + pure-eval==0.2.4
+ + py-spy==0.4.2
+ + pyarrow==25.0.1
+ + pybase64==1.5.1
+ + pycountry==26.2.16
+ + pycparser==3.11
+ + pycryptodomex==3.24.1
+ + pydantic==2.14.1
+ + pydantic-core==2.50.1
+ + pydantic-extra-types==2.11.1
+ + pygments==2.21.0
+ + pyproject-hooks==1.3.3
+ + python-dateutil==2.9.0.post0
+ + python-multipart==0.0.32
+ + pytz==2026.5
+ + pyyaml==6.0.3
+ + pyzmq==27.2.0
+ + quack-kernels==0.6.5
+ + referencing==0.37.0
+ + regex==2026.9.29
+ + requests==2.34.2
+ + rich==15.0.0
+ + rpds-py==0.30.0
+ + safetensors==0.9.0rc1
+ + scipy==1.15.3
+ + sentencepiece==0.2.1
+ + setproctitle==1.3.8
+ + setuptools==84.0.0
+ + sgl-deep-ep==0.1.2.post1+cu130
+ + sgl-deep-gemm==0.2.1.post1+cu130
+ + sglang==0.5.22.dev20261009+g37ae292e6f
+ + sglang-kernel==0.4.9+cu130
+ + shellingham==1.5.4
+ + six==1.17.0
+ + smg-grpc-proto==0.4.26
+ + smg-grpc-servicer==0.13.6
+ + sniffio==1.3.1
+ + soundfile==0.13.1
+ + stack-data==0.6.3
+ + starlette==1.7.0
+ + sympy==1.14.0
+ + tabulate==0.10.0
+ + tiktoken==0.14.0
+ + tilelang==0.1.12
+ + timm==1.0.16
+ + tokenizers==0.23.2
+ + tokenspeed-mla==0.1.8
+ + tokenspeed-triton==3.8.10.post20260920
+ + tomli==2.5.0
+ + tomlkit==0.15.1
+ + torch==2.14.1
+ + torch-c-dlpack-ext==0.1.5
+ + torch-memory-saver==0.0.10
+ + torchaudio==2.11.0
+ + torchcodec==0.17.0
+ + torchvision==0.29.1
+ + tqdm==4.70.1
+ + traitlets==5.16.1
+ + transformers==5.19.0
+ + triton==3.8.0
+ + truststore==0.10.5
+ + typer==0.27.3
+ + typing-extensions==4.16.0
+ + typing-inspection==0.4.4
+ + tzdata==2026.5
+ + urllib3==2.8.0
+ + uvicorn==0.54.0
+ + uvloop==0.23.0
+ + watchfiles==1.3.0
+ + wcwidth==0.9.2
+ + xgrammar==0.2.7
+ + xxhash==4.0.1
+ + yarl==1.25.1
+ + z3-solver==4.15.4.0
+ + zstandard==0.25.0
+[status] sglang_install: ok
+sglang 0.5.22.dev20261009+g37ae292e6f /opt/sgl/lib/python3.10/site-packages/sglang
+srt/layers/joint_schema_head.py PRESENT
+srt/entrypoints/systemone/joint_schema.py PRESENT
+scripts/pod_m4.sh: line 57:  6253 Killed                  /opt/sgl/bin/python -m sglang.launch_server --model-path Cloudflare/clef-flash --revision "$REV" --host 127.0.0.1 --port 30000 "$@" > runs/sglang.log 2>&1
+--- sglang default start failed; log tail:
+  File "/opt/sgl/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/opt/sgl/lib/python3.10/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+  File "/opt/sgl/lib/python3.10/site-packages/sglang/srt/models/qwen3_5.py", line 1884, in forward
+    hidden_states = layer(
+  File "/opt/sgl/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/opt/sgl/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/opt/sgl/lib/python3.10/site-packages/sglang/srt/models/qwen3_5.py", line 1212, in forward
+    hidden_states = self.mlp(hidden_states)
+  File "/opt/sgl/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/opt/sgl/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/opt/sgl/lib/python3.10/site-packages/sglang/srt/models/qwen2_moe.py", line 250, in forward
+    x = self.act_fn(gate_up)
+  File "/opt/sgl/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/opt/sgl/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/opt/sgl/lib/python3.10/site-packages/sglang/kernels/fused_op.py", line 659, in forward
+    result = method(*args, **kwargs)
+  File "/opt/sgl/lib/python3.10/site-packages/sglang/srt/layers/activation.py", line 149, in forward_cuda
+    silu_and_mul(x, out)
+  File "/opt/sgl/lib/python3.10/site-packages/sglang/srt/layers/activation.py", line 99, in silu_and_mul
+    return _act_and_mul(_jit_silu_and_mul, _sgl_silu_and_mul, input, out)
+  File "/opt/sgl/lib/python3.10/site-packages/sglang/srt/layers/activation.py", line 95, in _act_and_mul
+    (jit_fn if _jit_act_supported(out) else sgl_fn)(input, out)
+  File "/opt/sgl/lib/python3.10/site-packages/sglang/kernels/ops/activation/activation.py", line 181, in silu_and_mul
+    return run_activation("silu", input, out, expert_ids, expert_step)
+  File "/opt/sgl/lib/python3.10/site-packages/sglang/kernels/ops/activation/activation.py", line 124, in run_activation
+    _run_activation_inplace(op_name, input, out)
+  File "/opt/sgl/lib/python3.10/site-packages/torch/_ops.py", line 1350, in __call__
+    return self._op(*args, **kwargs)
+  File "/opt/sgl/lib/python3.10/site-packages/sglang/kernels/ops/activation/activation.py", line 62, in _run_activation_inplace
+    module = activation_module(input.dtype)
+  File "/opt/sgl/lib/python3.10/site-packages/sglang/kernels/jit/utils/common.py", line 39, in wrapper
+    result_map[key] = fn(*args, **kwargs)
+  File "/opt/sgl/lib/python3.10/site-packages/sglang/kernels/ops/activation/activation.py", line 26, in activation_module
+    return load_jit(
+  File "/opt/sgl/lib/python3.10/site-packages/torch/_dynamo/eval_frame.py", line 1548, in _fn
+    return fn(*args, **kwargs)
+  File "/opt/sgl/lib/python3.10/site-packages/sglang/kernels/jit/utils/compile/loader.py", line 178, in load_jit
+    library = ninja.build(spec=spec, build_dir=staging, build_file=build_file)
+  File "/opt/sgl/lib/python3.10/site-packages/sglang/kernels/jit/utils/compile/ninja.py", line 160, in build
+    completed = subprocess.run(
+  File "/root/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/subprocess.py", line 503, in run
+    with Popen(*popenargs, **kwargs) as process:
+  File "/root/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/subprocess.py", line 971, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/root/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/subprocess.py", line 1863, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: 'ninja'
+
+[2026-10-15 17:47:28] SIGQUIT received. signum=None, frame=None. It usually means one child failed.
+[2026-10-15 17:47:28] Sleeping 5 seconds before crash diagnostics to let GPU activity settle.
+[2026-10-15 17:47:33] No live scheduler processes found; skipping py-spy and CUDA coredump.
+[2026-10-15 17:47:33] kill_process_tree called: parent_pid=6253, include_parent=True, pid=6253
+scripts/pod_m4.sh: line 57:  7099 Killed                  /opt/sgl/bin/python -m sglang.launch_server --model-path Cloudflare/clef-flash --revision "$REV" --host 127.0.0.1 --port 30000 "$@" > runs/sglang.log 2>&1
+[status] sglang_start: FAIL
+  File "/opt/sgl/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/opt/sgl/lib/python3.10/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+  File "/opt/sgl/lib/python3.10/site-packages/sglang/srt/models/qwen3_5.py", line 1884, in forward
+    hidden_states = layer(
+  File "/opt/sgl/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/opt/sgl/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/opt/sgl/lib/python3.10/site-packages/sglang/srt/models/qwen3_5.py", line 1212, in forward
+    hidden_states = self.mlp(hidden_states)
+  File "/opt/sgl/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/opt/sgl/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/opt/sgl/lib/python3.10/site-packages/sglang/srt/models/qwen2_moe.py", line 250, in forward
+    x = self.act_fn(gate_up)
+  File "/opt/sgl/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/opt/sgl/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/opt/sgl/lib/python3.10/site-packages/sglang/kernels/fused_op.py", line 659, in forward
+    result = method(*args, **kwargs)
+  File "/opt/sgl/lib/python3.10/site-packages/sglang/srt/layers/activation.py", line 149, in forward_cuda
+    silu_and_mul(x, out)
+  File "/opt/sgl/lib/python3.10/site-packages/sglang/srt/layers/activation.py", line 99, in silu_and_mul
+    return _act_and_mul(_jit_silu_and_mul, _sgl_silu_and_mul, input, out)
+  File "/opt/sgl/lib/python3.10/site-packages/sglang/srt/layers/activation.py", line 95, in _act_and_mul
+    (jit_fn if _jit_act_supported(out) else sgl_fn)(input, out)
+  File "/opt/sgl/lib/python3.10/site-packages/sglang/kernels/ops/activation/activation.py", line 181, in silu_and_mul
+    return run_activation("silu", input, out, expert_ids, expert_step)
+  File "/opt/sgl/lib/python3.10/site-packages/sglang/kernels/ops/activation/activation.py", line 124, in run_activation
+    _run_activation_inplace(op_name, input, out)
+  File "/opt/sgl/lib/python3.10/site-packages/torch/_ops.py", line 1350, in __call__
+    return self._op(*args, **kwargs)
+  File "/opt/sgl/lib/python3.10/site-packages/sglang/kernels/ops/activation/activation.py", line 62, in _run_activation_inplace
+    module = activation_module(input.dtype)
+  File "/opt/sgl/lib/python3.10/site-packages/sglang/kernels/jit/utils/common.py", line 39, in wrapper
+    result_map[key] = fn(*args, **kwargs)
+  File "/opt/sgl/lib/python3.10/site-packages/sglang/kernels/ops/activation/activation.py", line 26, in activation_module
+    return load_jit(
+  File "/opt/sgl/lib/python3.10/site-packages/torch/_dynamo/eval_frame.py", line 1548, in _fn
+    return fn(*args, **kwargs)
+  File "/opt/sgl/lib/python3.10/site-packages/sglang/kernels/jit/utils/compile/loader.py", line 178, in load_jit
+    library = ninja.build(spec=spec, build_dir=staging, build_file=build_file)
+  File "/opt/sgl/lib/python3.10/site-packages/sglang/kernels/jit/utils/compile/ninja.py", line 160, in build
+    completed = subprocess.run(
+  File "/root/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/subprocess.py", line 503, in run
+    with Popen(*popenargs, **kwargs) as process:
+  File "/root/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/subprocess.py", line 971, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/root/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu/lib/python3.10/subprocess.py", line 1863, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: 'ninja'
+
+[2026-10-15 17:48:10] SIGQUIT received. signum=None, frame=None. It usually means one child failed.
+[2026-10-15 17:48:10] Sleeping 5 seconds before crash diagnostics to let GPU activity settle.
+[2026-10-15 17:48:15] No live scheduler processes found; skipping py-spy and CUDA coredump.
+[2026-10-15 17:48:15] kill_process_tree called: parent_pid=7099, include_parent=True, pid=7099
+sglang attention backend: triton
+
+==== 5. push (17:48:19) ====
+order_oracle_fp32: ok
+order_oracle_bf16: ok
+profile: ok
+load_ours: ok
+parity_ours_order: PASS
+compilers: ok
+sglang_install: ok
+sglang_start: FAIL

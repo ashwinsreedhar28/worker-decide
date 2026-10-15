@@ -1,0 +1,52 @@
+{
+ "base": "http://127.0.0.1:8000",
+ "reference": "fixtures/clef-flash/float32-order",
+ "regression": null,
+ "engine": {
+  "model": "Cloudflare/clef-flash",
+  "revision": "8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3",
+  "dtype": "bfloat16",
+  "sdp": "efficient",
+  "gdn_fast_path": false,
+  "versions": {
+   "python": "3.12.3",
+   "torch": "2.11.0+cu130",
+   "transformers": "5.10.2",
+   "cuda": "13.0"
+  },
+  "gpu": "NVIDIA H100 80GB HBM3",
+  "worker_decide_commit": "156bdc21e60f77f9c5ea9982af17d5debf5c65e9",
+  "load_s": 7.3,
+  "snapshot_source": "hf_cache",
+  "warmup_s": null,
+  "timeline": {
+   "basis": "process_start",
+   "origin_unix": 1792085945.622,
+   "marks": {
+    "engine_init": 0.48,
+    "snapshot_resolved": 0.495,
+    "model_code_imported": 3.834,
+    "weights_loaded": 11.164,
+    "ready": 11.164
+   },
+   "fetch": {
+    "source": "hf_cache",
+    "snapshot_bytes": 19083410555,
+    "bytes_written": 0,
+    "snapshot_dir_existed": true,
+    "bytes_written_disk": 0,
+    "bytes_written_hf_home": 0,
+    "seconds": 0.015
+   }
+  },
+  "code_sha": "0e304cf7c6500e8bb59bef7e2afd2c6373f82596dfb3b57d1aa93c175e2dc3a3"
+ },
+ "counts": {
+  "ok": 5,
+  "error": 0
+ },
+ "requests": [
+  "fixtures/requests-order/order.jsonl"
+ ],
+ "finished_utc": "2026-10-15T17:44:07Z"
+}

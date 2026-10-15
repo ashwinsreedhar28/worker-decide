@@ -1,0 +1,248 @@
+{
+ "engine": {
+  "model": "Cloudflare/clef-flash",
+  "revision": "8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3",
+  "snapshot_path": "/root/hf/hub/models--Cloudflare--clef-flash/snapshots/8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3",
+  "snapshot_source": "hf_cache",
+  "timeline": {
+   "basis": "process_start",
+   "origin_unix": 1792085878.475,
+   "marks": {
+    "engine_init": 1.36,
+    "snapshot_resolved": 1.375,
+    "model_code_imported": 3.284,
+    "weights_loaded": 10.997
+   },
+   "fetch": {
+    "source": "hf_cache",
+    "snapshot_bytes": 19083410555,
+    "bytes_written": 0,
+    "snapshot_dir_existed": true,
+    "bytes_written_disk": 0,
+    "bytes_written_hf_home": 0,
+    "seconds": 0.015
+   }
+  },
+  "warmup_s": null,
+  "files": {
+   "joint_head.safetensors": {
+    "sha256": "19cdcec8c81dc9212be320fff47462ab342fbc1278be4368fb3da71241cf5ba0",
+    "bytes": 243538016
+   },
+   "joint_head_config.json": {
+    "sha256": "77efe959a38b5b17b241543e129e695f3c77465ece55a25985279bd8176279a0",
+    "bytes": 119
+   },
+   "joint_schema_model.py": {
+    "sha256": "0e304cf7c6500e8bb59bef7e2afd2c6373f82596dfb3b57d1aa93c175e2dc3a3",
+    "bytes": 23263
+   },
+   "config.json": {
+    "sha256": "66f87f6fb2616b46604daf2a9c67ddc87938296d07156efa34d59b5be49e3238",
+    "bytes": 2832
+   },
+   "model-00001-of-00004.safetensors": {
+    "bytes": 4942706120
+   },
+   "model-00002-of-00004.safetensors": {
+    "bytes": 4987757928
+   },
+   "model-00003-of-00004.safetensors": {
+    "bytes": 4954810240
+   },
+   "model-00004-of-00004.safetensors": {
+    "bytes": 3934446832
+   }
+  },
+  "dtype": "bfloat16",
+  "device": "cuda",
+  "gpu": "NVIDIA H100 80GB HBM3",
+  "dry_run": false,
+  "max_length": 16384,
+  "sdp": "efficient",
+  "gdn_fast_path": false,
+  "versions": {
+   "python": "3.12.3",
+   "torch": "2.11.0+cu130",
+   "transformers": "5.10.2",
+   "cuda": "13.0"
+  },
+  "worker_decide_commit": "156bdc21e60f77f9c5ea9982af17d5debf5c65e9",
+  "load_s": 7.7
+ },
+ "backbone_chain": [
+  "language_model",
+  "language_model.model",
+  "language_model.model.language_model",
+  "language_model.model.language_model.layers[first..last]"
+ ],
+ "backbone_path": "language_model.model.language_model",
+ "backbone_params": 7936684544,
+ "model_params": 9531576564,
+ "module_tree": [
+  {
+   "path": "language_model",
+   "type": "Qwen3_5ForConditionalGeneration",
+   "params": 9409813744
+  },
+  {
+   "path": "language_model.model",
+   "type": "Qwen3_5Model",
+   "params": 8392695024
+  },
+  {
+   "path": "language_model.lm_head",
+   "type": "Linear",
+   "params": 1017118720
+  },
+  {
+   "path": "head",
+   "type": "JointSchemaHead",
+   "params": 121762820
+  },
+  {
+   "path": "head.hidden_norm",
+   "type": "LayerNorm",
+   "params": 8192
+  },
+  {
+   "path": "head.memory_projection",
+   "type": "Linear",
+   "params": 4194304
+  },
+  {
+   "path": "head.question_projection",
+   "type": "Linear",
+   "params": 4194304
+  },
+  {
+   "path": "head.option_question_projection",
+   "type": "Linear",
+   "params": 4194304
+  },
+  {
+   "path": "head.global_projection",
+   "type": "Linear",
+   "params": 4194304
+  },
+  {
+   "path": "head.option_context_projection",
+   "type": "Linear",
+   "params": 4194304
+  },
+  {
+   "path": "head.option_lexical_projection",
+   "type": "Linear",
+   "params": 4194304
+  },
+  {
+   "path": "head.type_embedding",
+   "type": "Embedding",
+   "params": 3072
+  },
+  {
+   "path": "head.evidence_layers",
+   "type": "ModuleList",
+   "params": 25196544
+  },
+  {
+   "path": "head.option_summary_norm",
+   "type": "LayerNorm",
+   "params": 2048
+  },
+  {
+   "path": "head.layers",
+   "type": "ModuleList",
+   "params": 67186688
+  },
+  {
+   "path": "head.field_norm",
+   "type": "LayerNorm",
+   "params": 2048
+  },
+  {
+   "path": "head.option_norm",
+   "type": "LayerNorm",
+   "params": 2048
+  },
+  {
+   "path": "head.residual_scorer",
+   "type": "Sequential",
+   "params": 4196353
+  }
+ ],
+ "reps": 20,
+ "warmup": 3,
+ "records": {
+  "card_trio": {
+   "input_tokens": 300,
+   "backbone_path": "language_model.model.language_model",
+   "passes": 20,
+   "median_ms": {
+    "encode": 1.807,
+    "collate": 0.214,
+    "pre": 0.083,
+    "backbone": 128.614,
+    "head": 4.642,
+    "post": 0.123,
+    "total": 135.433
+   },
+   "share_of_total": {
+    "encode": 0.013,
+    "collate": 0.002,
+    "pre": 0.001,
+    "backbone": 0.95,
+    "head": 0.034,
+    "post": 0.001
+   },
+   "head_plus_overhead_share": 0.05
+  },
+  "pulse-11714037": {
+   "input_tokens": 843,
+   "backbone_path": "language_model.model.language_model",
+   "passes": 20,
+   "median_ms": {
+    "encode": 2.312,
+    "collate": 0.34,
+    "pre": 0.09,
+    "backbone": 219.241,
+    "head": 4.496,
+    "post": 0.078,
+    "total": 226.7
+   },
+   "share_of_total": {
+    "encode": 0.01,
+    "collate": 0.001,
+    "pre": 0.0,
+    "backbone": 0.967,
+    "head": 0.02,
+    "post": 0.0
+   },
+   "head_plus_overhead_share": 0.033
+  },
+  "long_2k": {
+   "input_tokens": 2486,
+   "backbone_path": "language_model.model.language_model",
+   "passes": 20,
+   "median_ms": {
+    "encode": 5.188,
+    "collate": 0.578,
+    "pre": 0.096,
+    "backbone": 353.043,
+    "head": 5.241,
+    "post": 0.115,
+    "total": 364.431
+   },
+   "share_of_total": {
+    "encode": 0.014,
+    "collate": 0.002,
+    "pre": 0.0,
+    "backbone": 0.969,
+    "head": 0.014,
+    "post": 0.0
+   },
+   "head_plus_overhead_share": 0.031
+  }
+ },
+ "finished_utc": "2026-10-15T17:39:03Z"
+}
