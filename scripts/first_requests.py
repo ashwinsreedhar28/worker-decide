@@ -3,11 +3,12 @@
 
 Sends each workload `repeat` times in sequence to a freshly started server (started with
 WARMUP=0) and records every latency. first_minus_steady_ms is the first request minus the
-median of the rest. With an empty kernel cache it holds compilation and autotuning for shapes
-not seen yet, plus first-request costs no kernel cache removes (CUDA context and cuBLAS setup,
-allocator growth). So the saving from persisting the kernel cache (TRITON_CACHE_DIR on a
-volume, the worker-vllm #351 pattern) is first_minus_steady on an empty-cache run minus
-first_minus_steady on a warm-cache run, not either number alone.
+median of the later requests that returned 200. With an empty kernel cache it holds
+compilation and autotuning for shapes not seen yet, plus first-request costs no kernel cache
+removes (CUDA context and cuBLAS setup, allocator growth). So the saving from persisting the
+kernel cache (TRITON_CACHE_DIR on a volume, the worker-vllm #351 pattern) is
+first_minus_steady on an empty-cache run minus first_minus_steady on a warm-cache run, not
+either number alone.
 
 A request that fails at the connection level (refused, reset, timed out) is recorded as
 status 0 with its elapsed time; main() exits non-zero if any status is not 200.
@@ -48,7 +49,9 @@ def measure(poster, bodies: dict[str, dict], repeat: int, clock=time.perf_counte
                 status = 0
             statuses.append(status)
             ms.append(round((clock() - t0) * 1000, 1))
-        steady = statistics.median(ms[1:]) if len(ms) > 1 else None
+        # failed requests are not the steady state
+        ok_rest = [t for t, st in zip(ms[1:], statuses[1:], strict=True) if st == 200]
+        steady = statistics.median(ok_rest) if ok_rest else None
         out[name] = {
             "ms": ms,
             "statuses": statuses,
@@ -58,12 +61,15 @@ def measure(poster, bodies: dict[str, dict], repeat: int, clock=time.perf_counte
 
 
 def render(label: str, result: dict) -> str:
-    lines = [f"## First requests: {label}", "", "| workload | requests (ms) | first - steady |",
-             "|---|---|---|"]  # fmt: skip
+    lines = [f"## First requests: {label}", "",
+             "| workload | requests (ms) | first - steady | statuses |",
+             "|---|---|---|---|"]  # fmt: skip
     for name, r in result.items():
         diff = r["first_minus_steady_ms"]
+        statuses = r["statuses"]
+        st = "all 200" if all(x == 200 for x in statuses) else ", ".join(map(str, statuses))
         lines.append(f"| {name} | {', '.join(str(x) for x in r['ms'])} | "
-                     f"{'-' if diff is None else f'{diff} ms'} |")  # fmt: skip
+                     f"{'-' if diff is None else f'{diff} ms'} | {st} |")  # fmt: skip
     return "\n".join(lines)
 
 
