@@ -18,6 +18,10 @@
 #   5. on a Runpod pod only: commit runs/ and the order oracle to m4/pod-<gpu>-<yyyymmdd>
 #      (files over 50 MB left out) and push
 #
+# Accepted risk: the fp32 order oracle on a 48 GB A40 is untried (weights ~38 GB in fp32; the
+# records are short). If it fails or OOMs, step 1 records FAIL and the order gates are skipped,
+# not failed; everything else runs.
+#
 # Env: GH_TOKEN (push), STEPS (default "1 2 3 4"), SGLANG_SPEC (default the cookbook's pinned
 # nightly), EXIT_WHEN_DONE (default 0 = hold the pod open).
 set -uo pipefail
@@ -63,8 +67,11 @@ wait_200() {  # url, timeout_s [, pid]: exactly 200 (our /ping is 204 while load
   done
 }
 
-order_oracle_ok() {  # the oracle writes manifest.json last; a bare directory means it died
-  [ -f fixtures/clef-flash/float32-order/manifest.json ]
+order_oracle_ok() {  # manifest.json is written last; a bare directory means the oracle died, and
+                    # error records (e.g. an fp32 OOM mid-forward) mean it is not a truth
+  python3 -c 'import json, sys
+m = json.load(open("fixtures/clef-flash/float32-order/manifest.json"))
+sys.exit(0 if m["counts"]["error"] == 0 and m["counts"]["ok"] > 0 else 1)' 2>/dev/null
 }
 
 wait_gpu_free() {  # until < 1 GiB is in use (a killed process can hold memory for a moment)
