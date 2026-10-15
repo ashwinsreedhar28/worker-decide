@@ -15,7 +15,8 @@
 #   4. SGLang nightly with Clef's joint head (pinned wheel, own venv): correctness gate on the
 #      87 fixtures and the order records, compare against our run and Workers AI, load test
 #                                                                   -> runs/sglang-<gpu>, ...
-#   5. commit runs/ and the order oracle to m4/pod-<gpu>-<yyyymmdd> and push
+#   5. on a Runpod pod only: commit runs/ and the order oracle to m4/pod-<gpu>-<yyyymmdd>
+#      (files over 50 MB left out) and push
 #
 # Env: GH_TOKEN (push), STEPS (default "1 2 3 4"), SGLANG_SPEC (default the cookbook's pinned
 # nightly), EXIT_WHEN_DONE (default 0 = hold the pod open).
@@ -62,6 +63,20 @@ wait_200() {  # url, timeout_s [, pid]: exactly 200 (our /ping is 204 while load
   done
 }
 
+order_oracle_ok() {  # the oracle writes manifest.json last; a bare directory means it died
+  [ -f fixtures/clef-flash/float32-order/manifest.json ]
+}
+
+wait_gpu_free() {  # until < 1 GiB is in use (a killed process can hold memory for a moment)
+  local t0=$SECONDS used
+  while true; do
+    used=$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits | head -1)
+    [ "${used:-0}" -lt 1024 ] && return 0
+    (( SECONDS - t0 > 120 )) && { echo "GPU still has ${used} MiB in use"; return 1; }
+    sleep 2
+  done
+}
+
 # ---- 1. order oracle (fp32 truth + bf16) -----------------------------------------------------
 if want 1; then
   step "1. order oracle"
@@ -71,9 +86,10 @@ if want 1; then
   python3 -m deciders.clef.oracle --requests fixtures/requests-order/order.jsonl \
     --out runs/order-bf16-oracle-$SLUG --dtype bfloat16 --revision "$REV" \
     && record order_oracle_bf16 ok || record order_oracle_bf16 FAIL
-  python3 scripts/order_findings.py fixtures/clef-flash/float32 fixtures/clef-flash/float32-order \
-    > runs/order_findings.md || record order_findings FAIL
-  cat runs/order_findings.md
+  if order_oracle_ok; then
+    python3 scripts/order_findings.py fixtures/clef-flash/float32-order runs/order_findings.json \
+      > runs/order_findings.md && cat runs/order_findings.md || record order_findings FAIL
+  fi
 fi
 
 # ---- 2. profile our engine -------------------------------------------------------------------
@@ -91,7 +107,7 @@ if want 3; then
   if wait_200 http://127.0.0.1:8000/ping 900 $WPID; then
     python3 scripts/loadtest.py http://127.0.0.1:8000 "runs/load-ours-$SLUG" --label "ours-$SLUG" \
       && record load_ours ok || record load_ours FAIL
-    if [ -d fixtures/clef-flash/float32-order ]; then
+    if order_oracle_ok; then
       python3 scripts/parity_http.py http://127.0.0.1:8000 "runs/http-order-$SLUG" \
         --requests fixtures/requests-order/order.jsonl --reference fixtures/clef-flash/float32-order \
         > "runs/parity_http_order_$SLUG.md" && record parity_ours_order PASS || record parity_ours_order FAIL
@@ -100,11 +116,22 @@ if want 3; then
     record worker_start FAIL; tail -n 40 runs/worker.log
   fi
   kill $WPID 2>/dev/null; wait $WPID 2>/dev/null
+  wait_gpu_free || record gpu_free_after_worker FAIL
 fi
 
 # ---- 4. SGLang -------------------------------------------------------------------------------
 if want 4; then
   step "4. SGLang ($SGLANG_SPEC)"
+  # The worker image is CUDA "base" without compilers. Triton (SGLang's linear-attention and
+  # triton attention kernels) builds a small C launcher with gcc on first use, and flashinfer
+  # may JIT with nvcc (Oct 15 audit). Best effort; versions recorded.
+  if ! command -v gcc >/dev/null; then
+    apt-get update -qq && apt-get install -y -qq --no-install-recommends gcc g++ libc6-dev \
+      >/dev/null && record compilers ok || record compilers FAIL
+    apt-get install -y -qq --no-install-recommends cuda-nvcc-13-0 >/dev/null 2>&1 \
+      && export PATH="/usr/local/cuda/bin:$PATH" || echo "cuda-nvcc-13-0 not installed (optional)"
+  fi
+  { gcc --version | head -1; command -v nvcc && nvcc --version | tail -2; } > runs/sglang-toolchain.txt 2>&1
   if [ ! -x /opt/sgl/bin/python ]; then
     python3 -m pip install -q uv   # the image sets PIP_BREAK_SYSTEM_PACKAGES=1
     uv venv /opt/sgl --python 3.10 \
@@ -133,6 +160,7 @@ PY
     echo "--- sglang default start failed; log tail:"; tail -n 60 runs/sglang.log
     cp runs/sglang.log runs/sglang-default-failed.log
     kill $SGL_PID 2>/dev/null; wait $SGL_PID 2>/dev/null
+    wait_gpu_free || true
     BACKEND=triton
     start_sglang --attention-backend triton || { record sglang_start FAIL; tail -n 60 runs/sglang.log; }
   fi
@@ -143,7 +171,7 @@ PY
       --also "runs/http-a40" --json "runs/parity_sglang_$SLUG.json" \
       > "runs/parity_sglang_$SLUG.md" && record parity_sglang PASS || record parity_sglang FAIL
     head -20 "runs/parity_sglang_$SLUG.md"
-    if [ -d fixtures/clef-flash/float32-order ]; then
+    if order_oracle_ok; then
       python3 scripts/parity_sglang.py http://127.0.0.1:30000 "runs/sglang-order-$SLUG" \
         --requests fixtures/requests-order/order.jsonl --reference fixtures/clef-flash/float32-order \
         > "runs/parity_sglang_order_$SLUG.md" && record parity_sglang_order PASS || record parity_sglang_order FAIL
@@ -155,34 +183,42 @@ PY
     python3 scripts/compare_runs.py fixtures/clef-flash/float32 runs/http-a40 "runs/sglang-$SLUG" \
       --labels "ours-A40,SGLang-$SLUG" > "runs/compare_ours_vs_sglang_$SLUG.md" || true
     python3 scripts/loadtest.py http://127.0.0.1:30000 "runs/load-sglang-$SLUG" --label "sglang-$SLUG" \
-      && record load_sglang ok || record load_sglang FAIL
+      --model Cloudflare/clef-flash && record load_sglang ok || record load_sglang FAIL
   fi
   kill $SGL_PID 2>/dev/null; wait $SGL_PID 2>/dev/null
 fi
 
 # ---- 5. push ---------------------------------------------------------------------------------
 step "5. push"
-printf '%s\n' "${STATUS[@]}" | tee runs/pod_m4_status.txt
+[ ${#STATUS[@]} -gt 0 ] && printf '%s\n' "${STATUS[@]}" | tee runs/pod_m4_status.txt
 BRANCH="m4/pod-$SLUG-$(date -u +%Y%m%d)"
-git config user.name "worker-decide pod"
-git config user.email "pod@worker-decide.invalid"
-git checkout -q -B "$BRANCH"
-for p in runs/*.md runs/*.json runs/*.txt runs/*.log runs/profile-* runs/load-* runs/sglang-* \
-         runs/http-order-* runs/order-* fixtures/clef-flash/float32-order; do
-  [ -e "$p" ] && git add -f "$p"
-done
-git commit -q --allow-empty -m "m4 pod session on $GPU: SGLang vs ours, profile, load, order oracle" \
-  -m "Produced by scripts/pod_m4.sh at $(git rev-parse --short HEAD~0). $(printf '%s; ' "${STATUS[@]}")"
-# Push only from a Runpod pod (RUNPOD_POD_ID is set there): Oct 15, a local smoke test with a
-# GH_TOKEN in the environment pushed a junk branch. FORCE_PUSH=1 overrides.
+# Commit and push only from a Runpod pod (RUNPOD_POD_ID is set there): Oct 15, a local smoke
+# test in a workspace with a GH_TOKEN pushed a junk branch. FORCE_PUSH=1 overrides.
 if [ -z "${RUNPOD_POD_ID:-}" ] && [ "${FORCE_PUSH:-0}" != "1" ]; then
-  echo "not on a Runpod pod: committed locally on $BRANCH, not pushed"
-elif [ -n "${GH_TOKEN:-}" ]; then
-  AUTH=$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)
-  git -c http.extraheader="AUTHORIZATION: basic ${AUTH}" push -q "https://github.com/${GH_REPO}" "$BRANCH" \
-    && echo "pushed $BRANCH" || echo "PUSH FAILED"
+  echo "not on a Runpod pod: nothing committed or pushed (results are under runs/)"
 else
-  echo "GH_TOKEN unset: committed locally on $BRANCH, not pushed"
+  git config user.name "worker-decide pod"
+  git config user.email "pod@worker-decide.invalid"
+  git checkout -q -B "$BRANCH"
+  for p in runs/*.md runs/*.json runs/*.txt runs/*.log runs/profile-* runs/load-* runs/sglang-* \
+           runs/http-order-* runs/order-* fixtures/clef-flash/float32-order; do
+    [ -e "$p" ] && git add -f "$p"
+  done
+  # GitHub refuses files over 100 MB and the whole push with them; keep anything over 50 MB out.
+  git diff --cached --name-only -z | while IFS= read -r -d '' f; do
+    if [ "$(stat -c %s "$f")" -gt 52428800 ]; then
+      echo "not committing $f ($(du -h "$f" | cut -f1)), too large"; git reset -q -- "$f"
+    fi
+  done
+  git commit -q --allow-empty -m "m4 pod session on $GPU: SGLang vs ours, profile, load, order oracle" \
+    -m "Produced by scripts/pod_m4.sh at $(git rev-parse --short HEAD). $(printf '%s; ' "${STATUS[@]}")"
+  if [ -n "${GH_TOKEN:-}" ]; then
+    AUTH=$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)
+    git -c http.extraheader="AUTHORIZATION: basic ${AUTH}" push -q "https://github.com/${GH_REPO}" "$BRANCH" \
+      && echo "pushed $BRANCH" || echo "PUSH FAILED"
+  else
+    echo "GH_TOKEN unset: committed locally on $BRANCH, not pushed"
+  fi
 fi
 echo "== done $(date -u +%FT%TZ) =="
 if [ "${EXIT_WHEN_DONE:-0}" = "1" ]; then exit 0; fi
