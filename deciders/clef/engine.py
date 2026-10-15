@@ -132,9 +132,10 @@ def resolve_model_store(model: str, revision: str | None, root: Path) -> Path | 
         present = sorted(p.name for p in snapshots.iterdir()) if snapshots.is_dir() else []
         raise RuntimeError(
             f"Model Store has {model} at {[r[:7] for r in present] or 'no snapshots'}, but this "
-            f"worker is pinned to {revision[:7]}. Set the endpoint's cached model to that "
-            "revision, or clear MODEL_REVISION and CODE_SHA to serve what the store holds "
-            "(voids parity)."
+            f"worker is pinned to {revision[:7]}. The console caches the repo's main and cannot "
+            "pin a revision: clear the endpoint's cached model (the worker then downloads its "
+            "pinned revision), or clear MODEL_REVISION and CODE_SHA to serve what the store "
+            "holds (voids parity)."
         )
     ref = repo / "refs" / "main"
     if ref.is_file() and (snapshots / ref.read_text().strip()).is_dir():
