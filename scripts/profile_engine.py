@@ -248,7 +248,10 @@ def main() -> None:
             )
     used = {r["backbone_path"] for r in results.values()}
     path = used.pop() if len(used) == 1 else ", ".join(sorted(used))
-    backbone = next((m for p, m, _ in chain if p == path), chain[0][1])
+    # The layer-span candidate's start module is one decoder layer; count the module holding
+    # the layers instead, i.e. the chain entry before it (Oct 15 re-audit).
+    plain = [(p, m) for p, m, e in chain if m is e]
+    backbone = next((m for p, m in plain if p == path), plain[-1][1] if plain else chain[0][1])
     out = {
         "engine": engine.manifest(),
         "backbone_chain": [p for p, _, _ in chain],
