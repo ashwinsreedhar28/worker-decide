@@ -619,3 +619,173 @@ parity_ours_order: PASS
 compilers: ok
 sglang_install: ok
 sglang_start: FAIL
+remote: 
+remote: Create a pull request for 'm4/pod-h100-80gb-hbm3-20261015' on GitHub by visiting:        
+remote:      https://github.com/ashwinsreedhar28/worker-decide/pull/new/m4/pod-h100-80gb-hbm3-20261015        
+remote: 
+pushed m4/pod-h100-80gb-hbm3-20261015
+== done 2026-10-15T17:48:22Z ==
+holding the pod open; stop it from the Runpod console
+== pod_m4.sh 2026-10-15T17:54:00Z ==
+commit 277f184  image acf2fc47810fd456d7586f72fdc6f561b19e6f2a  gpu NVIDIA H100 80GB HBM3 (h100-80gb-hbm3)  rev 8b2e5fd
+NVIDIA H100 80GB HBM3, 81559 MiB, 580.126.09
+
+==== 4. SGLang (sglang==0.5.22.dev20261009+g37ae292e6f) (17:54:00) ====
+sglang 0.5.22.dev20261009+g37ae292e6f /opt/sgl/lib/python3.10/site-packages/sglang
+srt/layers/joint_schema_head.py PRESENT
+srt/entrypoints/systemone/joint_schema.py PRESENT
+sglang attention backend: default
+[status] sglang_start: ok (default)
+[  1/87] intent77                 tokens=     -     200.2 ms
+[  2/87] opts255                  tokens=     -     941.9 ms
+[  3/87] q64                      tokens=     -     854.0 ms
+[  4/87] score10                  tokens=     -      89.8 ms
+[  5/87] empty_instructions       tokens=     -       4.3 ms  ERROR http 422: [{"type": "value_error", "loc": ["body", "question
+[  6/87] unicode_options          tokens=     -      74.1 ms
+[  7/87] list_state               tokens=     -      87.2 ms
+[  8/87] schema_overflow          tokens=     -    1758.0 ms  ERROR http 400: "the questions need 475198 prompt tokens before th
+[  9/87] triage_support           tokens=     -      78.9 ms
+[ 10/87] tool_select              tokens=     -      66.3 ms
+[ 11/87] invoice_extract          tokens=     -      70.0 ms
+[ 12/87] rag_relevance_1          tokens=     -      69.8 ms
+[ 13/87] rag_relevance_2          tokens=     -      63.7 ms
+[ 14/87] rag_relevance_3          tokens=     -      61.4 ms
+[ 15/87] moderation               tokens=     -      64.7 ms
+[ 16/87] near_dup_a               tokens=     -      71.0 ms
+[ 17/87] near_dup_b               tokens=     -      63.0 ms
+[ 18/87] near_dup_c               tokens=     -      59.3 ms
+[ 19/87] card_trio                tokens=     -      63.3 ms
+[ 20/87] no_instruction           tokens=     -      71.1 ms
+[ 21/87] unsorted_choice          tokens=     -      79.4 ms
+[ 22/87] noul_custom              tokens=     -      61.7 ms
+[ 23/87] json_state               tokens=     -      61.5 ms
+[ 24/87] many_options             tokens=     -      94.3 ms
+[ 25/87] long_2k                  tokens=     -     102.1 ms
+[ 26/87] trunc_16k                tokens=     -     822.8 ms
+[ 27/87] img_receipt              tokens=     -    3217.0 ms
+[ 28/87] img_receipt_textonly     tokens=     -      69.3 ms
+[ 29/87] img_chart                tokens=     -     174.9 ms
+[ 30/87] img_chart_textonly       tokens=     -      55.9 ms
+[ 31/87] img_shapes               tokens=     -     128.4 ms
+[ 32/87] img_shapes_textonly      tokens=     -     196.9 ms
+[ 33/87] img_sign448              tokens=     -     138.5 ms
+[ 34/87] img_sign448_textonly     tokens=     -      66.1 ms
+[ 35/87] img_board2048            tokens=     -     455.2 ms
+[ 36/87] img_board2048_textonly   tokens=     -      77.9 ms
+[ 37/87] img_two                  tokens=     -     132.1 ms
+[ 38/87] pulse-11714037           tokens=     -      81.1 ms
+[ 39/87] pulse-10661222           tokens=     -      71.9 ms
+[ 40/87] pulse-11711957           tokens=     -      67.0 ms
+[ 41/87] pulse-9854422            tokens=     -      65.5 ms
+[ 42/87] pulse-11712604           tokens=     -      65.5 ms
+[ 43/87] pulse-9710164            tokens=     -      65.4 ms
+[ 44/87] pulse-9709124            tokens=     -      66.3 ms
+[ 45/87] pulse-11116991           tokens=     -      65.3 ms
+[ 46/87] pulse-10720478           tokens=     -      64.6 ms
+[ 47/87] pulse-9708731            tokens=     -      69.6 ms
+[ 48/87] pulse-9710418            tokens=     -      62.5 ms
+[ 49/87] pulse-11678677           tokens=     -      64.4 ms
+[ 50/87] pulse-9711065            tokens=     -      63.8 ms
+[ 51/87] pulse-9710025            tokens=     -      62.6 ms
+[ 52/87] pulse-11716232           tokens=     -      62.7 ms
+[ 53/87] pulse-9710672            tokens=     -      64.7 ms
+[ 54/87] pulse-9709632            tokens=     -      63.9 ms
+[ 55/87] pulse-11086438           tokens=     -      63.6 ms
+[ 56/87] pulse-11680618           tokens=     -      68.4 ms
+[ 57/87] pulse-9933807            tokens=     -      63.5 ms
+[ 58/87] pulse-9744321            tokens=     -      63.0 ms
+[ 59/87] pulse-9709100            tokens=     -      66.1 ms
+[ 60/87] pulse-11716347           tokens=     -      66.7 ms
+[ 61/87] pulse-11712187           tokens=     -      69.9 ms
+[ 62/87] pulse-9709747            tokens=     -      63.4 ms
+[ 63/87] pulse-10619114           tokens=     -      66.3 ms
+[ 64/87] pulse-11707797           tokens=     -      74.2 ms
+[ 65/87] pulse-11711171           tokens=     -      63.5 ms
+[ 66/87] pulse-9707691            tokens=     -      62.3 ms
+[ 67/87] pulse-11714938           tokens=     -      62.3 ms
+[ 68/87] pulse-10426369           tokens=     -      62.4 ms
+[ 69/87] pulse-9707552            tokens=     -      63.5 ms
+[ 70/87] pulse-10545020           tokens=     -      63.8 ms
+[ 71/87] pulse-9708199            tokens=     -      61.1 ms
+[ 72/87] pulse-9707413            tokens=     -      60.3 ms
+[ 73/87] pulse-11132428           tokens=     -      66.1 ms
+[ 74/87] pulse-10702774           tokens=     -      64.3 ms
+[ 75/87] pulse-9707528            tokens=     -      63.4 ms
+[ 76/87] pulse-11707888           tokens=     -      62.4 ms
+[ 77/87] pulse-11617432           tokens=     -      63.4 ms
+[ 78/87] pulse-9943143            tokens=     -      61.6 ms
+[ 79/87] pulse-10221259           tokens=     -      61.8 ms
+[ 80/87] pulse-10729536           tokens=     -      60.7 ms
+[ 81/87] pulse-10901596           tokens=     -      65.1 ms
+[ 82/87] pulse-11711123           tokens=     -      76.3 ms
+[ 83/87] pulse-11711631           tokens=     -      61.9 ms
+[ 84/87] pulse-9853056            tokens=     -      61.9 ms
+[ 85/87] pulse-11710845           tokens=     -      61.3 ms
+[ 86/87] pulse-11393348           tokens=     -      64.2 ms
+[ 87/87] pulse-9708012            tokens=     -      74.2 ms
+[status] parity_sglang: PASS
+## Correctness gate (vs fp32 truth)
+
+# Parity: runs/sglang-h100-80gb-hbm3 vs /root/worker-decide/fixtures/clef-flash/float32
+
+| metric | value |
+|---|---|
+| records | 87 |
+| failed | 0 |
+| request mismatches | 0 |
+| span mismatches | 0 |
+| max \|Δp\| (worst question) | 0.0159 (bar 0.025) |
+| mean of record means | 0.00138 (bar 0.0025) |
+| mean of question max \|Δp\| (info) | 0.00182 |
+| near-ties (not judged) | 19 |
+| result | PASS |
+
+## Near-ties (oracle top-2 margin ≤ near-tie; argmax not judged)
+
+- img_chart_textonly/best_quarter: oracle Q3, run Q4, max |Δp| 0.0011
+- img_receipt_textonly/total_bucket: oracle 10_to_50, run 10_to_50, max |Δp| 0.0012
+[  1/5] order_choice_unsorted    tokens=     -      58.8 ms
+[  2/5] order_choice_sorted      tokens=     -      55.1 ms
+[  3/5] order_questions_alphabetical tokens=     -      56.4 ms
+[  4/5] order_questions_as_card  tokens=     -      59.4 ms
+[  5/5] order_questions_reversed tokens=     -      66.1 ms
+[status] parity_sglang_order: PASS
+converted 50 hosted responses → runs/hosted
+[load] ticket (card_trio) c=1 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 7.801, 'req_per_s': 16.407, 'p50_ms': 60.0, 'p90_ms': 64.2, 'p99_ms': 74.5, 'mean_ms': 60.9, 'min_ms': 55.5, 'max_ms': 74.6}
+[load] ticket (card_trio) c=8 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 1.748, 'req_per_s': 73.236, 'p50_ms': 106.0, 'p90_ms': 122.0, 'p99_ms': 128.8, 'mean_ms': 109.0, 'min_ms': 102.5, 'max_ms': 128.8}
+[load] ticket (card_trio) c=32 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 1.338, 'req_per_s': 95.687, 'p50_ms': 311.0, 'p90_ms': 407.5, 'p99_ms': 410.6, 'mean_ms': 311.3, 'min_ms': 155.5, 'max_ms': 412.3}
+[load] pulse (pulse-11714037) c=1 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 8.151, 'req_per_s': 15.704, 'p50_ms': 62.5, 'p90_ms': 66.8, 'p99_ms': 86.0, 'mean_ms': 63.7, 'min_ms': 55.5, 'max_ms': 89.5}
+[load] pulse (pulse-11714037) c=8 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 3.286, 'req_per_s': 38.949, 'p50_ms': 201.7, 'p90_ms': 208.9, 'p99_ms': 283.1, 'mean_ms': 204.0, 'min_ms': 113.3, 'max_ms': 299.9}
+[load] pulse (pulse-11714037) c=32 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 2.79, 'req_per_s': 45.88, 'p50_ms': 661.7, 'p90_ms': 755.5, 'p99_ms': 816.1, 'mean_ms': 651.4, 'min_ms': 243.0, 'max_ms': 846.6}
+[load] article (long_2k) c=1 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 10.171, 'req_per_s': 12.585, 'p50_ms': 77.2, 'p90_ms': 87.8, 'p99_ms': 90.0, 'mean_ms': 79.4, 'min_ms': 72.0, 'max_ms': 90.1}
+[load] article (long_2k) c=8 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 8.044, 'req_per_s': 15.913, 'p50_ms': 500.4, 'p90_ms': 506.6, 'p99_ms': 573.4, 'mean_ms': 495.2, 'min_ms': 140.1, 'max_ms': 573.6}
+[load] article (long_2k) c=32 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 7.815, 'req_per_s': 16.38, 'p50_ms': 1829.0, 'p90_ms': 2190.6, 'p99_ms': 2201.1, 'mean_ms': 1763.1, 'min_ms': 166.9, 'max_ms': 2201.4}
+## Load: sglang-h100-80gb-hbm3
+
+| workload | tokens | concurrency | n | errors | req/s | p50 ms | p90 ms | p99 ms |
+|---|---|---|---|---|---|---|---|---|
+| ticket | 300 | 1 | 128 | 0 | 16.407 | 60.0 | 64.2 | 74.5 |
+| ticket | 300 | 8 | 128 | 0 | 73.236 | 106.0 | 122.0 | 128.8 |
+| ticket | 300 | 32 | 128 | 0 | 95.687 | 311.0 | 407.5 | 410.6 |
+| pulse | 843 | 1 | 128 | 0 | 15.704 | 62.5 | 66.8 | 86.0 |
+| pulse | 843 | 8 | 128 | 0 | 38.949 | 201.7 | 208.9 | 283.1 |
+| pulse | 843 | 32 | 128 | 0 | 45.88 | 661.7 | 755.5 | 816.1 |
+| article | 2486 | 1 | 128 | 0 | 12.585 | 77.2 | 87.8 | 90.0 |
+| article | 2486 | 8 | 128 | 0 | 15.913 | 500.4 | 506.6 | 573.4 |
+| article | 2486 | 32 | 128 | 0 | 16.38 | 1829.0 | 2190.6 | 2201.1 |
+[status] load_sglang: ok
+
+==== 5. push (17:56:07) ====
+sglang_start: ok (default)
+parity_sglang: PASS
+parity_sglang_order: PASS
+load_sglang: ok

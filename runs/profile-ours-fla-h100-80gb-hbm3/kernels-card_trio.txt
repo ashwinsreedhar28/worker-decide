@@ -1,0 +1,36 @@
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                                                   Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg     Self CUDA   Self CUDA %    CUDA total  CUDA time avg    # of Calls  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                                           aten::linear         0.97%     573.680us        16.38%       9.683ms      31.645us       0.000us         0.00%       8.165ms      26.682us           306  
+                                           aten::matmul         1.64%     970.694us        12.50%       7.388ms      27.670us       0.000us         0.00%       7.930ms      29.701us           267  
+                                               aten::mm         7.56%       4.472ms         9.83%       5.809ms      22.343us       7.908ms        48.44%       7.908ms      30.417us           260  
+         nvjet_sm90_tst_192x160_64x4_1x2_h_bz_coopB_TNT         0.00%       0.000us         0.00%       0.000us       0.000us       3.158ms        19.35%       3.158ms      49.347us            64  
+                nvjet_sm90_tst_64x152_64x7_2x1_v_bz_TNT         0.00%       0.000us         0.00%       0.000us       0.000us       3.101ms        19.00%       3.101ms      35.244us            88  
+                                            aten::copy_         3.18%       1.881ms         6.25%       3.695ms       8.323us       2.304ms        14.11%       2.304ms       5.189us           444  
+                            ChunkGatedDeltaRuleFunction        28.94%      17.111ms        33.80%      19.984ms     832.653us       1.071ms         6.56%       1.384ms      57.686us            24  
+                                            aten::clone         0.51%     301.979us         3.55%       2.100ms      15.218us       0.000us         0.00%       1.313ms       9.514us           138  
+void at::native::elementwise_kernel<128, 4, at::nati...         0.00%       0.000us         0.00%       0.000us       0.000us       1.311ms         8.03%       1.311ms       9.710us           135  
+                                           aten::conv1d         0.09%      50.640us         2.47%       1.462ms      60.899us       0.000us         0.00%       1.184ms      49.316us            24  
+                                      aten::convolution         0.11%      67.273us         2.39%       1.411ms      58.789us       0.000us         0.00%       1.184ms      49.316us            24  
+                                     aten::_convolution         0.54%     321.016us         2.27%       1.344ms      55.986us       0.000us         0.00%       1.184ms      49.316us            24  
+                                              aten::mul         2.66%       1.570ms         4.34%       2.566ms       9.229us       1.097ms         6.72%       1.097ms       3.944us           278  
+               nvjet_sm90_tst_128x152_64x6_2x1_v_bz_TNT         0.00%       0.000us         0.00%       0.000us       0.000us       1.059ms         6.49%       1.059ms      33.090us            32  
+                                               aten::to         0.66%     387.359us         7.68%       4.539ms      10.859us       0.000us         0.00%     986.600us       2.360us           418  
+                                         aten::_to_copy         1.27%     749.528us         7.02%       4.152ms      13.702us       0.000us         0.00%     986.600us       3.256us           303  
+                                       aten::contiguous         0.11%      63.238us         1.80%       1.066ms      17.760us       0.000us         0.00%     817.120us      13.619us            60  
+void at::native::elementwise_kernel<128, 2, at::nati...         0.00%       0.000us         0.00%       0.000us       0.000us     759.142us         4.65%     759.142us       4.081us           186  
+void at::native::unrolled_elementwise_kernel<at::nat...         0.00%       0.000us         0.00%       0.000us       0.000us     730.210us         4.47%     730.210us       3.562us           205  
+                                             aten::mean         1.56%     924.712us         2.23%       1.318ms      13.447us     708.452us         4.34%     708.452us       7.229us            98  
+                                aten::_conv_depthwise2d         0.29%     168.508us         0.72%     423.860us      17.661us     694.660us         4.26%     694.660us      28.944us            24  
+void at::native::(anonymous namespace)::conv_depthwi...         0.00%       0.000us         0.00%       0.000us       0.000us     694.660us         4.26%     694.660us      28.944us            24  
+void at::native::reduce_kernel<512, 1, at::native::R...         0.00%       0.000us         0.00%       0.000us       0.000us     657.478us         4.03%     657.478us       8.117us            81  
+                                              aten::add         3.26%       1.927ms         5.11%       3.020ms      10.035us     570.657us         3.50%     570.657us       1.896us           301  
+            chunk_gated_delta_rule_fwd_kkt_solve_kernel         0.00%       0.000us         0.00%       0.000us       0.000us     401.696us         2.46%     401.696us      16.737us            24  
+                                aten::repeat_interleave         0.32%     187.437us         1.77%       1.048ms      21.824us       0.000us         0.00%     377.184us       7.858us            48  
+                                             aten::silu         0.65%     384.044us         1.07%     629.899us      11.248us     363.554us         2.23%     363.554us       6.492us            56  
+                                            aten::addmm         1.32%     782.593us         1.73%       1.023ms      22.244us     256.319us         1.57%     256.319us       5.572us            46  
+         nvjet_sm90_tst_64x16_64x16_1x4_h_bz_splitK_TNT         0.00%       0.000us         0.00%       0.000us       0.000us     232.707us         1.43%     232.707us       4.848us            48  
+void at::native::vectorized_elementwise_kernel<8, at...         0.00%       0.000us         0.00%       0.000us       0.000us     231.455us         1.42%     231.455us       2.462us            94  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+Self CPU time total: 59.119ms
+Self CUDA time total: 16.325ms

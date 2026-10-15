@@ -1,0 +1,7 @@
+fla-core 0.5.2 | triton 3.6.0
+chunk_gated_delta_rule: fla.ops.gated_delta_rule.chunk
+FusedRMSNormGated: <class 'fla.modules.fused_norm_gate.FusedRMSNormGated'>
+causal_conv1d_fn: None | is_fast_path_available: False
+fla device_platform: cuda
+kernel on cuda:0: max |fla - torch| = 4.883e-04 (output scale 7.080e-02)
+KERNEL_OK

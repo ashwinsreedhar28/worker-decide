@@ -1,8 +1,4 @@
-order_oracle_fp32: ok
-order_oracle_bf16: ok
-profile: ok
-load_ours: ok
-parity_ours_order: PASS
-compilers: ok
-sglang_install: ok
-sglang_start: FAIL
+sglang_start: ok (default)
+parity_sglang: PASS
+parity_sglang_order: PASS
+load_sglang: ok

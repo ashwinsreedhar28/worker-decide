@@ -15,7 +15,7 @@
 #   4. SGLang nightly with Clef's joint head (pinned wheel, own venv): correctness gate on the
 #      87 fixtures and the order records, compare against our run and Workers AI, load test
 #                                                                   -> runs/sglang-<gpu>, ...
-#   5. on a Runpod pod only: commit runs/ and the order oracle to m4/pod-<gpu>-<yyyymmdd>
+#   5. on a Runpod pod only: commit runs/ and the order oracle to m4/pod-<gpu>-<yyyymmdd-hhmm>
 #      (files over 50 MB left out) and push
 #
 # Accepted risk: the fp32 order oracle on a 48 GB A40 is untried (weights ~38 GB in fp32; the
@@ -211,7 +211,7 @@ fi
 # ---- 5. push ---------------------------------------------------------------------------------
 step "5. push"
 [ ${#STATUS[@]} -gt 0 ] && printf '%s\n' "${STATUS[@]}" | tee runs/pod_m4_status.txt
-BRANCH="m4/pod-$SLUG-$(date -u +%Y%m%d)"
+BRANCH="m4/pod-$SLUG-$(date -u +%Y%m%d-%H%M)"   # with the time: a same-day rerun collided (Oct 15)
 # Commit and push only from a Runpod pod (RUNPOD_POD_ID is set there): Oct 15, a local smoke
 # test in a workspace with a GH_TOKEN pushed a junk branch. FORCE_PUSH=1 overrides.
 if [ -z "${RUNPOD_POD_ID:-}" ] && [ "${FORCE_PUSH:-0}" != "1" ]; then
