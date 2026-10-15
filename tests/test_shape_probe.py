@@ -188,13 +188,14 @@ def _fake_world(monkeypatch, cost_ms=110.0):
         def manifest(self):
             return {"gpu": "fake"}
 
-    seen = set()
+    seen, states = set(), []
 
     class Splitter:
         def __init__(self, torch, chain):
             pass
 
         def one_pass(self, engine, rec):
+            states.append(rec["state"])
             n = len(engine.encode(rec).input_ids)
             backbone = 50.0 + (0.0 if n in seen else cost_ms)
             if n not in seen:
@@ -213,6 +214,7 @@ def _fake_world(monkeypatch, cost_ms=110.0):
         return {"id": rid, "state": "w " * 40, "questions": {}}
 
     monkeypatch.setattr(profile_engine, "record_for", record_for)
+    return states
 
 
 def test_main_end_to_end_with_a_fake_engine_finds_the_per_shape_cost(tmp_path, monkeypatch):
@@ -344,3 +346,81 @@ def test_batch_preview_records_an_error_instead_of_failing():
     r = sp.batch_preview(eng, _preview_torch(), [SimpleNamespace(input_ids=[0])])
     assert r["error"].startswith("RuntimeError: collate supports one record")
     assert "comparable" not in r
+
+
+def test_compare_outputs_needs_equal_counts_and_flags_shared_shapes():
+    batched = [T([1.0, 0.0]), T([0.0, 1.0])]
+    longer = sp.compare_outputs(batched, [[T([1.0, 0.0])], [T([0.0, 1.0]), T([0.0, 0.0, 1.0])]])
+    assert longer["comparable"] is False  # same leading shapes, one tensor more
+    r = sp.compare_outputs(batched, [[T([1.0, 0.0])], [T([0.0, 1.5])]])
+    assert r["comparable"] is True and r["ambiguous_shapes"] is True  # both records give [2]
+    assert r["per_record_max_abs_dprob"][0] == 0.0 and r["per_record_max_abs_dprob"][1] > 0.05
+    distinct = sp.compare_outputs([T([1.0, 0.0]), T([0.0, 1.0, 0.0])],
+                                  [[T([1.0, 0.0])], [T([0.0, 1.0, 0.0])]])  # fmt: skip
+    assert distinct["ambiguous_shapes"] is False
+    assert distinct["shapes_batched"] == distinct["shapes_single"] == [[2], [3]]
+
+
+def test_diff_ranks_by_cpu_plus_cuda_growth():
+    new = {"conv": {"cpu_us": 1_000.0, "cuda_us": 60_000.0, "count": 24},
+           "mm": {"cpu_us": 30_000.0, "cuda_us": 40_000.0, "count": 257}}  # fmt: skip
+    rep = {"conv": {"cpu_us": 1_000.0, "cuda_us": 5_000.0, "count": 24},
+           "mm": {"cpu_us": 5_000.0, "cuda_us": 40_000.0, "count": 257}}  # fmt: skip
+    assert [r["op"] for r in sp.diff_ops(new, rep)] == ["conv", "mm"]  # 55 ms CUDA beats 25 CPU
+
+
+def test_summary_uses_medians_not_means():
+    s = sp.summarize([_pass("new", 100.0), _pass("new", 110.0), _pass("new", 1000.0)])
+    assert s["new"]["backbone"] == 110.0
+
+
+def test_main_sibling_has_other_words_warmup_runs_and_profiler_is_warmed(tmp_path, monkeypatch):
+    import json
+
+    states = _fake_world(monkeypatch)
+    out = tmp_path / "probe"
+    sp.main([str(out), "--variants", "4", "--warmup", "2", "--trace", "--batch-records"])
+    data = json.loads((out / "shape_probe.json").read_text())
+    assert [p["kind"] for p in data["warmup"]] == ["warmup", "warmup"]
+    kinds = [p["kind"] for p in data["passes"]]
+    first_traced = kinds.index("new-traced")
+    assert kinds[first_traced - 1] == "profiler-warmup"  # warmed on a seen length just before
+    assert data["passes"][first_traced - 1]["k"] == 0
+    assert "profiler-warmup" not in data["summary"]
+    base = states[0]
+    siblings = [s for s in states if s.startswith(base) and " y" in s[len(base) :]]
+    assert len(siblings) == 4 and all(" x" not in s[len(base) :] for s in siblings)
+
+
+def test_main_keeps_the_per_shape_results_when_the_preview_fails(tmp_path, monkeypatch):
+    import json
+
+    _fake_world(monkeypatch)
+    monkeypatch.setenv("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:False")
+    out = tmp_path / "probe"
+    sp.main([str(out), "--variants", "2", "--batch-records", "no_such_record"])
+    data = json.loads((out / "shape_probe.json").read_text())
+    assert data["summary"]["new"]["n"] == 2
+    assert data["batch_preview"]["error"].startswith("SystemExit")
+    assert data["batch_preview"]["records"] == ["no_such_record"]
+    md = (out / "shape_probe.md").read_text()
+    assert "Environment: PYTORCH_CUDA_ALLOC_CONF=expandable_segments:False" in md
+    assert "error: SystemExit" in md
+
+
+def test_per_shape_results_are_on_disk_before_the_preview_runs(tmp_path, monkeypatch):
+    import json
+
+    import pytest
+
+    _fake_world(monkeypatch)
+
+    def crash(*a, **k):  # stands in for a hang or a hard crash in the batched forward
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(sp, "batch_preview", crash)
+    out = tmp_path / "probe"
+    with pytest.raises(KeyboardInterrupt):
+        sp.main([str(out), "--variants", "2"])
+    data = json.loads((out / "shape_probe.json").read_text())
+    assert data["summary"]["new"]["n"] == 2 and data["batch_preview"] is None

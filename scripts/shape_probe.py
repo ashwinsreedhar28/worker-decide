@@ -16,9 +16,11 @@ each variant it runs, in order:
     sibling  same count, different content (" y" instead of " x"), when the tokenizer agrees
 
 and splits each pass like profile_engine.py (encode, collate, pre, backbone, head, post; CUDA
-events), plus the cudaMalloc count from torch.cuda.memory_stats. If new is slow and repeat and
-sibling are fast, the cost belongs to the shape, not the content. --trace profiles one new pass
-and its repeat under torch.profiler and writes the ops whose self CPU or CUDA time grew most,
+events), plus the device allocation count from torch.cuda.memory_stats (num_device_alloc:
+cudaMalloc calls, or segment maps under expandable_segments, the image's default). If new is
+slow and repeat and sibling are fast, the cost belongs to the shape, not the content. --trace
+profiles one new pass and its repeat under torch.profiler (after a throwaway profiled pass that
+absorbs the profiler's own first-session setup) and writes the ops whose self time grew most,
 which names the cause (GEMM heuristics inside aten::mm, lazy kernel loading inside launches,
 allocator calls, or the head).
 
@@ -155,22 +157,33 @@ def flatten_tensors(obj: Any) -> list[Any]:
 
 
 def compare_outputs(batched: Any, singles: list[Any]) -> dict[str, Any]:
-    """Per-question softmax of the batched output against the single-record outputs, in order."""
+    """Per-question softmax of the batched output against the single-record outputs.
+
+    Pairs by flattened order (record by record, question by question), the only order known
+    without the model code. Shapes guard the pairing only where they differ, so
+    ambiguous_shapes says when two records share an output shape and a reordering could pass
+    the shape check; the per-record breakdown then shows where a large difference sits.
+    """
     fb = flatten_tensors(batched)
-    fs = [t for s in singles for t in flatten_tensors(s)]
-    same = len(fb) == len(fs) and all(
-        tuple(a.shape) == tuple(b.shape) for a, b in zip(fb, fs, strict=False)
-    )
-    out: dict[str, Any] = {
-        "comparable": same,
-        "tensors_batched": len(fb),
-        "tensors_single": len(fs),
-    }
+    per_rec = [flatten_tensors(s) for s in singles]
+    fs = [t for r in per_rec for t in r]
+    shapes_b = [list(t.shape) for t in fb]
+    shapes_s = [list(t.shape) for t in fs]
+    rec_shapes = [{tuple(t.shape) for t in r} for r in per_rec]
+    ambiguous = any(a & b for i, a in enumerate(rec_shapes) for b in rec_shapes[i + 1 :])
+    same = len(fb) == len(fs) and shapes_b == shapes_s
+    out: dict[str, Any] = {"comparable": same, "shapes_batched": shapes_b,
+                           "shapes_single": shapes_s, "ambiguous_shapes": ambiguous}  # fmt: skip
     if same and fb:
         d = [float((a.float().softmax(-1) - b.float().softmax(-1)).abs().max()) for a, b in
              zip(fb, fs, strict=True)]  # fmt: skip
         out["max_abs_dprob"] = round(max(d), 6)
         out["per_tensor_max_abs_dprob"] = [round(x, 6) for x in d]
+        bounds, i = [], 0
+        for r in per_rec:
+            bounds.append(round(max(d[i : i + len(r)], default=0.0), 6))
+            i += len(r)
+        out["per_record_max_abs_dprob"] = bounds
     return out
 
 
@@ -215,11 +228,17 @@ def blas_library(torch) -> str | None:
         return None
 
 
-def render(label: str, summary: dict[str, Any], diff: list[dict[str, Any]] | None,
-           preview: dict[str, Any] | None = None) -> str:  # fmt: skip
+def render(
+    label: str,
+    summary: dict[str, Any],
+    diff: list[dict[str, Any]] | None,
+    preview: dict[str, Any] | None = None,
+    env: dict[str, Any] | None = None,
+) -> str:
     cols = (*SEGMENTS, "total")
-    lines = [f"## Shape probe: {label}", "",
-             "| kind | n | " + " | ".join(cols) + " | cudaMalloc |",
+    set_env = ", ".join(f"{k}={v}" for k, v in (env or {}).items() if v is not None)
+    lines = [f"## Shape probe: {label}", "", f"Environment: {set_env or 'defaults'}", "",
+             "| kind | n | " + " | ".join(cols) + " | device allocs |",
              "|---|---|" + "---|" * len(cols) + "---|"]  # fmt: skip
     for kind in KINDS:
         if kind in summary:
@@ -310,6 +329,10 @@ def main(argv: list[str] | None = None) -> None:
             from torch.profiler import ProfilerActivity, profile
 
             acts = [ProfilerActivity.CPU, ProfilerActivity.CUDA]
+            # The first profiler session in a process carries setup cost inside its CUDA calls;
+            # spend it on a seen length, so it cannot pass for a new-length cost.
+            with profile(activities=acts):
+                passes.append(one("profiler-warmup", base, 0))
             for kind in ("new", "repeat"):  # profiler overhead: kept out of the medians
                 with profile(activities=acts) as prof:
                     passes.append(one(f"{kind}-traced", rec, v["k"]))
@@ -323,14 +346,7 @@ def main(argv: list[str] | None = None) -> None:
 
     summary = summarize(passes)
     diff = diff_ops(traced["new"], traced["repeat"]) if traced else None
-    preview = None
-    if a.batch_records:  # last, so its new shapes cannot warm anything measured above
-        recs = []
-        for rid in a.batch_records:
-            ln = load_line(None if rid == "pulse" else rid, "fixtures/requests/*.jsonl")
-            recs.append(engine.encode(record_for(ln["id"], ln)))
-        preview = batch_preview(engine, torch, recs) | {"records": a.batch_records}
-        (a.out_dir / "batch_preview.json").write_text(json.dumps(preview, indent=1))
+    env = {k: os.environ.get(k) for k in ENV_KEYS} | {"preferred_blas": blas_library(torch)}
     out = {
         "engine": engine.manifest(),
         "record": line["id"],
@@ -339,17 +355,36 @@ def main(argv: list[str] | None = None) -> None:
             {k: v[k] for k in ("k", "tokens")} | {"sibling": v["sibling"] is not None}
             for v in variants
         ],  # fmt: skip
-        "env": {k: os.environ.get(k) for k in ENV_KEYS} | {"preferred_blas": blas_library(torch)},
+        "env": env,
         "warmup": warm,
         "passes": passes,
         "summary": summary,
         "op_diff": diff,
-        "batch_preview": preview,
+        "batch_preview": None,
         "finished_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
     }
-    (a.out_dir / "shape_probe.json").write_text(json.dumps(out, indent=1, default=str))
-    text = render(a.label or a.out_dir.name, summary, diff, preview)
-    (a.out_dir / "shape_probe.md").write_text(text + "\n")
+    label = a.label or a.out_dir.name
+
+    def write(preview: dict[str, Any] | None) -> str:
+        out["batch_preview"] = preview
+        (a.out_dir / "shape_probe.json").write_text(json.dumps(out, indent=1, default=str))
+        text = render(label, summary, diff, preview, env)
+        (a.out_dir / "shape_probe.md").write_text(text + "\n")
+        return text
+
+    text = write(None)  # the per-shape results are safe before the preview runs
+    if a.batch_records:  # last, so its new shapes cannot warm anything measured above
+        try:
+            recs = []
+            for rid in a.batch_records:
+                ln = load_line(None if rid == "pulse" else rid, "fixtures/requests/*.jsonl")
+                recs.append(engine.encode(record_for(ln["id"], ln)))
+            preview = batch_preview(engine, torch, recs)
+        except (Exception, SystemExit) as e:  # load_line exits on an unknown id
+            preview = {"error": f"{type(e).__name__}: {e}"[:500]}
+        preview["records"] = a.batch_records
+        (a.out_dir / "batch_preview.json").write_text(json.dumps(preview, indent=1))
+        text = write(preview)
     print(text)
 
 
