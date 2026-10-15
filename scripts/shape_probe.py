@@ -191,11 +191,14 @@ def batch_preview(engine, torch, encoded: list[Any], clock=time.perf_counter) ->
     """One batch of several records against the same records one at a time: structure, time
     (second run of each, so neither pays a first-shape cost), and agreement."""
     pad = engine.processor.tokenizer.pad_token_id
+    # Every record's output: engine._forward keeps only the first record's ([0]), which made
+    # the Oct 15 A40 preview compare one record's answers against three.
+    fwd = getattr(engine, "_forward_records", None) or engine._forward
 
     def run(recs):
         t0 = clock()
         with torch.inference_mode():
-            out = engine._forward(engine.jsm.collate_records(recs, pad, engine.device))
+            out = fwd(engine.jsm.collate_records(recs, pad, engine.device))
         torch.cuda.synchronize()
         return out, (clock() - t0) * 1000
 
