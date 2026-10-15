@@ -532,3 +532,62 @@ written into the oracle directory, empty oracle gating as PASS, no gcc for Trito
 the SGLang-refused record failing the gate, loadtest always exiting 0, six surviving test
 mutations, among others), all fixed and re-verified; the re-audit's four follow-ups (hung-server
 guard, oracle error records, loadtest exit test, profile header) fixed too.
+
+### Results so far: H100 pod session, Oct 15 (`m4/pod-h100-80gb-hbm3-20261015`)
+
+A40 capacity was out, so this first session ran on an H100 SXM (the planned "context"
+number). Steps 1–3 completed; SGLang installed with Clef's joint head present but did not
+start: its JIT kernels call `ninja` by name and the venv's `bin` was not on PATH (fixed in
+`a000805`; SGLang step to be rerun).
+
+**Question order changes Clef's answers; option order does not** (fp32, one run, one GPU).
+- Options out of order on the wire encode to the same token ids as sorted and give identical
+  probabilities (Δp 0): the encoder sorts choice ids, as the reference documents.
+- The model card's request in three question orders, same 300 tokens:
+
+  | question order | department p(technical) | outage p(true) | urgency p(Today) |
+  |---|---|---|---|
+  | alphabetical (department, outage, urgency) | 0.9606 | 0.7774 | 0.8795 |
+  | card (department, urgency, outage) | 0.9608 | 0.8363 | 0.8582 |
+  | reversed (outage, urgency, department) | 0.9494 | 0.6238 | 0.9057 |
+
+  Outage moves by up to 0.154, six times the 0.025 correctness bar, from order alone. The
+  questions share one prompt and attend to each other, so this is the model, not noise: the
+  alphabetical row reproduces the committed H100 fp32 card_trio fixture exactly. Implications:
+  a client should send questions in a fixed order, and any layer that reorders them (sorting
+  keys, as our own fixture writer did) changes the answers. Our worker preserves order: its
+  bf16 answers on the order records pass the gate against this truth (worst 0.0032).
+
+**Where our request time goes** (bf16, `gdn_fast_path=False`, median of 20 passes):
+
+| record | tokens | encode | backbone | head | total | backbone share |
+|---|---|---|---|---|---|---|
+| card_trio | 300 | 1.8 ms | 128.6 ms | 4.6 ms | 135.4 ms | 95% |
+| pulse-11714037 | 843 | 2.3 ms | 219.2 ms | 4.5 ms | 226.7 ms | 97% |
+| long_2k | 2,486 | 5.2 ms | 353.0 ms | 5.2 ms | 364.4 ms | 97% |
+
+- The head plus everything that isn't the backbone is 3–5% of request time, under the plan's
+  15% bar for native head work: milestone 8a/b (vectorized or fused head) is not justified.
+- The backbone is the target. The long_2k trace has about 197 ms of kernel time inside a
+  353 ms backbone (the GPU idles ~44% of it), spread over thousands of small kernels (≈4,750
+  `bmm`, ≈5,800 `mul`, ≈6,400 `copy` calls) plus fp32 GEMMs. That is consistent with
+  transformers' pure-torch Gated DeltaNet fallback, which the image uses because
+  flash-linear-attention and causal-conv1d are not installed. First optimization tier:
+  enable that fast path, through the correctness gate.
+- The split timed `language_model.model.language_model` (7.94B of 9.53B parameters; the
+  outer wrappers are hooked but not entered through their own forward), as designed.
+
+**Our worker under load** (HTTP, one forward at a time):
+
+| workload | tokens | c=1 req/s, p50 | c=8 req/s, p50 | c=32 req/s, p50 |
+|---|---|---|---|---|
+| ticket (card_trio) | 300 | 7.13, 138 ms | 6.51, 1,219 ms | 6.21, 5,145 ms |
+| pulse | 843 | 5.63, 176 ms | 5.22, 1,535 ms | 5.14, 6,201 ms |
+| article (long_2k) | 2,486 | 3.50, 284 ms | 3.33, 2,370 ms | 3.10, 9,834 ms |
+
+Concurrency adds queueing, not throughput, as expected from the engine lock. HTTP and
+transport add about 2.4 ms (c=1 p50 138 ms vs the in-process 135 ms). Second tier: batch
+concurrent requests.
+
+Revised optimization order from these numbers: (0) GDN fast path, (1) batching, then CUDA
+graphs / compile if the gap to SGLang's floor remains; the native head drops out.
