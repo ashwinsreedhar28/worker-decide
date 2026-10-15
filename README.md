@@ -145,6 +145,14 @@ and `GH_TOKEN={{ RUNPOD_SECRET_GH_TOKEN }}`. The image clones the repo and runs
 the script; no start command needed (that field has not reliably reached the
 container).
 
+## Comparing with SGLang and profiling (milestone 4 / 5a)
+
+`scripts/pod_m4.sh` runs the whole session on one pod from the worker image
+(`POD_SCRIPT=scripts/pod_m4.sh`, `GH_TOKEN` as a Runpod secret, ≥ 80 GB container disk): the
+order-fixture oracle, a profile of our engine, a load test of our worker, then SGLang's pinned
+nightly with Clef's joint head through the same correctness gate and load test. See REVIEW.md
+milestone 4 for what is compared and why.
+
 ## Running the oracle on a Runpod pod
 
 The pod drives itself; nothing to SSH into. Results come back as a branch.
