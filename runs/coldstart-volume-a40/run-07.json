@@ -1,0 +1,589 @@
+{
+ "health_before": {
+  "jobs": {
+   "completed": 73,
+   "failed": 0,
+   "inProgress": 0,
+   "inQueue": 0,
+   "retried": 0
+  },
+  "workers": {
+   "idle": 1,
+   "initializing": 0,
+   "ready": 1,
+   "running": 0,
+   "throttled": 0,
+   "unhealthy": 0
+  }
+ },
+ "idle_before": 1,
+ "suspect_warm": false,
+ "cold": {
+  "status": "COMPLETED",
+  "worker_id": "8ov76kk0xceeu6",
+  "delay_s": 21.314,
+  "exec_s": 0.974,
+  "client_wall_s": 23.529,
+  "gpu": "NVIDIA A40",
+  "snapshot_source": "hf_cache",
+  "fetch_s": 1.216,
+  "fetch_metric": "v2",
+  "bytes_written": 0,
+  "snapshot_bytes": 19083410580,
+  "snapshot_dir_existed": true,
+  "marks": {
+   "engine_init": 1.8,
+   "model_code_imported": 6.917,
+   "ready": 17.978,
+   "snapshot_resolved": 3.017,
+   "weights_loaded": 17.978
+  },
+  "segments": {
+   "startup_s": 1.8,
+   "fetch_s": 1.216,
+   "import_s": 3.9,
+   "weights_s": 11.061,
+   "warmup_s": null
+  },
+  "timeline_basis": "process_start",
+  "warmup_s": null,
+  "platform_est_s": 3.336,
+  "error": null
+ },
+ "warm": {
+  "status": "COMPLETED",
+  "worker_id": "8ov76kk0xceeu6",
+  "delay_s": 0.02,
+  "exec_s": 0.439,
+  "client_wall_s": 1.527,
+  "gpu": "NVIDIA A40",
+  "snapshot_source": "hf_cache",
+  "fetch_s": 1.216,
+  "fetch_metric": "v2",
+  "bytes_written": 0,
+  "snapshot_bytes": 19083410580,
+  "snapshot_dir_existed": true,
+  "marks": {
+   "engine_init": 1.8,
+   "model_code_imported": 6.917,
+   "ready": 17.978,
+   "snapshot_resolved": 3.017,
+   "weights_loaded": 17.978
+  },
+  "segments": {
+   "startup_s": 1.8,
+   "fetch_s": 1.216,
+   "import_s": 3.9,
+   "weights_s": 11.061,
+   "warmup_s": null
+  },
+  "timeline_basis": "process_start",
+  "warmup_s": null,
+  "platform_est_s": -17.958,
+  "error": null
+ },
+ "raw": {
+  "cold": {
+   "delayTime": 21314,
+   "executionTime": 974,
+   "id": "a0e1bfb4-0970-4c48-9c18-9030e3b7202e-u1",
+   "output": {
+    "answers": {
+     "department": {
+      "choice": "technical",
+      "confidence": 0.9096,
+      "probabilities": {
+       "billing": 0.0712,
+       "sales": 0.0192,
+       "technical": 0.9096
+      },
+      "type": "choice"
+     },
+     "outage": {
+      "noul": 0.9504,
+      "type": "noul"
+     },
+     "urgency": {
+      "confidence": 0.6051,
+      "legend": {
+       "0": "can wait a week",
+       "1": "this week",
+       "2": "today",
+       "3": "within the hour",
+       "4": "right now"
+      },
+      "probabilities": {
+       "0": 0.0215,
+       "1": 0.0244,
+       "2": 0.0653,
+       "3": 0.2836,
+       "4": 0.6051
+      },
+      "score": 3.4265,
+      "type": "score"
+     }
+    },
+    "debug": {
+     "encoding": {
+      "ids_sha": "e172bba1fef10c7f0d394a33f86611a160d9097f940b702fc3c649111ec10e48",
+      "input_tokens": 395,
+      "questions": [
+       {
+        "id": "department",
+        "option_ids": [
+         "billing",
+         "sales",
+         "technical"
+        ],
+        "option_spans": [
+         [
+          117,
+          129
+         ],
+         [
+          135,
+          148
+         ],
+         [
+          154,
+          168
+         ]
+        ],
+        "question_span": [
+         99,
+         106
+        ],
+        "type": "choice"
+       },
+       {
+        "id": "outage",
+        "option_ids": [
+         "true",
+         "false"
+        ],
+        "option_spans": [
+         [
+          212,
+          230
+         ],
+         [
+          236,
+          254
+         ]
+        ],
+        "question_span": [
+         190,
+         201
+        ],
+        "type": "noul"
+       },
+       {
+        "id": "urgency",
+        "option_ids": [
+         "0",
+         "1",
+         "2",
+         "3",
+         "4"
+        ],
+        "option_spans": [
+         [
+          292,
+          305
+         ],
+         [
+          311,
+          322
+         ],
+         [
+          328,
+          338
+         ],
+         [
+          344,
+          356
+         ],
+         [
+          362,
+          373
+         ]
+        ],
+        "question_span": [
+         275,
+         281
+        ],
+        "type": "score"
+       }
+      ],
+      "spans_sha": "d4f8f8f3eec1488aa2f4fa15ae958e9bbec7c981023fd67bc705be9e87aff85e"
+     },
+     "engine": {
+      "code_sha": "0e304cf7c6500e8bb59bef7e2afd2c6373f82596dfb3b57d1aa93c175e2dc3a3",
+      "dtype": "bfloat16",
+      "gdn_fast_path": false,
+      "gpu": "NVIDIA A40",
+      "load_s": 11.1,
+      "model": "Cloudflare/clef-flash",
+      "revision": "8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3",
+      "sdp": "efficient",
+      "snapshot_source": "hf_cache",
+      "timeline": {
+       "basis": "process_start",
+       "fetch": {
+        "bytes_written": 0,
+        "bytes_written_disk": 0,
+        "bytes_written_hf_home": 0,
+        "seconds": 1.216,
+        "snapshot_bytes": 19083410580,
+        "snapshot_dir_existed": true,
+        "source": "hf_cache"
+       },
+       "marks": {
+        "engine_init": 1.8,
+        "model_code_imported": 6.917,
+        "ready": 17.978,
+        "snapshot_resolved": 3.017,
+        "weights_loaded": 17.978
+       }
+      },
+      "versions": {
+       "cuda": "13.0",
+       "python": "3.12.3",
+       "torch": "2.11.0+cu130",
+       "transformers": "5.10.2"
+      },
+      "warmup_s": null,
+      "worker_decide_commit": "e30b28e5f5a2db92048459c3448cff815d51114b"
+     },
+     "questions": [
+      {
+       "id": "department",
+       "logits": [
+        -3.5625,
+        -4.875,
+        -1.015625
+       ],
+       "option_ids": [
+        "billing",
+        "sales",
+        "technical"
+       ],
+       "probs": [
+        0.07124389708042145,
+        0.019175034016370773,
+        0.9095810651779175
+       ],
+       "type": "choice"
+      },
+      {
+       "id": "outage",
+       "logits": [
+        -1.390625,
+        -4.34375
+       ],
+       "option_ids": [
+        "true",
+        "false"
+       ],
+       "probs": [
+        0.9504110217094421,
+        0.04958902671933174
+       ],
+       "type": "noul"
+      },
+      {
+       "id": "urgency",
+       "logits": [
+        -4.6875,
+        -4.5625,
+        -3.578125,
+        -2.109375,
+        -1.3515625
+       ],
+       "option_ids": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4"
+       ],
+       "probs": [
+        0.021531887352466583,
+        0.02439882606267929,
+        0.06529464572668076,
+        0.2836270034313202,
+        0.605147659778595
+       ],
+       "type": "score"
+      }
+     ],
+     "request_sha": "b95c359c7144703a1ef3600e844d65b9e00ee70e9812d319745e60d75b189ccd",
+     "timing_ms": {
+      "encode": 8.57,
+      "forward": 831.02,
+      "total": 839.74
+     }
+    },
+    "model": "Cloudflare/clef-flash",
+    "usage": {
+     "input_tokens": 395,
+     "output_tokens": 0
+    }
+   },
+   "status": "COMPLETED",
+   "workerId": "8ov76kk0xceeu6",
+   "client_wall_s": 23.529
+  },
+  "warm": {
+   "delayTime": 20,
+   "executionTime": 439,
+   "id": "ef5c3770-c02e-4532-9b03-513c95f2f1ea-u2",
+   "output": {
+    "answers": {
+     "department": {
+      "choice": "technical",
+      "confidence": 0.9096,
+      "probabilities": {
+       "billing": 0.0712,
+       "sales": 0.0192,
+       "technical": 0.9096
+      },
+      "type": "choice"
+     },
+     "outage": {
+      "noul": 0.9504,
+      "type": "noul"
+     },
+     "urgency": {
+      "confidence": 0.6051,
+      "legend": {
+       "0": "can wait a week",
+       "1": "this week",
+       "2": "today",
+       "3": "within the hour",
+       "4": "right now"
+      },
+      "probabilities": {
+       "0": 0.0215,
+       "1": 0.0244,
+       "2": 0.0653,
+       "3": 0.2836,
+       "4": 0.6051
+      },
+      "score": 3.4265,
+      "type": "score"
+     }
+    },
+    "debug": {
+     "encoding": {
+      "ids_sha": "e172bba1fef10c7f0d394a33f86611a160d9097f940b702fc3c649111ec10e48",
+      "input_tokens": 395,
+      "questions": [
+       {
+        "id": "department",
+        "option_ids": [
+         "billing",
+         "sales",
+         "technical"
+        ],
+        "option_spans": [
+         [
+          117,
+          129
+         ],
+         [
+          135,
+          148
+         ],
+         [
+          154,
+          168
+         ]
+        ],
+        "question_span": [
+         99,
+         106
+        ],
+        "type": "choice"
+       },
+       {
+        "id": "outage",
+        "option_ids": [
+         "true",
+         "false"
+        ],
+        "option_spans": [
+         [
+          212,
+          230
+         ],
+         [
+          236,
+          254
+         ]
+        ],
+        "question_span": [
+         190,
+         201
+        ],
+        "type": "noul"
+       },
+       {
+        "id": "urgency",
+        "option_ids": [
+         "0",
+         "1",
+         "2",
+         "3",
+         "4"
+        ],
+        "option_spans": [
+         [
+          292,
+          305
+         ],
+         [
+          311,
+          322
+         ],
+         [
+          328,
+          338
+         ],
+         [
+          344,
+          356
+         ],
+         [
+          362,
+          373
+         ]
+        ],
+        "question_span": [
+         275,
+         281
+        ],
+        "type": "score"
+       }
+      ],
+      "spans_sha": "d4f8f8f3eec1488aa2f4fa15ae958e9bbec7c981023fd67bc705be9e87aff85e"
+     },
+     "engine": {
+      "code_sha": "0e304cf7c6500e8bb59bef7e2afd2c6373f82596dfb3b57d1aa93c175e2dc3a3",
+      "dtype": "bfloat16",
+      "gdn_fast_path": false,
+      "gpu": "NVIDIA A40",
+      "load_s": 11.1,
+      "model": "Cloudflare/clef-flash",
+      "revision": "8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3",
+      "sdp": "efficient",
+      "snapshot_source": "hf_cache",
+      "timeline": {
+       "basis": "process_start",
+       "fetch": {
+        "bytes_written": 0,
+        "bytes_written_disk": 0,
+        "bytes_written_hf_home": 0,
+        "seconds": 1.216,
+        "snapshot_bytes": 19083410580,
+        "snapshot_dir_existed": true,
+        "source": "hf_cache"
+       },
+       "marks": {
+        "engine_init": 1.8,
+        "model_code_imported": 6.917,
+        "ready": 17.978,
+        "snapshot_resolved": 3.017,
+        "weights_loaded": 17.978
+       }
+      },
+      "versions": {
+       "cuda": "13.0",
+       "python": "3.12.3",
+       "torch": "2.11.0+cu130",
+       "transformers": "5.10.2"
+      },
+      "warmup_s": null,
+      "worker_decide_commit": "e30b28e5f5a2db92048459c3448cff815d51114b"
+     },
+     "questions": [
+      {
+       "id": "department",
+       "logits": [
+        -3.5625,
+        -4.875,
+        -1.015625
+       ],
+       "option_ids": [
+        "billing",
+        "sales",
+        "technical"
+       ],
+       "probs": [
+        0.07124389708042145,
+        0.019175034016370773,
+        0.9095810651779175
+       ],
+       "type": "choice"
+      },
+      {
+       "id": "outage",
+       "logits": [
+        -1.390625,
+        -4.34375
+       ],
+       "option_ids": [
+        "true",
+        "false"
+       ],
+       "probs": [
+        0.9504110217094421,
+        0.04958902671933174
+       ],
+       "type": "noul"
+      },
+      {
+       "id": "urgency",
+       "logits": [
+        -4.6875,
+        -4.5625,
+        -3.578125,
+        -2.109375,
+        -1.3515625
+       ],
+       "option_ids": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4"
+       ],
+       "probs": [
+        0.021531887352466583,
+        0.02439882606267929,
+        0.06529464572668076,
+        0.2836270034313202,
+        0.605147659778595
+       ],
+       "type": "score"
+      }
+     ],
+     "request_sha": "b95c359c7144703a1ef3600e844d65b9e00ee70e9812d319745e60d75b189ccd",
+     "timing_ms": {
+      "encode": 10.79,
+      "forward": 288.08,
+      "total": 298.97
+     }
+    },
+    "model": "Cloudflare/clef-flash",
+    "usage": {
+     "input_tokens": 395,
+     "output_tokens": 0
+    }
+   },
+   "status": "COMPLETED",
+   "workerId": "8ov76kk0xceeu6",
+   "client_wall_s": 1.527
+  }
+ }
+}
