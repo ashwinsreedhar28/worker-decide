@@ -310,18 +310,21 @@ where the time goes, across the ways weights reach the GPU. Every arm keeps
 passing the correctness gate.
 
 Arms (A40 queue endpoint, reconfigured between arms): **A** container disk
-(download at start, billed); **B** Model Store (host cache, not billed);
-**C** network volume (`clef-oracle`, pins the endpoint to US-CA-2); **D**
-FlashBoot on A or B. The original plan's compile-cache arm is dropped: the
+(download at start); **B** Model Store (Runpod's host cache; per Runpod's docs
+the download is not billed); **C** network volume (planned on `clef-oracle` in
+US-CA-2, which had no A40 capacity on Oct 14, so a new volume `clef-coldstart`
+in CA-MTL-1); **D** FlashBoot on B. The original plan's compile-cache arm is dropped: the
 transformers path runs eagerly, so there is nothing to cache (it belongs to the
 SGLang arm, milestone 4).
 
-What the Oct 14 runs already showed (hand-read from logs): the L40S cold start
+What the Oct 14 runs already showed (hand-read from console logs, not in the
+repo): the L40S cold start
 took ~2 min, ~90 s of it before the worker process existed (scheduling, image
 pull, container create) and ~29 s inside it; the A40 took 32 s in-process.
-Two hosts fetched the 19 GB snapshot in 13 s and 15 s, which points to a fast
-link rather than a host cache — the timeline's bytes count settles it. So the
-benchmark has to measure outside the process, not only inside it.
+Two hosts fetched the 19 GB snapshot in 13 s and 15 s; whether that was a
+download or a host cache was open until arm A v2 counted the bytes (a
+download, below). So the benchmark has to measure outside the process, not
+only inside it.
 
 Run:
 
@@ -341,13 +344,130 @@ Audit points:
   `engine_init` where `/proc` is absent. `platform_est_s` (Runpod's delayTime
   minus the worker's process-start → ready) is an estimate and is labelled so.
 - "Cold" means no running or initializing worker for two consecutive /health
-  readings. Idle slots (scaled down, not billed) count as cold, but their count
-  is recorded per sample, because a start onto one may skip the image pull. A
-  first start on a fresh host is measured once per new endpoint and labelled.
-- Cold samples under 2 s of queue delay are flagged `suspect_warm` and excluded
-  from the summary.
+  readings (in the driver since its first version). Idle slots (scaled down,
+  not billed) count as cold, but their count is recorded per sample, because a
+  start onto one may skip the image pull. A first start on a fresh host was not
+  measured (see caveats).
+- Each sample is classified from its own record: `cold` (platform estimate
+  ≥ 0, a process started after the submit), `resumed` (< 0: the job ran in a
+  process that predates the submit, which is FlashBoot), `suspect_warm` (under
+  2 s with no timeline to tell), `failed`. Resumed samples get their own table
+  and never enter cold statistics. Old run files are re-classified on
+  `--summarize`.
+- `process_age_s` = client submit time − the worker's `origin_unix`. It mixes
+  two clocks; on cold samples it reads −2 to −5 s against a platform estimate
+  of 3–6 s, so the skew is about a second, small next to the minutes it
+  measures. It is not derivable from the marks (ready is process start →
+  ready, not → submit); an earlier draft did that and was caught before merge.
 - `WARMUP` is off by default until the cold-vs-warm execution times show it
   pays for itself.
 
 Out of scope: SGLang/CUDA-graph caching, lazy image loading (eStargz, SOCI,
 Nydus), concurrency, cost per 1k decisions (milestone 5).
+
+### Results (A40 queue endpoint `7bmbtjrmxdedjo`, idle timeout 5 s, Oct 14–15 2026)
+
+Data: `runs/coldstart-*/` (per-run JSON, `summary.json`, `summary.md`; Runpod's
+raw responses are kept from A v2 on, not in A v1 or B, which predate that);
+re-derive any table with `python scripts/coldstart.py X runs/<dir> --summarize`.
+Every sample in every arm ran on an A40. Images `e30b28e` and `acf2fc4` are
+confirmed by the responses; `f37ce55` for A v1 and B is the endpoint
+configuration at the time, not recorded in those files. Medians, with min–max
+where the spread matters.
+
+| arm (image) | n | queue delay | platform | in-process ready | fetch | weight load |
+|---|---|---|---|---|---|---|
+| A disk v2 (`e30b28e`) | 10 | 33.8 s (27.4–42.3) | 4.3 s | 27.8 s | 13.7 s (10.4–19.3), 19.08 GB written every run | 7.7 s |
+| B Model Store (`f37ce55`) | 10 | 25.5 s (18.3–73.8) | 5.7 s | 16.2 s | 0 on 8/10 | 9.6 s |
+| C network volume, runs 2–10 (`e30b28e`) | 9 | 26.8 s (17.8–48.7) | 5.9 s | 19.4 s | 0.06–1.2 s, 0 bytes (`hf_cache`) | 12.9 s (8.7–38.6) |
+| D Model Store + FlashBoot, cold (`e30b28e`) | 2 | 20.1 s | 5.9 s | 14.2 s | 0 | 8.8 s |
+| D, resumed | 8 | **0.54 s** (0.49–1.18) | — | — | — | — |
+| Sweep, cold (`acf2fc4`) | 10 | 17.9 s (16.0–24.1) | 3.9 s | 13.9 s | 0 | — |
+| Sweep, resumed | 5 | **0.54 s** (0.53–1.31) | — | — | — | — |
+
+Per-arm medians: startup (Python, worker imports) 1.7–1.8 s, torch /
+transformers / model-code import 3.6–4.0 s, first execution on a cold worker
+0.88–1.01 s (all samples 0.68–1.21 s), the next execution 0.32–0.43 s.
+
+**A, container disk: every cold start is a real 19 GB download.** All ten runs
+wrote 19.08 GB at 1.4 GB/s (0.99–1.84). Only three workers served the ten runs,
+so workers that had run before downloaded again: container disk does not
+survive scale-to-zero. An earlier A run on `f37ce55` (`runs/coldstart-disk-a40`)
+gave ready 24.6 s with the same configuration; its fetch metric (blob-directory
+growth, v1) saw ~130 KB and cannot tell download from cache, which is why A was
+re-run. The two A runs differ by 3.2 s in ready time, 2.5 s of it in the fetch;
+that mixes run-to-run noise with v2's added byte counting inside the fetch
+segment, so ~3 s is an upper bound on the noise to read comparisons against,
+not a measurement of it.
+
+**B, Model Store: the fetch disappears.** Ready 16.2 s vs 27.8 s (A v2) or
+24.6 s (A v1, same image as B). Weight load was 9.6 s here vs 7.7 s from
+disk, but the same Model Store path loaded in 8.8 s (D) and 8.2 s (sweep), so
+that difference is within noise. Two misses, runs 1 and 10, were the same
+worker (`uv5zckwkzigm6y`): a host without the cached model, despite Runpod
+placing workers on hosts that hold it. Their fetches took 12.2 s and 10.0 s,
+in line with A v2's downloads, so the worker most likely downloaded; the v1
+metric cannot confirm it. Either way a miss cost time, not a failure. Platform
+outliers (57.4 s, 27.7 s) are outside the process (scheduling, image pull or
+container create; the estimate cannot separate them); one was on a host
+(`96rly022s0nsmu`) that was also slow in A v1.
+
+**C, network volume: bimodal.** Run 1 populated the empty volume (19.08 GB at
+1.07 GB/s, ready 69.9 s). Runs 2–10 loaded from it in 8.7–16.1 s, except two
+at ~38 s (runs 4 and 6). Run 6 was the first load on worker
+`mpwslasetesbbf` (its next, run 10, took 8.7 s), which fits a cold first read
+on a host. Run 4 does not: it was the third load on worker `8ov76kk0xceeu6`,
+whose first load (run 2) took 16.1 s. So first reads explain at most one of
+the two; for run 4, page-cache eviction or volume-backend contention would both
+fit, and these files cannot tell them apart. The volume also pins the endpoint to one data center.
+
+**D, FlashBoot: a resumed process answers in about half a second.** With
+FlashBoot on, 8 of 10 jobs submitted after `/health` reported no running worker
+(the driver waits for two consecutive such readings; these run files keep only
+the last one) ran in the process started for run 1 or 2: identical ready
+marks, platform estimate ≈ −13.5 s, delay 0.49–1.18 s. The two true cold starts
+(20.1 s vs B's 25.5 s) are n = 2 and say nothing either way about the cold
+path; what FlashBoot does is avoid the cold start.
+
+**How long FlashBoot keeps a process (gap sweep, `--gap`, 3 runs per gap).**
+One worker (`upcd8zneb1pez2`) served all 15 iterations (30 jobs, cold + warm)
+over 5.7 hours, 00:56–06:35 UTC Oct 15.
+
+| idle before submit (since the previous job finished) | resumed / runs | process age when resumed |
+|---|---|---|
+| 76–331 s | 4/5 | 100, 189, 348, 497 s |
+| 906–921 s | 1/3 | 938 s |
+| 1806–3631 s | 0/6 | — |
+
+(The first iteration after the image change, with no earlier process, is left
+out.) There is no clean cutoff: a 305 s idle once ended in a cold start, with
+a process that would have been 805 s old, while a process aged 938 s after
+921 s idle was resumed. The platform reclaims kept processes for reasons a
+client cannot see; idle time only moves the odds. Resumed first executions
+were 0.30–0.40 s in the sweep, as fast as warm ones, but 3 of 8 in arm D took
+1.27–1.33 s, slower than a cold first execution: a resume usually, not always,
+skips the warm-up.
+Cold starts in the sweep (17.9 s delay, 13.9 s ready) are faster than B's; a
+single worker in a quiet period is a plausible reason, so read them as a lower
+bound, not a new baseline.
+
+**What this means for a deployment.** Model Store is the default: lowest
+median ready time with no volume and no region pin, and on a host without the
+model the worker downloads instead. FlashBoot on top usually (4 of 5 here)
+turns a job arriving within ~5 minutes of the last one into a sub-second start;
+its effect on the cold path and its billing were not measured. A network volume
+only pays if the same hosts keep serving and its slow tail is tolerable;
+container disk downloads 19 GB on every cold start.
+
+**Caveats.** Samples per row are in the table (10 per arm, of which C reports
+9 and D splits 2 cold / 8 resumed; 3 per gap); one GPU type, one model, queue
+transport only, a 5 s idle timeout. B ran on an image that predates the byte
+counter (its `model_store` label comes from the path check and stands; its two
+misses are known only as "not the Model Store"). Not measured: first start on
+a fresh host (image pull, ~90 s on the Oct 14 L40S), billing for FlashBoot or
+idle workers, other GPUs.
+
+Not built, noted: overlapping the torch / transformers import (3.8 s) with the
+fetch would take it off the critical path on A; on B and D, where the fetch is
+0, it would not help.
+

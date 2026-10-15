@@ -1,0 +1,608 @@
+{
+ "health_before": {
+  "jobs": {
+   "completed": 119,
+   "failed": 0,
+   "inProgress": 0,
+   "inQueue": 0,
+   "retried": 0
+  },
+  "workers": {
+   "idle": 1,
+   "initializing": 0,
+   "ready": 1,
+   "running": 0,
+   "throttled": 0,
+   "unhealthy": 0
+  }
+ },
+ "idle_before": 1,
+ "gap_s": 1800.0,
+ "health_after_gap": {
+  "jobs": {
+   "completed": 119,
+   "failed": 0,
+   "inProgress": 0,
+   "inQueue": 0,
+   "retried": 0
+  },
+  "workers": {
+   "idle": 1,
+   "initializing": 0,
+   "ready": 1,
+   "running": 0,
+   "throttled": 0,
+   "unhealthy": 0
+  }
+ },
+ "kind": "cold",
+ "suspect_warm": false,
+ "cold": {
+  "status": "COMPLETED",
+  "worker_id": "upcd8zneb1pez2",
+  "delay_s": 19.046,
+  "exec_s": 0.684,
+  "client_wall_s": 20.081,
+  "gpu": "NVIDIA A40",
+  "snapshot_source": "model_store",
+  "fetch_s": 0.001,
+  "fetch_metric": "v2",
+  "bytes_written": 0,
+  "snapshot_bytes": 19083378312,
+  "snapshot_dir_existed": null,
+  "marks": {
+   "engine_init": 1.75,
+   "model_code_imported": 5.346,
+   "ready": 13.151,
+   "snapshot_resolved": 1.751,
+   "weights_loaded": 13.151
+  },
+  "segments": {
+   "startup_s": 1.75,
+   "fetch_s": 0.001,
+   "import_s": 3.595,
+   "weights_s": 7.805,
+   "warmup_s": null
+  },
+  "timeline_basis": "process_start",
+  "warmup_s": null,
+  "platform_est_s": 5.895,
+  "process_age_s": -5.2,
+  "error": null
+ },
+ "warm": {
+  "status": "COMPLETED",
+  "worker_id": "upcd8zneb1pez2",
+  "delay_s": 0.07,
+  "exec_s": 0.278,
+  "client_wall_s": 1.305,
+  "gpu": "NVIDIA A40",
+  "snapshot_source": "model_store",
+  "fetch_s": 0.001,
+  "fetch_metric": "v2",
+  "bytes_written": 0,
+  "snapshot_bytes": 19083378312,
+  "snapshot_dir_existed": null,
+  "marks": {
+   "engine_init": 1.75,
+   "model_code_imported": 5.346,
+   "ready": 13.151,
+   "snapshot_resolved": 1.751,
+   "weights_loaded": 13.151
+  },
+  "segments": {
+   "startup_s": 1.75,
+   "fetch_s": 0.001,
+   "import_s": 3.595,
+   "weights_s": 7.805,
+   "warmup_s": null
+  },
+  "timeline_basis": "process_start",
+  "warmup_s": null,
+  "platform_est_s": -13.081,
+  "process_age_s": 14.9,
+  "error": null
+ },
+ "raw": {
+  "cold": {
+   "delayTime": 19046,
+   "executionTime": 684,
+   "id": "3b35effb-e9a9-4ca9-b852-0db4d8ba7492-u2",
+   "output": {
+    "answers": {
+     "department": {
+      "choice": "technical",
+      "confidence": 0.9096,
+      "probabilities": {
+       "billing": 0.0712,
+       "sales": 0.0192,
+       "technical": 0.9096
+      },
+      "type": "choice"
+     },
+     "outage": {
+      "noul": 0.9504,
+      "type": "noul"
+     },
+     "urgency": {
+      "confidence": 0.6051,
+      "legend": {
+       "0": "can wait a week",
+       "1": "this week",
+       "2": "today",
+       "3": "within the hour",
+       "4": "right now"
+      },
+      "probabilities": {
+       "0": 0.0215,
+       "1": 0.0244,
+       "2": 0.0653,
+       "3": 0.2836,
+       "4": 0.6051
+      },
+      "score": 3.4265,
+      "type": "score"
+     }
+    },
+    "debug": {
+     "encoding": {
+      "ids_sha": "e172bba1fef10c7f0d394a33f86611a160d9097f940b702fc3c649111ec10e48",
+      "input_tokens": 395,
+      "questions": [
+       {
+        "id": "department",
+        "option_ids": [
+         "billing",
+         "sales",
+         "technical"
+        ],
+        "option_spans": [
+         [
+          117,
+          129
+         ],
+         [
+          135,
+          148
+         ],
+         [
+          154,
+          168
+         ]
+        ],
+        "question_span": [
+         99,
+         106
+        ],
+        "type": "choice"
+       },
+       {
+        "id": "outage",
+        "option_ids": [
+         "true",
+         "false"
+        ],
+        "option_spans": [
+         [
+          212,
+          230
+         ],
+         [
+          236,
+          254
+         ]
+        ],
+        "question_span": [
+         190,
+         201
+        ],
+        "type": "noul"
+       },
+       {
+        "id": "urgency",
+        "option_ids": [
+         "0",
+         "1",
+         "2",
+         "3",
+         "4"
+        ],
+        "option_spans": [
+         [
+          292,
+          305
+         ],
+         [
+          311,
+          322
+         ],
+         [
+          328,
+          338
+         ],
+         [
+          344,
+          356
+         ],
+         [
+          362,
+          373
+         ]
+        ],
+        "question_span": [
+         275,
+         281
+        ],
+        "type": "score"
+       }
+      ],
+      "spans_sha": "d4f8f8f3eec1488aa2f4fa15ae958e9bbec7c981023fd67bc705be9e87aff85e"
+     },
+     "engine": {
+      "code_sha": "0e304cf7c6500e8bb59bef7e2afd2c6373f82596dfb3b57d1aa93c175e2dc3a3",
+      "dtype": "bfloat16",
+      "gdn_fast_path": false,
+      "gpu": "NVIDIA A40",
+      "load_s": 7.8,
+      "model": "Cloudflare/clef-flash",
+      "revision": "8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3",
+      "sdp": "efficient",
+      "snapshot_source": "model_store",
+      "timeline": {
+       "basis": "process_start",
+       "fetch": {
+        "bytes_written": 0,
+        "seconds": 0.001,
+        "snapshot_bytes": 19083378312,
+        "source": "model_store"
+       },
+       "marks": {
+        "engine_init": 1.75,
+        "model_code_imported": 5.346,
+        "ready": 13.151,
+        "snapshot_resolved": 1.751,
+        "weights_loaded": 13.151
+       },
+       "origin_unix": 1792031546.551
+      },
+      "versions": {
+       "cuda": "13.0",
+       "python": "3.12.3",
+       "torch": "2.11.0+cu130",
+       "transformers": "5.10.2"
+      },
+      "warmup_s": null,
+      "worker_decide_commit": "acf2fc47810fd456d7586f72fdc6f561b19e6f2a"
+     },
+     "questions": [
+      {
+       "id": "department",
+       "logits": [
+        -3.5625,
+        -4.875,
+        -1.015625
+       ],
+       "option_ids": [
+        "billing",
+        "sales",
+        "technical"
+       ],
+       "probs": [
+        0.07124389708042145,
+        0.019175034016370773,
+        0.9095810651779175
+       ],
+       "type": "choice"
+      },
+      {
+       "id": "outage",
+       "logits": [
+        -1.390625,
+        -4.34375
+       ],
+       "option_ids": [
+        "true",
+        "false"
+       ],
+       "probs": [
+        0.9504110217094421,
+        0.04958902671933174
+       ],
+       "type": "noul"
+      },
+      {
+       "id": "urgency",
+       "logits": [
+        -4.6875,
+        -4.5625,
+        -3.578125,
+        -2.109375,
+        -1.3515625
+       ],
+       "option_ids": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4"
+       ],
+       "probs": [
+        0.021531887352466583,
+        0.02439882606267929,
+        0.06529464572668076,
+        0.2836270034313202,
+        0.605147659778595
+       ],
+       "type": "score"
+      }
+     ],
+     "request_sha": "b95c359c7144703a1ef3600e844d65b9e00ee70e9812d319745e60d75b189ccd",
+     "timing_ms": {
+      "encode": 6.74,
+      "forward": 622.37,
+      "total": 629.2
+     }
+    },
+    "model": "Cloudflare/clef-flash",
+    "usage": {
+     "input_tokens": 395,
+     "output_tokens": 0
+    }
+   },
+   "status": "COMPLETED",
+   "workerId": "upcd8zneb1pez2",
+   "client_wall_s": 20.081,
+   "submitted_unix": 1792031541.3984902
+  },
+  "warm": {
+   "delayTime": 70,
+   "executionTime": 278,
+   "id": "1b107ab4-2885-43c9-aebc-ccf949df3534-u1",
+   "output": {
+    "answers": {
+     "department": {
+      "choice": "technical",
+      "confidence": 0.9096,
+      "probabilities": {
+       "billing": 0.0712,
+       "sales": 0.0192,
+       "technical": 0.9096
+      },
+      "type": "choice"
+     },
+     "outage": {
+      "noul": 0.9504,
+      "type": "noul"
+     },
+     "urgency": {
+      "confidence": 0.6051,
+      "legend": {
+       "0": "can wait a week",
+       "1": "this week",
+       "2": "today",
+       "3": "within the hour",
+       "4": "right now"
+      },
+      "probabilities": {
+       "0": 0.0215,
+       "1": 0.0244,
+       "2": 0.0653,
+       "3": 0.2836,
+       "4": 0.6051
+      },
+      "score": 3.4265,
+      "type": "score"
+     }
+    },
+    "debug": {
+     "encoding": {
+      "ids_sha": "e172bba1fef10c7f0d394a33f86611a160d9097f940b702fc3c649111ec10e48",
+      "input_tokens": 395,
+      "questions": [
+       {
+        "id": "department",
+        "option_ids": [
+         "billing",
+         "sales",
+         "technical"
+        ],
+        "option_spans": [
+         [
+          117,
+          129
+         ],
+         [
+          135,
+          148
+         ],
+         [
+          154,
+          168
+         ]
+        ],
+        "question_span": [
+         99,
+         106
+        ],
+        "type": "choice"
+       },
+       {
+        "id": "outage",
+        "option_ids": [
+         "true",
+         "false"
+        ],
+        "option_spans": [
+         [
+          212,
+          230
+         ],
+         [
+          236,
+          254
+         ]
+        ],
+        "question_span": [
+         190,
+         201
+        ],
+        "type": "noul"
+       },
+       {
+        "id": "urgency",
+        "option_ids": [
+         "0",
+         "1",
+         "2",
+         "3",
+         "4"
+        ],
+        "option_spans": [
+         [
+          292,
+          305
+         ],
+         [
+          311,
+          322
+         ],
+         [
+          328,
+          338
+         ],
+         [
+          344,
+          356
+         ],
+         [
+          362,
+          373
+         ]
+        ],
+        "question_span": [
+         275,
+         281
+        ],
+        "type": "score"
+       }
+      ],
+      "spans_sha": "d4f8f8f3eec1488aa2f4fa15ae958e9bbec7c981023fd67bc705be9e87aff85e"
+     },
+     "engine": {
+      "code_sha": "0e304cf7c6500e8bb59bef7e2afd2c6373f82596dfb3b57d1aa93c175e2dc3a3",
+      "dtype": "bfloat16",
+      "gdn_fast_path": false,
+      "gpu": "NVIDIA A40",
+      "load_s": 7.8,
+      "model": "Cloudflare/clef-flash",
+      "revision": "8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3",
+      "sdp": "efficient",
+      "snapshot_source": "model_store",
+      "timeline": {
+       "basis": "process_start",
+       "fetch": {
+        "bytes_written": 0,
+        "seconds": 0.001,
+        "snapshot_bytes": 19083378312,
+        "source": "model_store"
+       },
+       "marks": {
+        "engine_init": 1.75,
+        "model_code_imported": 5.346,
+        "ready": 13.151,
+        "snapshot_resolved": 1.751,
+        "weights_loaded": 13.151
+       },
+       "origin_unix": 1792031546.551
+      },
+      "versions": {
+       "cuda": "13.0",
+       "python": "3.12.3",
+       "torch": "2.11.0+cu130",
+       "transformers": "5.10.2"
+      },
+      "warmup_s": null,
+      "worker_decide_commit": "acf2fc47810fd456d7586f72fdc6f561b19e6f2a"
+     },
+     "questions": [
+      {
+       "id": "department",
+       "logits": [
+        -3.5625,
+        -4.875,
+        -1.015625
+       ],
+       "option_ids": [
+        "billing",
+        "sales",
+        "technical"
+       ],
+       "probs": [
+        0.07124389708042145,
+        0.019175034016370773,
+        0.9095810651779175
+       ],
+       "type": "choice"
+      },
+      {
+       "id": "outage",
+       "logits": [
+        -1.390625,
+        -4.34375
+       ],
+       "option_ids": [
+        "true",
+        "false"
+       ],
+       "probs": [
+        0.9504110217094421,
+        0.04958902671933174
+       ],
+       "type": "noul"
+      },
+      {
+       "id": "urgency",
+       "logits": [
+        -4.6875,
+        -4.5625,
+        -3.578125,
+        -2.109375,
+        -1.3515625
+       ],
+       "option_ids": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4"
+       ],
+       "probs": [
+        0.021531887352466583,
+        0.02439882606267929,
+        0.06529464572668076,
+        0.2836270034313202,
+        0.605147659778595
+       ],
+       "type": "score"
+      }
+     ],
+     "request_sha": "b95c359c7144703a1ef3600e844d65b9e00ee70e9812d319745e60d75b189ccd",
+     "timing_ms": {
+      "encode": 6.43,
+      "forward": 220.25,
+      "total": 226.74
+     }
+    },
+    "model": "Cloudflare/clef-flash",
+    "usage": {
+     "input_tokens": 395,
+     "output_tokens": 0
+    }
+   },
+   "status": "COMPLETED",
+   "workerId": "upcd8zneb1pez2",
+   "client_wall_s": 1.305,
+   "submitted_unix": 1792031561.479577
+  }
+ }
+}

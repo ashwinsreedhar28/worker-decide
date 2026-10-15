@@ -246,6 +246,19 @@ def _stats(values: list[float]) -> dict[str, float] | None:
     }
 
 
+V1_NOT_STORE = "not model_store (v1: download vs cache unknown)"
+
+
+def _source_label(c: dict[str, Any]) -> str:
+    """v1 told hf_download from hf_cache by blob growth (unsound: ~130 KB seen for 19 GB), so
+    its label is replaced; its model_store label came from the path check and stands. A miss
+    must still show: Oct 15 audit, arm B's summary read "model_store" over two fallbacks."""
+    src = c["snapshot_source"]
+    if c.get("fetch_metric") == "v2" or src == "model_store":
+        return src
+    return V1_NOT_STORE
+
+
 def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
     kinds = [row_kind(r) for r in rows]
     ok = [r for r, k in zip(rows, kinds, strict=True) if k == "cold"]
@@ -266,16 +279,7 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "suspect_warm_excluded": kinds.count("suspect_warm"),
         "gaps_s": sorted({r.get("gap_s") or 0 for r in rows}),
         "gpus": sorted({c["gpu"] for c in cold if c["gpu"]}),
-        # v1 told hf_download from hf_cache by blob growth (unsound: ~130 KB seen for 19 GB);
-        # its model_store label came from the path check and stands.
-        "snapshot_sources": sorted(
-            {
-                c["snapshot_source"]
-                for c in cold
-                if c["snapshot_source"]
-                and (c.get("fetch_metric") == "v2" or c["snapshot_source"] == "model_store")
-            }
-        ),
+        "snapshot_sources": sorted({_source_label(c) for c in cold if c["snapshot_source"]}),
         "fetch_metrics": sorted({c.get("fetch_metric") or "v1" for c in cold}),
         "idle_before": [r["idle_before"] for r in ok],
         "workers": [c["worker_id"] for c in cold],

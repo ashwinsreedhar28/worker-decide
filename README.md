@@ -82,8 +82,31 @@ without registry credentials). GPU: 48 GB for bf16 (what the Hub listing
 targets; weights are 19.1 GB and peak memory at 16k tokens has not been
 measured, so 24 GB is untested); 80 GB for fp32. Hosts must be CUDA 13.0
 (endpoint setting "Allowed CUDA versions"), the same filter worker-vllm uses.
-Attach a network volume with the weights, or give the worker ≥ 60 GB container
-disk and let the first start download them.
+Getting the weights to the worker, fastest first (A40 medians, REVIEW.md
+milestone 3):
+
+- **Model Store (recommended):** set the endpoint's cached model to
+  `Cloudflare/clef-flash`. The worker finds it under
+  `/runpod-volume/huggingface-cache/hub` and skips the fetch (in-process ready
+  16 s vs 28 s from container disk). The console caches the repo's `main`
+  and cannot pin a revision, while the worker serves only its pinned
+  `MODEL_REVISION` (`8b2e5fd`, which is `main` today). If upstream `main`
+  moves, the store holds a commit the worker is not pinned to, and the worker
+  fails at startup with an error naming the revisions present, rather than
+  serve weights the parity gates never saw. Fix by clearing the cached model
+  (the worker then downloads its pinned revision) or by re-pinning after a new
+  parity run. A host without the cached model at all is different: the worker
+  downloads the pinned revision (2 of 10 arm-B runs missed the store; their
+  timing matches a download).
+- **FlashBoot on top:** a job arriving within ~5 minutes of the last one
+  usually ran in the kept process (4 of 5 tries, 0.5 s queue delay); after 30+
+  minutes idle it was a cold start in 6 of 6 tries (one worker, one evening).
+- **Network volume** with the weights under `HF_HOME`
+  (`/runpod-volume/.cache/huggingface`): no download, but slower and more
+  variable weight loads (median 12.9 s, two of nine at ~38 s) and the endpoint
+  is pinned to the volume's data center.
+- **Container disk** (≥ 60 GB): every cold start downloads 19 GB (~14 s at
+  1.4 GB/s); disk does not survive scale-to-zero.
 
 - Queue endpoint: default settings; the CMD is already the handler.
 - Load-balancing endpoint: env `TRANSPORT=http`, expose HTTP port 8000, env

@@ -1,0 +1,121 @@
+{
+ "label": "flashboot-gap-60",
+ "endpoint_id": "7bmbtjrmxdedjo",
+ "iterations": 3,
+ "completed": 1,
+ "resumed": 2,
+ "suspect_warm_excluded": 0,
+ "gaps_s": [
+  60.0
+ ],
+ "gpus": [
+  "NVIDIA A40"
+ ],
+ "snapshot_sources": [
+  "model_store"
+ ],
+ "fetch_metrics": [
+  "v2"
+ ],
+ "idle_before": [
+  1
+ ],
+ "workers": [
+  "upcd8zneb1pez2"
+ ],
+ "workers_seen": 1,
+ "cold_delay_s": {
+  "n": 1,
+  "median": 24.072,
+  "p90": 24.072,
+  "min": 24.072,
+  "max": 24.072
+ },
+ "platform_est_s": {
+  "n": 1,
+  "median": 4.127,
+  "p90": 4.127,
+  "min": 4.127,
+  "max": 4.127
+ },
+ "ready_s": {
+  "n": 1,
+  "median": 19.945,
+  "p90": 19.945,
+  "min": 19.945,
+  "max": 19.945
+ },
+ "startup_s": {
+  "n": 1,
+  "median": 1.74,
+  "p90": 1.74,
+  "min": 1.74,
+  "max": 1.74
+ },
+ "fetch_s": {
+  "n": 1,
+  "median": 0.001,
+  "p90": 0.001,
+  "min": 0.001,
+  "max": 0.001
+ },
+ "import_s": {
+  "n": 1,
+  "median": 3.88,
+  "p90": 3.88,
+  "min": 3.88,
+  "max": 3.88
+ },
+ "weights_s": {
+  "n": 1,
+  "median": 14.324,
+  "p90": 14.324,
+  "min": 14.324,
+  "max": 14.324
+ },
+ "warmup_s": null,
+ "fetch_gb": {
+  "n": 1,
+  "median": 0.0,
+  "p90": 0.0,
+  "min": 0.0,
+  "max": 0.0
+ },
+ "fetch_gb_per_s": null,
+ "cold_exec_s": {
+  "n": 1,
+  "median": 0.936,
+  "p90": 0.936,
+  "min": 0.936,
+  "max": 0.936
+ },
+ "warm_exec_s": {
+  "n": 1,
+  "median": 0.373,
+  "p90": 0.373,
+  "min": 0.373,
+  "max": 0.373
+ },
+ "resumed_delay_s": {
+  "n": 2,
+  "median": 0.923,
+  "p90": 1.311,
+  "min": 0.536,
+  "max": 1.311
+ },
+ "resumed_exec_s": {
+  "n": 2,
+  "median": 0.313,
+  "p90": 0.326,
+  "min": 0.3,
+  "max": 0.326
+ },
+ "resumed_process_age_s": {
+  "n": 2,
+  "median": 144.4,
+  "p90": 189.2,
+  "min": 99.6,
+  "max": 189.2
+ },
+ "resumed_workers_seen": 1
+}
