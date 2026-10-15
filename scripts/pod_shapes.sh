@@ -6,13 +6,16 @@
 # shows the same split. scripts/shape_probe.py measures it directly and names the ops that grow.
 # Each environment variant runs in its own process (these settings are fixed at CUDA init):
 #
-#   1. fla-core installed and bound on the GPU (as pod_tier0.sh step 1, check only)
-#   2. probes, pulse record (843 tokens), 8 variants each:
-#        default  (with a profiler trace of one new/repeat pair, and the batch preview:
-#                 pulse + card_trio + long_2k in one batch vs one at a time)
-#        alloc    PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True   (allocator growth?)
-#        eager    CUDA_MODULE_LOADING=EAGER                          (lazy kernel loading?)
-#        lt       TORCH_BLAS_PREFER_CUBLASLT=1                       (GEMM path / heuristics?)
+#   1. fla-core installed and bound on the GPU (as pod_tier0.sh step 1, check only). The probes
+#      run either way: the per-length cost shows on the pure-torch path too, and each probe's
+#      manifest records which kernels ran (gdn_kernels).
+#   2. probes, pulse record (843 tokens), 8 variants each. The image sets
+#      PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True, so "default" includes it:
+#        default   (with a profiler trace of one new/repeat pair, and the batch preview:
+#                  pulse + card_trio + long_2k in one batch vs one at a time)
+#        noexpand  PYTORCH_CUDA_ALLOC_CONF=expandable_segments:False  (the allocator's mode?)
+#        eager     CUDA_MODULE_LOADING=EAGER                          (lazy kernel loading?)
+#        lt        TORCH_BLAS_PREFER_CUBLASLT=1                       (GEMM path / heuristics?)
 #      and default on long_2k (2,486 tokens), to see how the cost scales with length
 #   3. on a Runpod pod only: commit runs/ to m5/shapes-<gpu>-<date>-<hhmm> and push
 #
@@ -33,6 +36,9 @@ FLA_SPEC="${FLA_SPEC:-fla-core==0.5.2}"
 VARIANTS="${VARIANTS:-8}"
 export HF_HOME="${HF_HOME_POD:-/root/hf}"
 export TRITON_CACHE_DIR=/root/triton-cache-shapes  # shared by all probes: only the first compiles
+# The image's setting, made explicit: a shell that did not inherit the image's ENV (some SSH
+# sessions) would otherwise run "default" with the plain allocator.
+export PYTORCH_CUDA_ALLOC_CONF="${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True}"
 mkdir -p runs "$HF_HOME"
 LOG=runs/pod_shapes.log
 exec > >(tee -a "$LOG") 2>&1
@@ -70,14 +76,12 @@ if grep -q "chunk_gated_delta_rule: fla" runs/shapes-kernels.txt \
    && grep -q "fla device_platform: cuda" runs/shapes-kernels.txt \
    && grep -q "KERNEL_RAN" runs/shapes-kernels.txt; then
   record fla_active ok
-  FLA_OK=1
 else
-  record fla_active FAIL
-  FLA_OK=0
+  record fla_active "FAIL (probes run on whatever path transformers bound)"
 fi
 
 # ---- 2. probes -------------------------------------------------------------------------------
-if [ "$FLA_OK" = 1 ]; then
+{
   python3 -c "from huggingface_hub import snapshot_download as s; s('Cloudflare/clef-flash', revision='$(python3 -c "import json;print(json.load(open('fixtures/clef-flash/float32/manifest.json'))['revision'])")')" \
     > /dev/null && record weights_prefetched ok || record weights_prefetched FAIL
 
@@ -89,11 +93,11 @@ if [ "$FLA_OK" = 1 ]; then
       && record "probe_$name" ok || record "probe_$name" FAIL
   }
   probe default pulse --trace
-  PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True probe alloc pulse --batch-records
+  PYTORCH_CUDA_ALLOC_CONF=expandable_segments:False probe noexpand pulse --batch-records
   CUDA_MODULE_LOADING=EAGER probe eager pulse --batch-records
   TORCH_BLAS_PREFER_CUBLASLT=1 probe lt pulse --batch-records
   probe long long_2k --batch-records
-fi
+}
 
 # ---- 3. push ---------------------------------------------------------------------------------
 step "3. push"
