@@ -135,8 +135,13 @@ if want 4; then
   if ! command -v gcc >/dev/null; then
     apt-get update -qq && apt-get install -y -qq --no-install-recommends gcc g++ libc6-dev \
       >/dev/null && record compilers ok || record compilers FAIL
-    apt-get install -y -qq --no-install-recommends cuda-nvcc-13-0 >/dev/null 2>&1 \
-      || echo "cuda-nvcc-13-0 not installed (optional)"
+  fi
+  # Decided on its own, not with gcc: on an A40 pod that ran pod_shapes.sh/pod_tier1.sh first
+  # (gcc present, nvcc not), SGLang's JIT activation kernel for sm_86 failed with
+  # "/usr/local/cuda/bin/nvcc: not found" (Oct 15).
+  if [ ! -x /usr/local/cuda/bin/nvcc ]; then
+    { apt-get update -qq && apt-get install -y -qq --no-install-recommends cuda-nvcc-13-0; } \
+      >/dev/null 2>&1 && record nvcc ok || record nvcc "FAIL (SGLang JIT kernels will not build)"
   fi
   # Unconditional, so a rerun in the same container (compilers already there) gets it too.
   if [ -x /usr/local/cuda/bin/nvcc ]; then
