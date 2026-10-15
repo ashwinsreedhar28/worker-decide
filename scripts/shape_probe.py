@@ -20,10 +20,17 @@ events), plus the cudaMalloc count from torch.cuda.memory_stats. If new is slow 
 sibling are fast, the cost belongs to the shape, not the content. --trace profiles one new pass
 and its repeat under torch.profiler and writes the ops whose self CPU or CUDA time grew most,
 which names the cause (GEMM heuristics inside aten::mm, lazy kernel loading inside launches,
-allocator calls, or the head). The batch structure collate_records builds is written too, as
-groundwork for padding requests to shape buckets.
+allocator calls, or the head).
+
+Groundwork for batching (tier 1) and length buckets: the structure collate_records builds for
+one record, and a batch preview. The preview collates several records of different lengths and
+question shapes into one batch, describes the batch and the model's output, times the batched
+forward against the records one at a time, and compares each question's probabilities from
+the batch with the single-record run (pairing outputs in order; "comparable" is false when the
+flattened outputs do not line up one to one in shape).
 
     python scripts/shape_probe.py runs/shapes-h100 [--record pulse] [--variants 8] [--trace]
+        [--batch-records pulse card_trio long_2k]
 
 Run each environment variant in its own process (the pod script does): the allocator, module
 loading and BLAS choices are fixed at CUDA initialization.
@@ -136,6 +143,70 @@ def describe(obj: Any, depth: int = 0) -> Any:
     return type(obj).__name__
 
 
+def flatten_tensors(obj: Any) -> list[Any]:
+    """Every tensor in a nested output, depth first, in order (lists, tuples, dict values)."""
+    if hasattr(obj, "shape") and hasattr(obj, "dtype"):
+        return [obj]
+    if isinstance(obj, dict):
+        obj = list(obj.values())
+    if isinstance(obj, list | tuple):
+        return [t for v in obj for t in flatten_tensors(v)]
+    return []
+
+
+def compare_outputs(batched: Any, singles: list[Any]) -> dict[str, Any]:
+    """Per-question softmax of the batched output against the single-record outputs, in order."""
+    fb = flatten_tensors(batched)
+    fs = [t for s in singles for t in flatten_tensors(s)]
+    same = len(fb) == len(fs) and all(
+        tuple(a.shape) == tuple(b.shape) for a, b in zip(fb, fs, strict=False)
+    )
+    out: dict[str, Any] = {
+        "comparable": same,
+        "tensors_batched": len(fb),
+        "tensors_single": len(fs),
+    }
+    if same and fb:
+        d = [float((a.float().softmax(-1) - b.float().softmax(-1)).abs().max()) for a, b in
+             zip(fb, fs, strict=True)]  # fmt: skip
+        out["max_abs_dprob"] = round(max(d), 6)
+        out["per_tensor_max_abs_dprob"] = [round(x, 6) for x in d]
+    return out
+
+
+def batch_preview(engine, torch, encoded: list[Any], clock=time.perf_counter) -> dict[str, Any]:
+    """One batch of several records against the same records one at a time: structure, time
+    (second run of each, so neither pays a first-shape cost), and agreement."""
+    pad = engine.processor.tokenizer.pad_token_id
+
+    def run(recs):
+        t0 = clock()
+        with torch.inference_mode():
+            out = engine._forward(engine.jsm.collate_records(recs, pad, engine.device))
+        torch.cuda.synchronize()
+        return out, (clock() - t0) * 1000
+
+    res: dict[str, Any] = {"lengths": [len(e.input_ids) for e in encoded]}
+    try:
+        with torch.inference_mode():
+            res["batch"] = describe(engine.jsm.collate_records(encoded, pad, engine.device))
+        run(encoded)
+        batched, ms_b = run(encoded)
+        singles, ms_s = [], []
+        for e in encoded:
+            run([e])
+            o, ms = run([e])
+            singles.append(o)
+            ms_s.append(ms)
+        res |= {"output": describe(batched), "single_output": describe(singles[0]),
+                "batched_ms": round(ms_b, 2), "singles_ms": [round(x, 2) for x in ms_s],
+                "singles_ms_sum": round(sum(ms_s), 2),
+                **compare_outputs(batched, singles)}  # fmt: skip
+    except Exception as e:  # the probe's main job does not depend on this
+        res["error"] = f"{type(e).__name__}: {e}"[:500]
+    return res
+
+
 def blas_library(torch) -> str | None:
     """What torch will use for GEMMs (did TORCH_BLAS_PREFER_CUBLASLT take?), None if unknown."""
     try:
@@ -144,7 +215,8 @@ def blas_library(torch) -> str | None:
         return None
 
 
-def render(label: str, summary: dict[str, Any], diff: list[dict[str, Any]] | None) -> str:
+def render(label: str, summary: dict[str, Any], diff: list[dict[str, Any]] | None,
+           preview: dict[str, Any] | None = None) -> str:  # fmt: skip
     cols = (*SEGMENTS, "total")
     lines = [f"## Shape probe: {label}", "",
              "| kind | n | " + " | ".join(cols) + " | cudaMalloc |",
@@ -164,6 +236,16 @@ def render(label: str, summary: dict[str, Any], diff: list[dict[str, Any]] | Non
         for r in diff:
             lines.append(f"| `{r['op'][:70]}` | {r['d_cpu_ms']:+.3f} | {r['d_cuda_ms']:+.3f} | "
                          f"{r['count_new']} / {r['count_repeat']} |")  # fmt: skip
+    if preview:
+        lines += ["", f"Batch preview, lengths {preview.get('lengths')}: "]
+        if "error" in preview:
+            lines[-1] += f"error: {preview['error']}"
+        else:
+            agree = "outputs not comparable one to one"
+            if preview.get("comparable"):
+                agree = f"max |Δp| batched vs single {preview['max_abs_dprob']}"
+            lines[-1] += (f"batched {preview['batched_ms']} ms vs {preview['singles_ms_sum']} ms "
+                          f"one at a time; {agree}")  # fmt: skip
     return "\n".join(lines)
 
 
@@ -177,6 +259,8 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--warmup", type=int, default=3)
     ap.add_argument("--trace", action="store_true")
     ap.add_argument("--label", default=None)
+    ap.add_argument("--batch-records", nargs="*", default=["pulse", "card_trio", "long_2k"],
+                    help="records for the batch preview; none to skip it")  # fmt: skip
     a = ap.parse_args(argv)
 
     import torch
@@ -239,6 +323,14 @@ def main(argv: list[str] | None = None) -> None:
 
     summary = summarize(passes)
     diff = diff_ops(traced["new"], traced["repeat"]) if traced else None
+    preview = None
+    if a.batch_records:  # last, so its new shapes cannot warm anything measured above
+        recs = []
+        for rid in a.batch_records:
+            ln = load_line(None if rid == "pulse" else rid, "fixtures/requests/*.jsonl")
+            recs.append(engine.encode(record_for(ln["id"], ln)))
+        preview = batch_preview(engine, torch, recs) | {"records": a.batch_records}
+        (a.out_dir / "batch_preview.json").write_text(json.dumps(preview, indent=1))
     out = {
         "engine": engine.manifest(),
         "record": line["id"],
@@ -252,10 +344,11 @@ def main(argv: list[str] | None = None) -> None:
         "passes": passes,
         "summary": summary,
         "op_diff": diff,
+        "batch_preview": preview,
         "finished_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
     }
     (a.out_dir / "shape_probe.json").write_text(json.dumps(out, indent=1, default=str))
-    text = render(a.label or a.out_dir.name, summary, diff)
+    text = render(a.label or a.out_dir.name, summary, diff, preview)
     (a.out_dir / "shape_probe.md").write_text(text + "\n")
     print(text)
 
