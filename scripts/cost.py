@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
-"""Cost per 1,000 decisions from load-test results, next to Workers AI's price (milestone 5b).
+"""Cost per 1,000 requests from load-test results, next to Workers AI's price (milestone 5b).
 
 Steady-state model: a flex worker billed per second while it runs, kept busy at the measured
-throughput, costs  price_per_second / req_per_s  per decision. That is the floor for a busy
-worker; real traffic adds cold starts and the idle timeout (both billed), which this does not
-include (milestone 3 has the cold-start numbers). Workers AI charges per input token (output
+throughput, costs  price_per_second / req_per_s  per request (one request may carry several
+questions; both sides are priced per request). That is the floor for a busy worker; real
+traffic also pays the billed parts of a cold start (container start and model load; per
+Runpod's docs the image pull and the cached-model download are not billed) and the idle
+timeout, which this does not include (milestone 3 has the cold-start numbers). Cells with
+errors or no answers are not priced. Workers AI charges per input token (output
 tokens are free for Clef), so a decision costs input_tokens x price per token; M1 found its
 prompt_tokens equal to our encoder's input_tokens on all 50 Pulse records, so the same count
 is used for both.
@@ -46,7 +49,8 @@ def rows(load: dict[str, Any], gpu: str, prices: dict[str, Any]) -> list[dict[st
     out = []
     for c in load["cells"]:
         s, tokens = c["stats"], c.get("input_tokens")
-        rp = runpod_usd_per_1k(hourly, s.get("req_per_s") or 0.0)
+        clean = s.get("n", 0) > 0 and not s.get("errors")
+        rp = runpod_usd_per_1k(hourly, s.get("req_per_s") or 0.0) if clean else None
         hosted = workers_ai_usd_per_1k(tokens, wai) if tokens else None
         out.append(
             {
@@ -62,6 +66,9 @@ def rows(load: dict[str, Any], gpu: str, prices: dict[str, Any]) -> list[dict[st
                 "runpod_usd_per_1k": rp,
                 "workers_ai_usd_per_1k": hosted,
                 "runpod_over_workers_ai": (rp / hosted) if rp and hosted else None,
+                "excluded": None
+                if clean
+                else f"{s.get('errors', 0)} errors, {s.get('n', 0)} answers",
             }
         )
     return out
@@ -70,7 +77,7 @@ def rows(load: dict[str, Any], gpu: str, prices: dict[str, Any]) -> list[dict[st
 def render(all_rows: list[dict[str, Any]], prices: dict[str, Any]) -> str:
     wai = prices["workers_ai_clef_flash"]["usd_per_million_input_tokens"]
     lines = [
-        f"## Cost per 1,000 decisions (Runpod flex, steady state; Workers AI ${wai}/M input)",
+        f"## Cost per 1,000 requests (Runpod flex, steady state; Workers AI ${wai}/M input)",
         "",
         "| run | GPU | workload | tokens | concurrency | req/s | Runpod $/1k | Workers AI $/1k "
         "| Runpod / Workers AI |",
@@ -86,12 +93,13 @@ def render(all_rows: list[dict[str, Any]], prices: dict[str, Any]) -> str:
             f"| {r['label']} | {r['gpu']} ({r['tier']}, ${r['usd_per_hour']}/h) | {r['workload']} "
             f"| {r['input_tokens']} | {r['concurrency']} | {r['req_per_s']} "
             f"| {money(r['runpod_usd_per_1k'])} | {money(r['workers_ai_usd_per_1k'])} "
-            f"| {'-' if ratio is None else f'{ratio:.1f}x'} |"
+            f"| {'-' if ratio is None else f'{ratio:.2f}x'} |"
+            + (f" not priced: {r['excluded']}" if r["excluded"] else "")
         )
     lines += [
         "",
-        "Steady state: the worker is kept busy at the measured throughput. Cold starts and the "
-        "idle timeout are billed too and are not included.",
+        "Steady state: the worker is kept busy at the measured throughput. The billed parts of "
+        "cold starts and the idle timeout are not included.",
     ]
     return "\n".join(lines)
 
