@@ -77,7 +77,7 @@ def create_app(
                 "state": "error" if state["error"] else ("ready" if c else "loading"),
                 "error": state["error"],
                 "engine": c.info if c else None,
-                "batcher": dict(c.batcher.stats) if c and c.batcher else None,
+                "batcher": c.batcher.snapshot() if c and c.batcher else None,
                 "routes": ["POST /v1/decide", "POST /v1/systemone", "GET /ping", "GET /"],
             }
         )

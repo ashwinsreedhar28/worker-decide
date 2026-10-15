@@ -19,7 +19,13 @@ starves.
 
 Failures. If a batched run raises (an OOM on a large batch, say), each request is retried alone,
 so one bad request or one oversized batch does not fail its neighbours; a request that also
-fails alone gets its own exception.
+fails alone gets its own exception. If the batching thread itself fails (anything the run does
+not catch), every pending request gets an exception and the batcher closes, so no caller waits
+forever; callers should still wait with a timeout.
+
+Stats: "batches"/"requests" count runs attempted; "batched_ok" and "max_ok_size" count only
+multi-request runs that succeeded as a batch, so a run whose batches all failed and were
+retried alone shows max_ok_size 1 (or 0) and retried_alone > 0.
 """
 
 from __future__ import annotations
@@ -90,6 +96,12 @@ class Batcher:
     ):
         if max_batch < 1:
             raise ValueError("max_batch must be at least 1")
+        if max_ratio < 1:
+            raise ValueError(
+                "max_ratio must be at least 1 (lengths within max_ratio of each other)"
+            )
+        if max_padded_tokens < 1:
+            raise ValueError("max_padded_tokens must be at least 1")
         self.run_batch = run_batch
         self.max_batch = max_batch
         self.max_padded_tokens = max_padded_tokens
@@ -99,7 +111,9 @@ class Batcher:
         self.pending: list[Pending] = []
         self.cv = threading.Condition()
         self.closed = False
-        self.stats = {"batches": 0, "requests": 0, "retried_alone": 0, "max_size": 0}
+        self.stats = {"batches": 0, "requests": 0, "batched_ok": 0, "max_ok_size": 0,
+                      "retried_alone": 0, "stopped": None}  # fmt: skip
+        self.stats_lock = threading.Lock()
         self.thread = threading.Thread(target=self._loop, name="batcher", daemon=True)
         if start:
             self.thread.start()
@@ -148,9 +162,7 @@ class Batcher:
         """Run one batch and resolve its futures; retry alone on a batch-level failure."""
         if not batch:
             return
-        self.stats["batches"] += 1
-        self.stats["requests"] += len(batch)
-        self.stats["max_size"] = max(self.stats["max_size"], len(batch))
+        self.bump(batches=1, requests=len(batch))
         try:
             results = self.run_batch([p.payload for p in batch])
             if len(results) != len(batch):
@@ -159,10 +171,14 @@ class Batcher:
             if len(batch) == 1:
                 batch[0].future.set_exception(e)
                 return
-            self.stats["retried_alone"] += len(batch)
+            self.bump(retried_alone=len(batch))
             for p in batch:
                 self.run_alone(p)
             return
+        if len(batch) > 1:
+            self.bump(batched_ok=1, max_ok_size=len(batch))
+        else:
+            self.bump(max_ok_size=1)
         for p, r in zip(batch, results, strict=True):
             if isinstance(r, Exception):
                 p.future.set_exception(r)
@@ -183,11 +199,43 @@ class Batcher:
         else:
             p.future.set_result(r)
 
+    def bump(self, **delta: int) -> None:
+        """Counters add; max_ok_size keeps the maximum. Read through snapshot()."""
+        with self.stats_lock:
+            for k, v in delta.items():
+                if k == "max_ok_size":
+                    self.stats[k] = max(self.stats[k], v)
+                else:
+                    self.stats[k] += v
+
+    def snapshot(self) -> dict[str, Any]:
+        with self.stats_lock:
+            return dict(self.stats)
+
+    def stop(self, reason: BaseException, batch: list[Pending]) -> None:
+        """The thread is going down: fail its batch and everything pending, refuse new work."""
+        err = RuntimeError(f"batcher stopped: {type(reason).__name__}: {reason}")
+        with self.cv:
+            self.closed = True
+            orphans, self.pending = list(self.pending), []
+        with self.stats_lock:
+            self.stats["stopped"] = str(err)
+        for p in [*batch, *orphans]:
+            if not p.future.done():
+                p.future.set_exception(err)
+
     def _loop(self) -> None:
-        while True:
-            batch = self.take()
-            if not batch:
-                if self.closed:
-                    return
-                continue
-            self.run(batch)
+        batch: list[Pending] = []
+        try:
+            while True:
+                batch = self.take()
+                if not batch:
+                    if self.closed:
+                        return
+                    continue
+                self.run(batch)
+                batch = []
+        except BaseException as e:  # noqa: BLE001 - nobody else would resolve the futures
+            self.stop(e, batch)
+            if not isinstance(e, Exception):
+                raise

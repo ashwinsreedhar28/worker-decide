@@ -48,7 +48,8 @@ def test_one_run_for_compatible_requests_and_each_gets_its_own_result():
     b.run(b.take())  # b alone
     assert calls == [["a", "c"], ["b"]]
     assert [f.result(timeout=1) for f in futs] == ["A", "B", "C"]
-    assert b.stats == {"batches": 2, "requests": 3, "retried_alone": 0, "max_size": 2}
+    assert b.snapshot() == {"batches": 2, "requests": 3, "batched_ok": 1, "max_ok_size": 2,
+                            "retried_alone": 0, "stopped": None}  # fmt: skip
 
 
 def test_a_failed_batch_is_retried_alone_so_one_bad_request_fails_only_itself():
@@ -65,7 +66,8 @@ def test_a_failed_batch_is_retried_alone_so_one_bad_request_fails_only_itself():
     assert good.result(timeout=1) == "ok!"
     with pytest.raises(RuntimeError, match="kernel failed"):
         bad.result(timeout=1)
-    assert b.stats["retried_alone"] == 2
+    assert b.snapshot()["retried_alone"] == 2
+    assert b.snapshot()["batched_ok"] == 0  # the failed batch does not count as batched
 
 
 def test_exception_results_and_wrong_result_counts():
@@ -112,6 +114,10 @@ def test_closed_batcher_refuses_new_work_and_its_thread_exits():
         b.submit("q", 1)
     with pytest.raises(ValueError):
         Batcher(lambda ps: ps, max_batch=0, start=False)
+    with pytest.raises(ValueError, match="max_ratio"):
+        Batcher(lambda ps: ps, max_ratio=0.5, start=False)  # 0 would divide by zero in take()
+    with pytest.raises(ValueError, match="max_padded_tokens"):
+        Batcher(lambda ps: ps, max_padded_tokens=0, start=False)
 
 
 def test_requests_arriving_during_a_forward_share_the_next_one():
@@ -154,3 +160,73 @@ def test_max_wait_stops_early_when_the_batch_is_full():
     assert time.monotonic() - t0 < 2  # did not sit out the 5 s window
     assert sizes == [2]
     b.close()
+
+
+def test_a_longer_request_raises_the_padding_of_later_choices():
+    # 1,100 joins (2 x 1,100 = 2,200); 850 would make 3 x 1,100 = 3,300 > 3,200, though
+    # 3 x 1,000 (the oldest's length) would have fit
+    assert select_batch([1_000, 1_100, 850], 8, 3_200, 2.0) == [0, 1]
+
+
+def test_max_wait_counts_from_the_oldest_requests_arrival():
+    b = unstarted(lambda ps: ps, max_batch=4, max_wait_ms=300)
+    b.submit("p", 10)
+    time.sleep(0.2)
+    t0 = time.monotonic()
+    assert [p.payload for p in b.take()] == ["p"]
+    assert time.monotonic() - t0 < 0.25  # ~0.1 s left of the window, not a fresh 0.3 s
+
+
+def test_close_interrupts_a_max_wait_and_pending_work_is_still_answered():
+    b = unstarted(lambda ps: ps, max_batch=4, max_wait_ms=5_000)
+    b.submit("p", 10)
+    got = []
+    t = threading.Thread(target=lambda: got.append(b.take()))
+    t.start()
+    time.sleep(0.05)
+    with b.cv:
+        b.closed = True
+        b.cv.notify()
+    t.join(1)
+    assert not t.is_alive() and [p.payload for p in got[0]] == ["p"]
+
+    slow = Batcher(lambda ps: time.sleep(0.05) or ps, max_batch=1)
+    futs = [slow.submit(i, 10) for i in range(4)]
+    slow.close()  # drains what was submitted before close
+    assert [f.result(timeout=2) for f in futs] == [0, 1, 2, 3]
+
+
+def test_an_exception_result_on_the_retry_alone_path_is_raised():
+    def run_batch(ps):
+        if len(ps) > 1:
+            raise RuntimeError("OOM")
+        return [ValueError("rejected") if ps[0] == "x" else ps[0]]
+
+    b = unstarted(run_batch)
+    fx, fy = b.submit("x", 10), b.submit("y", 10)
+    b.run(b.take())
+    with pytest.raises(ValueError, match="rejected"):
+        fx.result(timeout=1)
+    assert fy.result(timeout=1) == "y"
+
+
+@pytest.mark.filterwarnings("ignore::pytest.PytestUnhandledThreadExceptionWarning")  # re-raised
+def test_if_the_thread_dies_every_waiting_request_fails_and_new_work_is_refused():
+    started = threading.Event()
+
+    def run_batch(ps):
+        started.set()
+        time.sleep(0.05)
+        raise KeyboardInterrupt  # a BaseException: not caught by the per-batch handler
+
+    b = Batcher(run_batch, max_batch=1)
+    first = b.submit("a", 10)
+    assert started.wait(2)
+    second = b.submit("b", 10)  # pending while the first batch runs
+    for f in (first, second):
+        with pytest.raises(RuntimeError, match="batcher stopped: KeyboardInterrupt"):
+            f.result(timeout=2)
+    b.thread.join(2)
+    assert not b.thread.is_alive() and b.snapshot()["stopped"]
+    with pytest.raises(RuntimeError, match="closed"):
+        b.submit("c", 10)
