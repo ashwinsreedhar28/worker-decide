@@ -1,0 +1,1 @@
+{"id": "schema_overflow", "request_sha": "fe2cc87a24d0f42f75f2ade176a011822a07d3202878e0c6f81cace4434c6286", "encoding": null, "questions": [], "response": null, "usage_input_tokens": null, "error": "http 400: \"the questions need 475198 prompt tokens before the state, but the prompt holds at most 16384\"", "timing_ms": {"wall": 2383.3}}

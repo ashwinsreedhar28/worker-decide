@@ -1,0 +1,711 @@
+== pod_chain.sh 2026-10-15T20:25:38Z == commit c811d8c chain: pod_shapes.sh pod_tier1.sh
+---- pod_shapes.sh (20:25:38)
+== pod_shapes.sh 2026-10-15T20:25:38Z == commit c811d8c  gpu NVIDIA A40 (a40)
+
+==== 1. fla-core (20:25:38) ====
+W: https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/InRelease: Key is stored in legacy trusted.gpg keyring (/etc/apt/trusted.gpg), see the DEPRECATION section in apt-key(8) for details.
+debconf: delaying package configuration, since apt-utils is not installed
+[status] compilers_headers: ok
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+chunk_gated_delta_rule: fla.ops.gated_delta_rule.chunk
+fla device_platform: cuda
+KERNEL_RAN
+[status] fla_active: ok
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Fetching 17 files:   6%|▌         | 1/17 [00:00<00:02,  5.67it/s]Fetching 17 files:  47%|████▋     | 8/17 [00:00<00:00, 27.82it/s]Fetching 17 files:  65%|██████▍   | 11/17 [00:00<00:00, 21.44it/s]Fetching 17 files:  82%|████████▏ | 14/17 [00:08<00:02,  1.13it/s]Fetching 17 files:  94%|█████████▍| 16/17 [00:12<00:01,  1.18s/it]Fetching 17 files: 100%|██████████| 17/17 [00:14<00:00,  1.30s/it]Fetching 17 files: 100%|██████████| 17/17 [00:14<00:00,  1.19it/s]
+[status] weights_prefetched: ok
+
+==== 2. probe default (pulse) (20:26:43) ====
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 1335.72it/s]
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+Loading weights:   0%|          | 0/760 [00:00<?, ?it/s]Loading weights:   0%|          | 1/760 [00:00<05:20,  2.37it/s]Loading weights:   0%|          | 2/760 [00:00<04:57,  2.55it/s]Loading weights:   3%|▎         | 23/760 [00:00<00:18, 38.85it/s]Loading weights:   5%|▍         | 37/760 [00:01<00:13, 55.46it/s]Loading weights:   6%|▌         | 47/760 [00:01<00:12, 57.67it/s]Loading weights:   9%|▉         | 67/760 [00:01<00:08, 83.43it/s]Loading weights:  11%|█         | 81/760 [00:01<00:07, 91.43it/s]Loading weights:  12%|█▎        | 95/760 [00:01<00:06, 98.27it/s]Loading weights:  14%|█▍        | 107/760 [00:01<00:06, 94.28it/s]Loading weights:  16%|█▌        | 121/760 [00:01<00:06, 98.88it/s]Loading weights:  18%|█▊        | 135/760 [00:01<00:06, 102.89it/s]Loading weights:  19%|█▉        | 147/760 [00:02<00:06, 95.13it/s] Loading weights:  21%|██        | 157/760 [00:02<00:09, 64.93it/s]Loading weights:  22%|██▏       | 168/760 [00:02<00:08, 70.67it/s]Loading weights:  23%|██▎       | 177/760 [00:02<00:08, 71.55it/s]Loading weights:  25%|██▍       | 187/760 [00:02<00:07, 77.16it/s]Loading weights:  26%|██▌       | 196/760 [00:02<00:07, 79.37it/s]Loading weights:  27%|██▋       | 205/760 [00:03<00:09, 58.05it/s]Loading weights:  28%|██▊       | 213/760 [00:03<00:10, 53.65it/s]Loading weights:  30%|██▉       | 227/760 [00:03<00:07, 67.57it/s]Loading weights:  32%|███▏      | 240/760 [00:03<00:06, 77.15it/s]Loading weights:  33%|███▎      | 253/760 [00:03<00:05, 85.36it/s]Loading weights:  35%|███▌      | 266/760 [00:03<00:05, 94.44it/s]Loading weights:  37%|███▋      | 280/760 [00:03<00:04, 99.71it/s]Loading weights:  39%|███▊      | 294/760 [00:04<00:04, 104.84it/s]Loading weights:  41%|████      | 308/760 [00:04<00:04, 107.65it/s]Loading weights:  42%|████▏     | 320/760 [00:04<00:04, 107.61it/s]Loading weights:  44%|████▎     | 332/760 [00:04<00:04, 105.46it/s]Loading weights:  45%|████▌     | 344/760 [00:04<00:04, 97.18it/s] Loading weights:  47%|████▋     | 354/760 [00:04<00:04, 89.60it/s]Loading weights:  48%|████▊     | 364/760 [00:04<00:05, 69.60it/s]Loading weights:  49%|████▉     | 373/760 [00:04<00:05, 73.82it/s]Loading weights:  51%|█████     | 385/760 [00:05<00:04, 81.21it/s]Loading weights:  53%|█████▎    | 400/760 [00:05<00:03, 94.29it/s]Loading weights:  54%|█████▍    | 414/760 [00:05<00:03, 100.60it/s]Loading weights:  56%|█████▌    | 425/760 [00:05<00:03, 100.66it/s]Loading weights:  71%|███████   | 540/760 [00:05<00:00, 372.29it/s]Loading weights:  87%|████████▋ | 659/760 [00:05<00:00, 591.94it/s]Loading weights:  99%|█████████▉| 755/760 [00:05<00:00, 680.77it/s]Loading weights: 100%|██████████| 760/760 [00:05<00:00, 131.99it/s]
+/usr/local/lib/python3.12/dist-packages/torch/profiler/profiler.py:224: UserWarning: Warning: Profiler clears events at the end of each cycle.Only events from the current cycle will be reported.To keep events across cycles, set acc_events=True.
+  _warn_once(
+## Shape probe: default, pulse, a40
+
+Environment: PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True, TRITON_CACHE_DIR=/root/triton-cache-shapes, preferred_blas=_BlasBackend.Cublas
+
+| kind | n | encode | collate | pre | backbone | head | post | total | device allocs |
+|---|---|---|---|---|---|---|---|---|---|
+| new | 7 | 2.8 | 0.3 | 0.1 | 168.1 | 6.0 | 0.1 | 176.9 | 0 |
+| repeat | 7 | 2.6 | 0.3 | 0.1 | 167.8 | 5.2 | 0.1 | 176.7 | 0 |
+| sibling | 8 | 2.8 | 0.3 | 0.1 | 167.6 | 5.5 | 0.1 | 176.8 | 0.0 |
+| new - repeat | | +0.2 | +0.0 | +0.0 | +0.2 | +0.9 | +0.0 | +0.2 | |
+
+Ops that grew most on a new token count (new pass minus repeat pass):
+
+| op | Δ self CPU ms | Δ self CUDA ms | calls new / repeat |
+|---|---|---|---|
+| `ChunkGatedDeltaRuleFunction` | +0.403 | +0.006 | 24 / 24 |
+| `aten::mm` | +0.154 | +0.074 | 254 / 254 |
+| `void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_12` | +0.000 | +0.109 | 32 / 32 |
+| `aten::copy_` | +0.021 | +0.050 | 436 / 436 |
+| `aten::transpose` | +0.061 | +0.000 | 519 / 519 |
+| `aten::addmm` | +0.063 | -0.002 | 42 / 42 |
+| `aten::_conv_depthwise2d` | +0.034 | +0.026 | 24 / 24 |
+| `aten::empty` | +0.059 | +0.000 | 467 / 467 |
+| `aten::matmul` | +0.059 | +0.000 | 257 / 257 |
+| `aten::clone` | +0.041 | +0.000 | 134 / 134 |
+| `void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_imp` | +0.000 | +0.040 | 133 / 133 |
+| `aten::pow` | +0.033 | +0.003 | 81 / 81 |
+| `aten::sigmoid` | +0.031 | +0.001 | 33 / 33 |
+| `void at::native::(anonymous namespace)::conv_depthwise2d_forward_kerne` | +0.000 | +0.026 | 24 / 24 |
+| `aten::reshape` | +0.023 | +0.000 | 532 / 532 |
+
+Batch preview, lengths [843, 300, 2486]: batched 1398.08 ms vs 724.55 ms one at a time; outputs not comparable one to one
+[status] probe_default: ok
+
+==== 2. probe noexpand (pulse) (20:27:38) ====
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 1395.78it/s]
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+Loading weights:   0%|          | 0/760 [00:00<?, ?it/s]Loading weights:   0%|          | 1/760 [00:00<01:58,  6.40it/s]Loading weights:   0%|          | 2/760 [00:00<02:53,  4.36it/s]Loading weights:   2%|▏         | 15/760 [00:00<00:19, 37.65it/s]Loading weights:   4%|▍         | 29/760 [00:00<00:11, 62.45it/s]Loading weights:   6%|▌         | 43/760 [00:00<00:08, 79.76it/s]Loading weights:   7%|▋         | 53/760 [00:00<00:08, 83.16it/s]Loading weights:   9%|▉         | 67/760 [00:00<00:07, 98.58it/s]Loading weights:  11%|█         | 81/760 [00:01<00:06, 103.90it/s]Loading weights:  12%|█▎        | 95/760 [00:01<00:06, 108.60it/s]Loading weights:  14%|█▍        | 107/760 [00:01<00:06, 101.05it/s]Loading weights:  16%|█▌        | 120/760 [00:01<00:06, 102.88it/s]Loading weights:  18%|█▊        | 135/760 [00:01<00:05, 110.92it/s]Loading weights:  19%|█▉        | 148/760 [00:01<00:05, 111.43it/s]Loading weights:  21%|██        | 160/760 [00:01<00:05, 107.78it/s]Loading weights:  24%|██▍       | 182/760 [00:01<00:04, 133.39it/s]Loading weights:  26%|██▋       | 200/760 [00:02<00:04, 138.97it/s]Loading weights:  28%|██▊       | 215/760 [00:02<00:04, 122.76it/s]Loading weights:  30%|███       | 228/760 [00:02<00:04, 120.30it/s]Loading weights:  32%|███▏      | 241/760 [00:02<00:04, 117.52it/s]Loading weights:  33%|███▎      | 253/760 [00:02<00:04, 113.31it/s]Loading weights:  35%|███▍      | 265/760 [00:02<00:04, 113.76it/s]Loading weights:  37%|███▋      | 280/760 [00:02<00:04, 117.22it/s]Loading weights:  39%|███▊      | 294/760 [00:02<00:03, 117.28it/s]Loading weights:  41%|████      | 308/760 [00:03<00:03, 118.74it/s]Loading weights:  42%|████▏     | 320/760 [00:03<00:03, 117.03it/s]Loading weights:  44%|████▍     | 333/760 [00:03<00:03, 114.54it/s]Loading weights:  46%|████▌     | 347/760 [00:03<00:03, 116.66it/s]Loading weights:  48%|████▊     | 361/760 [00:03<00:03, 118.27it/s]Loading weights:  49%|████▉     | 373/760 [00:03<00:03, 115.56it/s]Loading weights:  51%|█████     | 386/760 [00:03<00:03, 113.80it/s]Loading weights:  53%|█████▎    | 400/760 [00:03<00:03, 116.55it/s]Loading weights:  54%|█████▍    | 414/760 [00:03<00:02, 118.60it/s]Loading weights:  56%|█████▌    | 426/760 [00:04<00:02, 116.11it/s]Loading weights:  71%|███████   | 536/760 [00:04<00:00, 386.76it/s]Loading weights:  87%|████████▋ | 658/760 [00:04<00:00, 617.95it/s]Loading weights:  99%|█████████▉| 755/760 [00:04<00:00, 699.65it/s]Loading weights: 100%|██████████| 760/760 [00:04<00:00, 174.03it/s]
+## Shape probe: noexpand, pulse, a40
+
+Environment: PYTORCH_CUDA_ALLOC_CONF=expandable_segments:False, TRITON_CACHE_DIR=/root/triton-cache-shapes, preferred_blas=_BlasBackend.Cublas
+
+| kind | n | encode | collate | pre | backbone | head | post | total | device allocs |
+|---|---|---|---|---|---|---|---|---|---|
+| new | 8 | 2.5 | 0.3 | 0.1 | 168.4 | 4.8 | 0.1 | 176.3 | 0.0 |
+| repeat | 8 | 2.5 | 0.3 | 0.1 | 168.6 | 4.7 | 0.1 | 176.3 | 0.0 |
+| sibling | 8 | 2.5 | 0.3 | 0.1 | 168.9 | 4.8 | 0.1 | 176.9 | 0.0 |
+| new - repeat | | +0.0 | +0.0 | +0.0 | -0.1 | +0.2 | +0.0 | +0.1 | |
+[status] probe_noexpand: ok
+
+==== 2. probe eager (pulse) (20:27:59) ====
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 1413.29it/s]
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+Loading weights:   0%|          | 0/760 [00:00<?, ?it/s]Loading weights:   0%|          | 1/760 [00:00<05:44,  2.21it/s]Loading weights:   3%|▎         | 20/760 [00:00<00:16, 45.46it/s]Loading weights:   5%|▍         | 37/760 [00:00<00:09, 73.30it/s]Loading weights:   6%|▋         | 49/760 [00:00<00:09, 71.84it/s]Loading weights:   9%|▉         | 67/760 [00:00<00:07, 92.56it/s]Loading weights:  11%|█         | 80/760 [00:01<00:07, 92.34it/s]Loading weights:  12%|█▏        | 94/760 [00:01<00:06, 99.67it/s]Loading weights:  14%|█▍        | 107/760 [00:01<00:06, 103.56it/s]Loading weights:  16%|█▌        | 121/760 [00:01<00:05, 107.58it/s]Loading weights:  18%|█▊        | 135/760 [00:01<00:05, 110.52it/s]Loading weights:  20%|█▉        | 149/760 [00:01<00:05, 112.61it/s]Loading weights:  21%|██        | 161/760 [00:01<00:05, 108.54it/s]Loading weights:  23%|██▎       | 174/760 [00:01<00:05, 108.31it/s]Loading weights:  25%|██▍       | 188/760 [00:02<00:05, 111.70it/s]Loading weights:  27%|██▋       | 202/760 [00:02<00:04, 113.30it/s]Loading weights:  28%|██▊       | 214/760 [00:02<00:04, 113.89it/s]Loading weights:  30%|██▉       | 226/760 [00:02<00:04, 110.40it/s]Loading weights:  32%|███▏      | 241/760 [00:02<00:04, 115.32it/s]Loading weights:  34%|███▎      | 255/760 [00:02<00:04, 116.68it/s]Loading weights:  35%|███▌      | 267/760 [00:02<00:04, 115.13it/s]Loading weights:  37%|███▋      | 279/760 [00:02<00:04, 110.45it/s]Loading weights:  39%|███▊      | 294/760 [00:02<00:03, 120.75it/s]Loading weights:  40%|████      | 307/760 [00:03<00:03, 121.32it/s]Loading weights:  42%|████▏     | 320/760 [00:03<00:03, 121.75it/s]Loading weights:  44%|████▍     | 333/760 [00:03<00:03, 118.76it/s]Loading weights:  46%|████▌     | 347/760 [00:03<00:03, 120.38it/s]Loading weights:  48%|████▊     | 361/760 [00:03<00:03, 118.81it/s]Loading weights:  49%|████▉     | 373/760 [00:03<00:03, 117.31it/s]Loading weights:  51%|█████     | 386/760 [00:03<00:03, 116.07it/s]Loading weights:  53%|█████▎    | 400/760 [00:03<00:03, 118.80it/s]Loading weights:  54%|█████▍    | 414/760 [00:03<00:02, 119.49it/s]Loading weights:  56%|█████▌    | 426/760 [00:04<00:02, 116.32it/s]Loading weights:  71%|███████▏  | 543/760 [00:04<00:00, 406.25it/s]Loading weights:  87%|████████▋ | 659/760 [00:04<00:00, 611.97it/s]Loading weights:  99%|█████████▉| 756/760 [00:04<00:00, 713.25it/s]Loading weights: 100%|██████████| 760/760 [00:04<00:00, 172.63it/s]
+## Shape probe: eager, pulse, a40
+
+Environment: PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True, CUDA_MODULE_LOADING=EAGER, TRITON_CACHE_DIR=/root/triton-cache-shapes, preferred_blas=_BlasBackend.Cublas
+
+| kind | n | encode | collate | pre | backbone | head | post | total | device allocs |
+|---|---|---|---|---|---|---|---|---|---|
+| new | 8 | 2.5 | 0.3 | 0.1 | 168.7 | 4.6 | 0.1 | 176.5 | 0.0 |
+| repeat | 8 | 2.5 | 0.3 | 0.1 | 168.8 | 4.7 | 0.1 | 176.6 | 0.0 |
+| sibling | 8 | 2.5 | 0.3 | 0.1 | 169.2 | 4.6 | 0.1 | 176.9 | 0.0 |
+| new - repeat | | +0.0 | +0.0 | +0.0 | -0.0 | -0.1 | +0.0 | -0.1 | |
+[status] probe_eager: ok
+
+==== 2. probe lt (pulse) (20:28:22) ====
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 1277.26it/s]
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+Loading weights:   0%|          | 0/760 [00:00<?, ?it/s]Loading weights:   0%|          | 1/760 [00:00<01:57,  6.47it/s]Loading weights:   0%|          | 2/760 [00:00<02:58,  4.25it/s]Loading weights:   2%|▏         | 15/760 [00:00<00:20, 37.04it/s]Loading weights:   4%|▍         | 33/760 [00:00<00:09, 75.66it/s]Loading weights:   6%|▌         | 44/760 [00:00<00:08, 81.36it/s]Loading weights:   7%|▋         | 55/760 [00:00<00:08, 86.71it/s]Loading weights:   9%|▉         | 68/760 [00:00<00:07, 93.72it/s]Loading weights:  11%|█         | 82/760 [00:01<00:06, 105.29it/s]Loading weights:  13%|█▎        | 99/760 [00:01<00:05, 116.45it/s]Loading weights:  15%|█▌        | 115/760 [00:01<00:05, 127.58it/s]Loading weights:  17%|█▋        | 129/760 [00:01<00:04, 127.03it/s]Loading weights:  19%|█▉        | 143/760 [00:01<00:05, 123.25it/s]Loading weights:  21%|██        | 156/760 [00:01<00:05, 102.85it/s]Loading weights:  23%|██▎       | 172/760 [00:01<00:05, 115.20it/s]Loading weights:  24%|██▍       | 186/760 [00:01<00:04, 116.80it/s]Loading weights:  26%|██▋       | 200/760 [00:02<00:04, 115.25it/s]Loading weights:  28%|██▊       | 212/760 [00:02<00:05, 104.08it/s]Loading weights:  30%|██▉       | 226/760 [00:02<00:04, 110.01it/s]Loading weights:  32%|███▏      | 240/760 [00:02<00:04, 111.87it/s]Loading weights:  33%|███▎      | 254/760 [00:02<00:04, 118.05it/s]Loading weights:  35%|███▌      | 267/760 [00:02<00:04, 113.28it/s]Loading weights:  37%|███▋      | 280/760 [00:02<00:04, 112.26it/s]Loading weights:  39%|███▊      | 294/760 [00:02<00:04, 114.68it/s]Loading weights:  40%|████      | 307/760 [00:03<00:04, 111.67it/s]Loading weights:  42%|████▏     | 319/760 [00:03<00:03, 111.27it/s]Loading weights:  44%|████▍     | 333/760 [00:03<00:03, 113.50it/s]Loading weights:  46%|████▌     | 347/760 [00:03<00:03, 116.49it/s]Loading weights:  48%|████▊     | 361/760 [00:03<00:03, 117.14it/s]Loading weights:  49%|████▉     | 373/760 [00:03<00:03, 116.37it/s]Loading weights:  51%|█████     | 385/760 [00:03<00:03, 112.84it/s]Loading weights:  52%|█████▎    | 399/760 [00:03<00:03, 115.33it/s]Loading weights:  54%|█████▍    | 414/760 [00:03<00:02, 120.47it/s]Loading weights:  56%|█████▌    | 427/760 [00:04<00:02, 120.33it/s]Loading weights:  71%|███████   | 536/760 [00:04<00:00, 388.01it/s]Loading weights:  86%|████████▌ | 651/760 [00:04<00:00, 600.89it/s]Loading weights:  99%|█████████▉| 753/760 [00:04<00:00, 712.31it/s]Loading weights: 100%|██████████| 760/760 [00:04<00:00, 173.39it/s]
+## Shape probe: lt, pulse, a40
+
+Environment: PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True, TORCH_BLAS_PREFER_CUBLASLT=1, TRITON_CACHE_DIR=/root/triton-cache-shapes, preferred_blas=_BlasBackend.Cublaslt
+
+| kind | n | encode | collate | pre | backbone | head | post | total | device allocs |
+|---|---|---|---|---|---|---|---|---|---|
+| new | 8 | 2.4 | 0.3 | 0.1 | 162.9 | 4.8 | 0.1 | 170.7 | 0.0 |
+| repeat | 8 | 2.4 | 0.3 | 0.1 | 162.7 | 4.5 | 0.1 | 170.4 | 0.0 |
+| sibling | 8 | 2.4 | 0.3 | 0.1 | 163.3 | 4.6 | 0.1 | 170.9 | 0.0 |
+| new - repeat | | +0.0 | -0.0 | +0.0 | +0.2 | +0.2 | +0.0 | +0.3 | |
+[status] probe_lt: ok
+
+==== 2. probe long (long_2k) (20:28:44) ====
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 1400.68it/s]
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+Loading weights:   0%|          | 0/760 [00:00<?, ?it/s]Loading weights:   0%|          | 1/760 [00:00<05:45,  2.20it/s]Loading weights:   3%|▎         | 22/760 [00:00<00:15, 48.83it/s]Loading weights:   4%|▍         | 33/760 [00:00<00:11, 61.19it/s]Loading weights:   6%|▌         | 46/760 [00:00<00:09, 75.87it/s]Loading weights:   8%|▊         | 60/760 [00:00<00:07, 91.82it/s]Loading weights:  10%|█         | 76/760 [00:01<00:06, 103.37it/s]Loading weights:  12%|█▏        | 90/760 [00:01<00:06, 110.71it/s]Loading weights:  14%|█▎        | 103/760 [00:01<00:06, 96.22it/s]Loading weights:  16%|█▌        | 120/760 [00:01<00:05, 108.96it/s]Loading weights:  18%|█▊        | 134/760 [00:01<00:05, 112.33it/s]Loading weights:  19%|█▉        | 148/760 [00:01<00:05, 115.09it/s]Loading weights:  21%|██        | 161/760 [00:01<00:05, 106.09it/s]Loading weights:  24%|██▍       | 182/760 [00:01<00:04, 128.14it/s]Loading weights:  26%|██▋       | 201/760 [00:02<00:04, 136.88it/s]Loading weights:  29%|██▉       | 221/760 [00:02<00:03, 149.83it/s]Loading weights:  31%|███       | 237/760 [00:02<00:03, 143.13it/s]Loading weights:  33%|███▎      | 252/760 [00:02<00:03, 136.45it/s]Loading weights:  35%|███▌      | 266/760 [00:02<00:04, 112.88it/s]Loading weights:  37%|███▋      | 280/760 [00:02<00:04, 113.60it/s]Loading weights:  39%|███▊      | 294/760 [00:02<00:04, 114.92it/s]Loading weights:  41%|████      | 308/760 [00:02<00:03, 116.57it/s]Loading weights:  42%|████▏     | 320/760 [00:03<00:03, 113.89it/s]Loading weights:  44%|████▍     | 333/760 [00:03<00:03, 113.67it/s]Loading weights:  46%|████▌     | 347/760 [00:03<00:03, 116.07it/s]Loading weights:  47%|████▋     | 360/760 [00:03<00:03, 115.05it/s]Loading weights:  49%|████▉     | 372/760 [00:03<00:03, 115.25it/s]Loading weights:  51%|█████     | 385/760 [00:03<00:03, 114.11it/s]Loading weights:  53%|█████▎    | 400/760 [00:03<00:03, 119.50it/s]Loading weights:  54%|█████▍    | 414/760 [00:03<00:02, 120.76it/s]Loading weights:  56%|█████▌    | 427/760 [00:03<00:02, 120.36it/s]Loading weights:  71%|███████▏  | 543/760 [00:04<00:00, 405.67it/s]Loading weights:  87%|████████▋ | 662/760 [00:04<00:00, 626.74it/s]Loading weights:  99%|█████████▉| 755/760 [00:04<00:00, 712.93it/s]Loading weights: 100%|██████████| 760/760 [00:04<00:00, 178.23it/s]
+## Shape probe: long, long_2k, a40
+
+Environment: PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True, TRITON_CACHE_DIR=/root/triton-cache-shapes, preferred_blas=_BlasBackend.Cublas
+
+| kind | n | encode | collate | pre | backbone | head | post | total | device allocs |
+|---|---|---|---|---|---|---|---|---|---|
+| new | 8 | 5.4 | 0.6 | 0.1 | 459.0 | 6.1 | 0.1 | 471.1 | 0.0 |
+| repeat | 8 | 5.5 | 0.6 | 0.1 | 459.1 | 6.1 | 0.1 | 472.0 | 0.0 |
+| sibling | 8 | 5.7 | 0.6 | 0.1 | 459.8 | 5.9 | 0.1 | 472.2 | 0.0 |
+| new - repeat | | -0.2 | +0.0 | +0.0 | -0.1 | -0.1 | -0.0 | -0.8 | |
+[status] probe_long: ok
+
+==== 3. push (20:29:13) ====
+compilers_headers: ok
+fla_active: ok
+weights_prefetched: ok
+probe_default: ok
+probe_noexpand: ok
+probe_eager: ok
+probe_lt: ok
+probe_long: ok
+remote: 
+remote: Create a pull request for 'm5/shapes-a40-20261015-2029' on GitHub by visiting:        
+remote:      https://github.com/ashwinsreedhar28/worker-decide/pull/new/m5/shapes-a40-20261015-2029        
+remote: 
+pushed m5/shapes-a40-20261015-2029
+== done 2026-10-15T20:29:15Z ==
+---- pod_shapes.sh exited 0 (20:29:15)
+---- pod_tier1.sh (20:29:15)
+== pod_tier1.sh 2026-10-15T20:29:15Z == commit 08b2981  gpu NVIDIA A40 (a40)  batch 8
+
+==== 1. fla-core (20:29:15) ====
+chunk_gated_delta_rule: fla.ops.gated_delta_rule.chunk
+fla device_platform: cuda
+KERNEL_RAN
+[status] fla_active: ok
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 1551.49it/s]
+[status] weights_prefetched: ok
+
+==== 2. worker with BATCH_MAX=8 (20:29:53) ====
+[status] worker_batched: ok
+[wait] polling http://127.0.0.1:8000/ping until the worker is ready
+[  1/87] schema_overflow          tokens=     -    3948.5 ms  ERROR http 400: schema requires 475198 tokens before state; maximu
+[  2/87] intent77                 tokens=  1379    4390.6 ms
+[  3/87] opts255                  tokens=  8641   31834.7 ms
+[  4/87] q64                      tokens=  5538   43311.7 ms
+[  5/87] score10                  tokens=   349   55184.2 ms
+[  6/87] empty_instructions       tokens=   203   55256.9 ms
+[  7/87] unicode_options          tokens=   270   55340.8 ms
+[  8/87] list_state               tokens=   386   55445.8 ms
+[  9/87] triage_support           tokens=   475   51611.7 ms
+[ 10/87] tool_select              tokens=   450   51283.7 ms
+[ 11/87] invoice_extract          tokens=   561   23968.4 ms
+[ 12/87] rag_relevance_1          tokens=   312   13028.8 ms
+[ 13/87] rag_relevance_2          tokens=   301    1244.0 ms
+[ 14/87] rag_relevance_3          tokens=   302    1259.4 ms
+[ 15/87] moderation               tokens=   285    1261.8 ms
+[ 16/87] near_dup_a               tokens=   232    1234.5 ms
+[ 17/87] near_dup_b               tokens=   232    1207.3 ms
+[ 18/87] near_dup_c               tokens=   232    1174.7 ms
+[ 19/87] card_trio                tokens=   300    2072.7 ms
+[ 20/87] no_instruction           tokens=   184    1615.7 ms
+[ 21/87] img_receipt              tokens=   562    1377.3 ms
+[ 22/87] unsorted_choice          tokens=   194    2936.5 ms
+[ 23/87] img_chart                tokens=   388     349.7 ms
+[ 24/87] noul_custom              tokens=   180    3191.1 ms
+[ 25/87] img_shapes               tokens=   483     319.8 ms
+[ 26/87] json_state               tokens=   273    3445.3 ms
+[ 27/87] img_sign448              tokens=   422     286.0 ms
+[ 28/87] many_options             tokens=  1164    3761.2 ms
+[ 29/87] img_board2048            tokens=  3321    1619.8 ms
+[ 30/87] long_2k                  tokens=  2486    5518.8 ms
+[ 31/87] img_two                  tokens=   788     751.3 ms
+[ 32/87] trunc_16k                tokens= 16384   19951.0 ms
+[ 33/87] img_receipt_textonly     tokens=   259   19214.3 ms
+[ 34/87] img_chart_textonly       tokens=   157   17864.2 ms
+[ 35/87] img_shapes_textonly      tokens=   224   17594.0 ms
+[ 36/87] img_sign448_textonly     tokens=   223   17327.0 ms
+[ 37/87] img_board2048_textonly   tokens=   246   17009.4 ms
+[ 38/87] pulse-11714037           tokens=   843   16477.8 ms
+[ 39/87] pulse-10661222           tokens=   872   16362.5 ms
+[ 40/87] pulse-11711957           tokens=   811    2319.4 ms
+[ 41/87] pulse-9854422            tokens=   815    2120.4 ms
+[ 42/87] pulse-11712604           tokens=   852    2239.5 ms
+[ 43/87] pulse-9710164            tokens=   823    2344.3 ms
+[ 44/87] pulse-9709124            tokens=   873    2453.5 ms
+[ 45/87] pulse-11116991           tokens=   821   14400.3 ms
+[ 46/87] pulse-10720478           tokens=   818   13260.8 ms
+[ 47/87] pulse-9708731            tokens=   902   13279.6 ms
+[ 48/87] pulse-9710418            tokens=   815   13278.7 ms
+[ 49/87] pulse-11678677           tokens=   817   13278.1 ms
+[ 50/87] pulse-9711065            tokens=   813   13276.3 ms
+[ 51/87] pulse-9710025            tokens=   852   13276.1 ms
+[ 52/87] pulse-11716232           tokens=   815   14436.4 ms
+[ 53/87] pulse-9710672            tokens=   903    2609.7 ms
+[ 54/87] pulse-9709632            tokens=   826    2609.5 ms
+[ 55/87] pulse-11086438           tokens=   841    2587.2 ms
+[ 56/87] pulse-11680618           tokens=   837    2594.9 ms
+[ 57/87] pulse-9933807            tokens=   810    2596.9 ms
+[ 58/87] pulse-9744321            tokens=   826    2595.5 ms
+[ 59/87] pulse-9709100            tokens=   880    3887.3 ms
+[ 60/87] pulse-11716347           tokens=   889    2723.1 ms
+[ 61/87] pulse-11712187           tokens=   809    2698.8 ms
+[ 62/87] pulse-9709747            tokens=   869    2703.5 ms
+[ 63/87] pulse-10619114           tokens=   316    3111.4 ms
+[ 64/87] pulse-11707797           tokens=   364    3030.0 ms
+[ 65/87] pulse-11711171           tokens=   294    2940.7 ms
+[ 66/87] pulse-9707691            tokens=   305    2853.4 ms
+[ 67/87] pulse-11714938           tokens=   280    1469.0 ms
+[ 68/87] pulse-10426369           tokens=   293    1376.0 ms
+[ 69/87] pulse-9707552            tokens=   370    1301.0 ms
+[ 70/87] pulse-10545020           tokens=   373    1713.0 ms
+[ 71/87] pulse-9708199            tokens=   293    1215.0 ms
+[ 72/87] pulse-9707413            tokens=   293    1202.4 ms
+[ 73/87] pulse-11132428           tokens=   288    1202.6 ms
+[ 74/87] pulse-10702774           tokens=   297    1200.8 ms
+[ 75/87] pulse-9707528            tokens=   272    1199.2 ms
+[ 76/87] pulse-11707888           tokens=   296    1198.2 ms
+[ 77/87] pulse-11617432           tokens=   322    1667.5 ms
+[ 78/87] pulse-9943143            tokens=   351    1167.7 ms
+[ 79/87] pulse-10221259           tokens=   283    1167.6 ms
+[ 80/87] pulse-10729536           tokens=   293    1166.9 ms
+[ 81/87] pulse-10901596           tokens=   323    1166.9 ms
+[ 82/87] pulse-11711123           tokens=   311    1167.0 ms
+[ 83/87] pulse-11711631           tokens=   314    1168.9 ms
+[ 84/87] pulse-9853056            tokens=   353    1467.6 ms
+[ 85/87] pulse-11710845           tokens=   287     982.3 ms
+[ 86/87] pulse-11393348           tokens=   291     973.6 ms
+[ 87/87] pulse-9708012            tokens=   295     971.5 ms
+[status] parity_batched: PASS
+## Correctness gate (any GPU)
+
+# Parity: runs/http-batched-a40 vs /root/worker-decide/fixtures/clef-flash/float32
+
+| metric | value |
+|---|---|
+| records | 87 |
+| failed | 0 |
+| request mismatches | 0 |
+| span mismatches | 0 |
+| max \|Δp\| (worst question) | 0.0160 (bar 0.025) |
+| mean of record means | 0.00142 (bar 0.0025) |
+| mean of question max \|Δp\| (info) | 0.00188 |
+| near-ties (not judged) | 19 |
+| result | PASS |
+
+[wait] polling http://127.0.0.1:8000/ping until the worker is ready
+[  1/5] order_choice_unsorted    tokens=   194     142.3 ms
+[  2/5] order_choice_sorted      tokens=   194     452.5 ms
+[  3/5] order_questions_alphabetical tokens=   300     535.8 ms
+[  4/5] order_questions_as_card  tokens=   300     619.8 ms
+[  5/5] order_questions_reversed tokens=   300     703.6 ms
+[status] parity_batched_order: PASS
+[status] batching_effective: FAIL
+## Batching: 0 of 87 records answered in batches of 2+
+
+| batch size | records |
+|---|---|
+| 1 | 80 |
+| none | 7 |
+
+Batcher stats: batches=19, requests=85, batched_ok=0, max_ok_size=1, retried_alone=80, stopped=None
+
+result: FAIL (no record was answered in a batch of 2 or more; 80 requests were retried alone after a failed batch)
+[load] ticket (card_trio) c=1 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 12.032, 'req_per_s': 10.638, 'p50_ms': 94.1, 'p90_ms': 94.9, 'p99_ms': 95.6, 'mean_ms': 94.0, 'min_ms': 88.6, 'max_ms': 95.8}
+[load] ticket (card_trio) c=8 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 19.103, 'req_per_s': 6.701, 'p50_ms': 1141.6, 'p90_ms': 1565.5, 'p99_ms': 1573.6, 'mean_ms': 1175.2, 'min_ms': 105.0, 'max_ms': 1577.6}
+[load] ticket (card_trio) c=32 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 19.162, 'req_per_s': 6.68, 'p50_ms': 4743.2, 'p90_ms': 4751.6, 'p99_ms': 4964.2, 'mean_ms': 4273.1, 'min_ms': 415.3, 'max_ms': 5054.2}
+[load] pulse (pulse-11714037) c=1 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 23.975, 'req_per_s': 5.339, 'p50_ms': 187.6, 'p90_ms': 188.3, 'p99_ms': 188.7, 'mean_ms': 187.3, 'min_ms': 182.2, 'max_ms': 189.3}
+[load] pulse (pulse-11714037) c=8 ...
+Terminated
+---- pod_tier1.sh exited 143 (20:33:34)
+== pod_chain.sh 2026-10-15T20:33:37Z == commit 08b2981 chain: pod_shapes.sh pod_tier1.sh
+---- pod_shapes.sh (20:33:37)
+== pod_shapes.sh 2026-10-15T20:33:38Z == commit 08b2981  gpu NVIDIA A40 (a40)
+
+==== 1. fla-core (20:33:38) ====
+chunk_gated_delta_rule: fla.ops.gated_delta_rule.chunk
+fla device_platform: cuda
+KERNEL_RAN
+[status] fla_active: ok
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 1524.55it/s]
+[status] weights_prefetched: ok
+
+==== 2. probe default (pulse) (20:33:44) ====
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 1368.45it/s]
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+Loading weights:   0%|          | 0/760 [00:00<?, ?it/s]Loading weights:   0%|          | 1/760 [00:00<05:40,  2.23it/s]Loading weights:   3%|▎         | 24/760 [00:00<00:12, 56.70it/s]Loading weights:   5%|▌         | 38/760 [00:00<00:09, 74.88it/s]Loading weights:   7%|▋         | 51/760 [00:00<00:09, 78.18it/s]Loading weights:   9%|▉         | 67/760 [00:00<00:07, 94.75it/s]Loading weights:  11%|█         | 81/760 [00:01<00:06, 102.26it/s]Loading weights:  12%|█▎        | 95/760 [00:01<00:06, 101.41it/s]Loading weights:  14%|█▍        | 107/760 [00:01<00:06, 104.59it/s]Loading weights:  16%|█▌        | 121/760 [00:01<00:05, 109.60it/s]Loading weights:  18%|█▊        | 135/760 [00:01<00:05, 113.33it/s]Loading weights:  20%|██        | 152/760 [00:01<00:04, 123.22it/s]Loading weights:  22%|██▏       | 166/760 [00:01<00:04, 126.67it/s]Loading weights:  24%|██▎       | 179/760 [00:01<00:04, 125.59it/s]Loading weights:  25%|██▌       | 192/760 [00:01<00:04, 122.16it/s]Loading weights:  27%|██▋       | 205/760 [00:02<00:04, 111.73it/s]Loading weights:  29%|██▉       | 222/760 [00:02<00:04, 124.60it/s]Loading weights:  31%|███       | 235/760 [00:02<00:04, 121.75it/s]Loading weights:  33%|███▎      | 249/760 [00:02<00:04, 125.04it/s]Loading weights:  34%|███▍      | 262/760 [00:02<00:04, 105.57it/s]Loading weights:  37%|███▋      | 279/760 [00:02<00:04, 116.88it/s]Loading weights:  39%|███▊      | 293/760 [00:02<00:03, 117.16it/s]Loading weights:  40%|████      | 307/760 [00:02<00:03, 118.95it/s]Loading weights:  42%|████▏     | 320/760 [00:03<00:03, 110.65it/s]Loading weights:  44%|████▍     | 333/760 [00:03<00:03, 111.64it/s]Loading weights:  46%|████▌     | 347/760 [00:03<00:03, 115.56it/s]Loading weights:  48%|████▊     | 361/760 [00:03<00:03, 118.05it/s]Loading weights:  49%|████▉     | 373/760 [00:03<00:03, 116.59it/s]Loading weights:  51%|█████     | 386/760 [00:03<00:03, 115.98it/s]Loading weights:  53%|█████▎    | 400/760 [00:03<00:03, 119.09it/s]Loading weights:  54%|█████▍    | 413/760 [00:03<00:02, 117.83it/s]Loading weights:  56%|█████▌    | 425/760 [00:03<00:02, 116.74it/s]Loading weights:  71%|███████   | 539/760 [00:04<00:00, 401.68it/s]Loading weights:  86%|████████▋ | 657/760 [00:04<00:00, 615.95it/s]Loading weights:  99%|█████████▉| 755/760 [00:04<00:00, 712.48it/s]Loading weights: 100%|██████████| 760/760 [00:04<00:00, 177.14it/s]
+/usr/local/lib/python3.12/dist-packages/torch/profiler/profiler.py:224: UserWarning: Warning: Profiler clears events at the end of each cycle.Only events from the current cycle will be reported.To keep events across cycles, set acc_events=True.
+  _warn_once(
+## Shape probe: default, pulse, a40
+
+Environment: PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True, TRITON_CACHE_DIR=/root/triton-cache-shapes, preferred_blas=_BlasBackend.Cublas
+
+| kind | n | encode | collate | pre | backbone | head | post | total | device allocs |
+|---|---|---|---|---|---|---|---|---|---|
+| new | 7 | 2.3 | 0.3 | 0.1 | 169.3 | 5.1 | 0.1 | 177.6 | 0 |
+| repeat | 7 | 2.2 | 0.3 | 0.1 | 169.8 | 4.5 | 0.1 | 177.4 | 0 |
+| sibling | 8 | 2.2 | 0.3 | 0.1 | 169.9 | 4.9 | 0.1 | 177.2 | 0.0 |
+| new - repeat | | +0.1 | +0.0 | +0.0 | -0.4 | +0.6 | -0.0 | +0.2 | |
+
+Ops that grew most on a new token count (new pass minus repeat pass):
+
+| op | Δ self CPU ms | Δ self CUDA ms | calls new / repeat |
+|---|---|---|---|
+| `Command Buffer Full` | +1.281 | +0.287 | 66 / 62 |
+| `aten::mm` | -0.097 | +0.686 | 254 / 254 |
+| `cudaStreamSynchronize` | +0.516 | +0.000 | 6 / 6 |
+| `void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_25` | +0.000 | +0.357 | 113 / 113 |
+| `void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_12` | +0.000 | +0.227 | 32 / 32 |
+| `ampere_bf16_s1688gemm_bf16_128x128_ldg8_f2f_stages_32x1_tn` | +0.000 | +0.102 | 56 / 56 |
+| `void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_imp` | +0.000 | +0.042 | 133 / 133 |
+| `void at::native::(anonymous namespace)::conv_depthwise2d_forward_kerne` | +0.000 | +0.030 | 24 / 24 |
+| `aten::_conv_depthwise2d` | -0.002 | +0.030 | 24 / 24 |
+| `chunk_gated_delta_rule_fwd_kkt_solve_kernel` | +0.000 | +0.011 | 24 / 24 |
+| `void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_imp` | +0.000 | +0.009 | 186 / 186 |
+| `aten::sigmoid` | +0.006 | -0.000 | 33 / 33 |
+| `aten::neg` | +0.006 | -0.000 | 40 / 40 |
+| `cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags` | +0.005 | +0.000 | 2 / 0 |
+| `void at::native::vectorized_elementwise_kernel<4, at::native::CUDAFunc` | +0.000 | +0.005 | 87 / 87 |
+
+Batch preview, lengths [843, 300, 2486]: batched 1413.37 ms vs 732.01 ms one at a time; outputs not comparable one to one
+[status] probe_default: ok
+
+==== 2. probe noexpand (pulse) (20:34:12) ====
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 1333.14it/s]
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+Loading weights:   0%|          | 0/760 [00:00<?, ?it/s]Loading weights:   0%|          | 1/760 [00:00<02:10,  5.83it/s]Loading weights:   0%|          | 2/760 [00:00<02:58,  4.25it/s]Loading weights:   3%|▎         | 23/760 [00:00<00:12, 57.30it/s]Loading weights:   5%|▍         | 37/760 [00:00<00:09, 76.61it/s]Loading weights:   6%|▋         | 48/760 [00:00<00:09, 71.85it/s]Loading weights:   9%|▉         | 67/760 [00:00<00:07, 93.29it/s]Loading weights:  11%|█         | 81/760 [00:01<00:06, 103.68it/s]Loading weights:  13%|█▎        | 96/760 [00:01<00:05, 112.49it/s]Loading weights:  14%|█▍        | 109/760 [00:01<00:05, 114.44it/s]Loading weights:  16%|█▌        | 122/760 [00:01<00:05, 113.69it/s]Loading weights:  18%|█▊        | 135/760 [00:01<00:05, 113.48it/s]Loading weights:  19%|█▉        | 148/760 [00:01<00:05, 113.85it/s]Loading weights:  21%|██        | 160/760 [00:01<00:05, 110.76it/s]Loading weights:  23%|██▎       | 174/760 [00:01<00:05, 113.72it/s]Loading weights:  25%|██▍       | 188/760 [00:01<00:04, 114.60it/s]Loading weights:  27%|██▋       | 202/760 [00:02<00:04, 116.06it/s]Loading weights:  28%|██▊       | 214/760 [00:02<00:04, 115.44it/s]Loading weights:  30%|██▉       | 227/760 [00:02<00:04, 115.08it/s]Loading weights:  32%|███▏      | 241/760 [00:02<00:04, 117.23it/s]Loading weights:  34%|███▎      | 255/760 [00:02<00:04, 119.31it/s]Loading weights:  35%|███▌      | 267/760 [00:02<00:04, 117.53it/s]Loading weights:  37%|███▋      | 280/760 [00:02<00:04, 115.80it/s]Loading weights:  39%|███▊      | 294/760 [00:02<00:03, 118.04it/s]Loading weights:  40%|████      | 307/760 [00:03<00:03, 114.77it/s]Loading weights:  42%|████▏     | 319/760 [00:03<00:03, 115.20it/s]Loading weights:  44%|████▍     | 333/760 [00:03<00:03, 117.06it/s]Loading weights:  47%|████▋     | 359/760 [00:03<00:02, 150.80it/s]Loading weights:  49%|████▉     | 375/760 [00:03<00:02, 147.09it/s]Loading weights:  51%|█████▏    | 390/760 [00:03<00:02, 142.49it/s]Loading weights:  53%|█████▎    | 405/760 [00:03<00:02, 140.69it/s]Loading weights:  55%|█████▌    | 420/760 [00:03<00:02, 115.77it/s]Loading weights:  71%|███████   | 536/760 [00:03<00:00, 366.67it/s]Loading weights:  95%|█████████▍| 719/760 [00:04<00:00, 739.85it/s]Loading weights: 100%|██████████| 760/760 [00:04<00:00, 185.08it/s]
+## Shape probe: noexpand, pulse, a40
+
+Environment: PYTORCH_CUDA_ALLOC_CONF=expandable_segments:False, TRITON_CACHE_DIR=/root/triton-cache-shapes, preferred_blas=_BlasBackend.Cublas
+
+| kind | n | encode | collate | pre | backbone | head | post | total | device allocs |
+|---|---|---|---|---|---|---|---|---|---|
+| new | 8 | 2.3 | 0.3 | 0.1 | 169.7 | 4.8 | 0.1 | 177.2 | 0.0 |
+| repeat | 8 | 2.4 | 0.3 | 0.1 | 169.6 | 4.4 | 0.1 | 177.0 | 0.0 |
+| sibling | 8 | 2.4 | 0.3 | 0.1 | 170.3 | 4.6 | 0.1 | 178.0 | 0.0 |
+| new - repeat | | -0.0 | +0.0 | +0.0 | +0.1 | +0.5 | +0.0 | +0.2 | |
+[status] probe_noexpand: ok
+
+==== 2. probe eager (pulse) (20:34:32) ====
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 1507.66it/s]
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+Loading weights:   0%|          | 0/760 [00:00<?, ?it/s]Loading weights:   0%|          | 1/760 [00:00<02:16,  5.55it/s]Loading weights:   0%|          | 2/760 [00:00<02:59,  4.23it/s]Loading weights:   3%|▎         | 23/760 [00:00<00:12, 56.80it/s]Loading weights:   5%|▌         | 38/760 [00:00<00:08, 80.36it/s]Loading weights:   7%|▋         | 50/760 [00:00<00:09, 77.99it/s]Loading weights:   9%|▉         | 67/760 [00:00<00:07, 97.00it/s]Loading weights:  11%|█         | 81/760 [00:01<00:06, 97.26it/s]Loading weights:  13%|█▎        | 96/760 [00:01<00:06, 106.26it/s]Loading weights:  14%|█▍        | 108/760 [00:01<00:06, 107.41it/s]Loading weights:  16%|█▌        | 121/760 [00:01<00:05, 109.55it/s]Loading weights:  18%|█▊        | 135/760 [00:01<00:05, 113.97it/s]Loading weights:  20%|█▉        | 149/760 [00:01<00:05, 116.51it/s]Loading weights:  21%|██        | 161/760 [00:01<00:05, 112.13it/s]Loading weights:  23%|██▎       | 174/760 [00:01<00:05, 112.79it/s]Loading weights:  25%|██▍       | 188/760 [00:02<00:04, 115.13it/s]Loading weights:  27%|██▋       | 202/760 [00:02<00:04, 116.01it/s]Loading weights:  28%|██▊       | 214/760 [00:02<00:04, 115.44it/s]Loading weights:  30%|██▉       | 227/760 [00:02<00:04, 115.22it/s]Loading weights:  32%|███▏      | 241/760 [00:02<00:04, 117.50it/s]Loading weights:  34%|███▎      | 255/760 [00:02<00:04, 119.27it/s]Loading weights:  35%|███▌      | 267/760 [00:02<00:04, 117.54it/s]Loading weights:  37%|███▋      | 280/760 [00:02<00:04, 115.85it/s]Loading weights:  39%|███▊      | 294/760 [00:02<00:03, 117.53it/s]Loading weights:  41%|████      | 308/760 [00:03<00:03, 117.79it/s]Loading weights:  42%|████▏     | 320/760 [00:03<00:03, 116.49it/s]Loading weights:  44%|████▍     | 333/760 [00:03<00:03, 116.36it/s]Loading weights:  46%|████▌     | 347/760 [00:03<00:03, 118.92it/s]Loading weights:  48%|████▊     | 361/760 [00:03<00:03, 121.42it/s]Loading weights:  51%|█████     | 384/760 [00:03<00:02, 148.98it/s]Loading weights:  53%|█████▎    | 400/760 [00:03<00:02, 143.15it/s]Loading weights:  55%|█████▍    | 415/760 [00:03<00:02, 139.62it/s]Loading weights:  57%|█████▋    | 432/760 [00:03<00:02, 147.33it/s]Loading weights:  76%|███████▌  | 577/760 [00:04<00:00, 510.81it/s]Loading weights:  97%|█████████▋| 735/760 [00:04<00:00, 814.08it/s]Loading weights: 100%|██████████| 760/760 [00:04<00:00, 183.62it/s]
+## Shape probe: eager, pulse, a40
+
+Environment: PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True, CUDA_MODULE_LOADING=EAGER, TRITON_CACHE_DIR=/root/triton-cache-shapes, preferred_blas=_BlasBackend.Cublas
+
+| kind | n | encode | collate | pre | backbone | head | post | total | device allocs |
+|---|---|---|---|---|---|---|---|---|---|
+| new | 8 | 2.5 | 0.3 | 0.1 | 169.8 | 4.4 | 0.1 | 177.3 | 0.0 |
+| repeat | 8 | 2.4 | 0.3 | 0.1 | 169.6 | 4.3 | 0.1 | 177.1 | 0.0 |
+| sibling | 8 | 2.5 | 0.3 | 0.1 | 169.8 | 4.5 | 0.1 | 177.3 | 0.0 |
+| new - repeat | | +0.1 | +0.0 | +0.0 | +0.3 | +0.1 | +0.0 | +0.2 | |
+[status] probe_eager: ok
+
+==== 2. probe lt (pulse) (20:34:55) ====
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 1419.73it/s]
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+Loading weights:   0%|          | 0/760 [00:00<?, ?it/s]Loading weights:   0%|          | 1/760 [00:00<02:06,  5.99it/s]Loading weights:   0%|          | 2/760 [00:00<02:56,  4.30it/s]Loading weights:   3%|▎         | 23/760 [00:00<00:13, 55.64it/s]Loading weights:   5%|▍         | 37/760 [00:00<00:09, 77.06it/s]Loading weights:   6%|▋         | 48/760 [00:00<00:09, 72.20it/s]Loading weights:   9%|▉         | 67/760 [00:00<00:07, 96.98it/s]Loading weights:  11%|█         | 81/760 [00:01<00:06, 104.03it/s]Loading weights:  12%|█▎        | 95/760 [00:01<00:06, 108.98it/s]Loading weights:  14%|█▍        | 107/760 [00:01<00:06, 103.37it/s]Loading weights:  16%|█▌        | 121/760 [00:01<00:05, 108.09it/s]Loading weights:  18%|█▊        | 135/760 [00:01<00:05, 111.88it/s]Loading weights:  19%|█▉        | 148/760 [00:01<00:05, 112.51it/s]Loading weights:  21%|██        | 160/760 [00:01<00:05, 109.70it/s]Loading weights:  23%|██▎       | 173/760 [00:01<00:05, 110.89it/s]Loading weights:  25%|██▍       | 188/760 [00:02<00:04, 116.40it/s]Loading weights:  27%|██▋       | 202/760 [00:02<00:04, 117.14it/s]Loading weights:  28%|██▊       | 214/760 [00:02<00:04, 116.39it/s]Loading weights:  30%|██▉       | 227/760 [00:02<00:04, 115.97it/s]Loading weights:  32%|███▏      | 241/760 [00:02<00:04, 118.19it/s]Loading weights:  34%|███▎      | 255/760 [00:02<00:04, 119.75it/s]Loading weights:  35%|███▌      | 267/760 [00:02<00:04, 117.88it/s]Loading weights:  37%|███▋      | 280/760 [00:02<00:04, 116.60it/s]Loading weights:  39%|███▊      | 294/760 [00:02<00:03, 118.23it/s]Loading weights:  41%|████      | 308/760 [00:03<00:03, 119.87it/s]Loading weights:  42%|████▏     | 320/760 [00:03<00:03, 118.12it/s]Loading weights:  44%|████▍     | 333/760 [00:03<00:03, 114.52it/s]Loading weights:  46%|████▌     | 346/760 [00:03<00:03, 115.44it/s]Loading weights:  48%|████▊     | 365/760 [00:03<00:03, 128.05it/s]Loading weights:  51%|█████     | 386/760 [00:03<00:02, 147.16it/s]Loading weights:  53%|█████▎    | 401/760 [00:03<00:02, 143.88it/s]Loading weights:  55%|█████▍    | 416/760 [00:03<00:02, 140.46it/s]Loading weights:  57%|█████▋    | 431/760 [00:03<00:02, 139.58it/s]Loading weights:  73%|███████▎  | 553/760 [00:04<00:00, 437.42it/s]Loading weights:  89%|████████▊ | 673/760 [00:04<00:00, 652.79it/s]Loading weights: 100%|██████████| 760/760 [00:04<00:00, 180.31it/s]
+## Shape probe: lt, pulse, a40
+
+Environment: PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True, TORCH_BLAS_PREFER_CUBLASLT=1, TRITON_CACHE_DIR=/root/triton-cache-shapes, preferred_blas=_BlasBackend.Cublaslt
+
+| kind | n | encode | collate | pre | backbone | head | post | total | device allocs |
+|---|---|---|---|---|---|---|---|---|---|
+| new | 8 | 2.2 | 0.3 | 0.1 | 163.6 | 4.3 | 0.1 | 170.4 | 0.0 |
+| repeat | 8 | 2.3 | 0.3 | 0.1 | 163.8 | 4.1 | 0.1 | 170.7 | 0.0 |
+| sibling | 8 | 2.2 | 0.3 | 0.1 | 163.6 | 4.2 | 0.1 | 170.9 | 0.0 |
+| new - repeat | | -0.1 | -0.0 | +0.0 | -0.2 | +0.2 | +0.0 | -0.3 | |
+[status] probe_lt: ok
+
+==== 2. probe long (long_2k) (20:35:15) ====
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 1519.16it/s]
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+Loading weights:   0%|          | 0/760 [00:00<?, ?it/s]Loading weights:   0%|          | 1/760 [00:00<02:16,  5.56it/s]Loading weights:   0%|          | 2/760 [00:00<03:01,  4.19it/s]Loading weights:   2%|▎         | 19/760 [00:00<00:15, 46.79it/s]Loading weights:   5%|▍         | 37/760 [00:00<00:09, 79.18it/s]Loading weights:   6%|▋         | 48/760 [00:00<00:09, 74.77it/s]Loading weights:   9%|▉         | 67/760 [00:00<00:07, 98.97it/s]Loading weights:  11%|█         | 81/760 [00:01<00:06, 105.44it/s]Loading weights:  12%|█▏        | 94/760 [00:01<00:06, 107.38it/s]Loading weights:  14%|█▍        | 106/760 [00:01<00:05, 109.60it/s]Loading weights:  17%|█▋        | 126/760 [00:01<00:04, 127.51it/s]Loading weights:  19%|█▉        | 143/760 [00:01<00:04, 138.54it/s]Loading weights:  21%|██        | 158/760 [00:01<00:05, 114.80it/s]Loading weights:  23%|██▎       | 173/760 [00:01<00:04, 121.12it/s]Loading weights:  24%|██▍       | 186/760 [00:01<00:04, 118.93it/s]Loading weights:  26%|██▋       | 201/760 [00:02<00:04, 121.50it/s]Loading weights:  28%|██▊       | 214/760 [00:02<00:04, 114.36it/s]Loading weights:  30%|██▉       | 227/760 [00:02<00:04, 114.56it/s]Loading weights:  32%|███▏      | 241/760 [00:02<00:04, 116.44it/s]Loading weights:  34%|███▍      | 258/760 [00:02<00:03, 126.04it/s]Loading weights:  37%|███▋      | 278/760 [00:02<00:03, 140.67it/s]Loading weights:  39%|███▊      | 293/760 [00:02<00:03, 128.55it/s]Loading weights:  40%|████      | 307/760 [00:02<00:03, 118.68it/s]Loading weights:  42%|████▏     | 320/760 [00:03<00:03, 119.48it/s]Loading weights:  44%|████▍     | 333/760 [00:03<00:03, 118.23it/s]Loading weights:  46%|████▌     | 347/760 [00:03<00:03, 120.27it/s]Loading weights:  48%|████▊     | 361/760 [00:03<00:03, 121.46it/s]Loading weights:  49%|████▉     | 374/760 [00:03<00:03, 121.78it/s]Loading weights:  51%|█████     | 387/760 [00:03<00:03, 118.20it/s]Loading weights:  53%|█████▎    | 400/760 [00:03<00:03, 117.57it/s]Loading weights:  55%|█████▍    | 417/760 [00:03<00:02, 127.99it/s]Loading weights:  60%|█████▉    | 453/760 [00:03<00:01, 191.76it/s]Loading weights:  76%|███████▌  | 574/760 [00:04<00:00, 478.16it/s]Loading weights:  91%|█████████ | 691/760 [00:04<00:00, 674.91it/s]Loading weights: 100%|██████████| 760/760 [00:04<00:00, 181.90it/s]
+## Shape probe: long, long_2k, a40
+
+Environment: PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True, TRITON_CACHE_DIR=/root/triton-cache-shapes, preferred_blas=_BlasBackend.Cublas
+
+| kind | n | encode | collate | pre | backbone | head | post | total | device allocs |
+|---|---|---|---|---|---|---|---|---|---|
+| new | 8 | 5.2 | 0.5 | 0.1 | 458.9 | 5.7 | 0.1 | 470.6 | 0.0 |
+| repeat | 8 | 5.2 | 0.5 | 0.1 | 459.3 | 5.5 | 0.1 | 471.2 | 0.0 |
+| sibling | 8 | 5.2 | 0.5 | 0.1 | 459.5 | 5.5 | 0.1 | 471.0 | 0.0 |
+| new - repeat | | +0.0 | +0.0 | +0.0 | -0.4 | +0.2 | +0.0 | -0.6 | |
+[status] probe_long: ok
+
+==== 3. push (20:35:43) ====
+fla_active: ok
+weights_prefetched: ok
+probe_default: ok
+probe_noexpand: ok
+probe_eager: ok
+probe_lt: ok
+probe_long: ok
+remote: 
+remote: Create a pull request for 'm5/shapes-a40-20261015-2035' on GitHub by visiting:        
+remote:      https://github.com/ashwinsreedhar28/worker-decide/pull/new/m5/shapes-a40-20261015-2035        
+remote: 
+pushed m5/shapes-a40-20261015-2035
+== done 2026-10-15T20:35:45Z ==
+---- pod_shapes.sh exited 0 (20:35:45)
+---- pod_tier1.sh (20:35:45)
+== pod_tier1.sh 2026-10-15T20:35:45Z == commit 42665f8  gpu NVIDIA A40 (a40)  batch 8
+
+==== 1. fla-core (20:35:45) ====
+chunk_gated_delta_rule: fla.ops.gated_delta_rule.chunk
+fla device_platform: cuda
+KERNEL_RAN
+[status] fla_active: ok
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 1555.31it/s]
+[status] weights_prefetched: ok
+
+==== 2. worker with BATCH_MAX=8 (20:35:52) ====
+== pod_chain.sh 2026-10-15T20:36:16Z == commit 42665f8 chain: pod_shapes.sh pod_tier1.sh
+---- pod_shapes.sh (20:36:16)
+== pod_shapes.sh 2026-10-15T20:36:16Z == commit 42665f8  gpu NVIDIA A40 (a40)
+
+==== 1. fla-core (20:36:16) ====
+chunk_gated_delta_rule: fla.ops.gated_delta_rule.chunk
+fla device_platform: cuda
+KERNEL_RAN
+[status] fla_active: ok
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 1333.44it/s]
+[status] weights_prefetched: ok
+
+==== 2. probe default (pulse) (20:36:23) ====
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 1470.41it/s]
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+Loading weights:   0%|          | 0/760 [00:00<?, ?it/s]Loading weights:   0%|          | 1/760 [00:00<02:06,  5.99it/s]Loading weights:   0%|          | 2/760 [00:00<02:55,  4.32it/s]Loading weights:   3%|▎         | 23/760 [00:00<00:12, 56.95it/s]Loading weights:   5%|▍         | 36/760 [00:00<00:10, 72.19it/s]Loading weights:   6%|▌         | 46/760 [00:00<00:09, 77.41it/s]Loading weights:   8%|▊         | 62/760 [00:00<00:07, 95.51it/s]Loading weights:  10%|█         | 76/760 [00:01<00:06, 103.39it/s]Loading weights:  12%|█▏        | 90/760 [00:01<00:06, 111.38it/s]Loading weights:  13%|█▎        | 102/760 [00:01<00:06, 94.81it/s]Loading weights:  16%|█▌        | 120/760 [00:01<00:05, 111.22it/s]Loading weights:  18%|█▊        | 133/760 [00:01<00:05, 111.95it/s]Loading weights:  19%|█▉        | 148/760 [00:01<00:05, 117.29it/s]Loading weights:  21%|██        | 161/760 [00:01<00:05, 108.00it/s]Loading weights:  24%|██▍       | 181/760 [00:01<00:04, 127.14it/s]Loading weights:  26%|██▋       | 200/760 [00:02<00:03, 141.88it/s]Loading weights:  28%|██▊       | 215/760 [00:02<00:04, 133.71it/s]Loading weights:  30%|███       | 231/760 [00:02<00:03, 137.68it/s]Loading weights:  33%|███▎      | 250/760 [00:02<00:03, 150.66it/s]Loading weights:  35%|███▌      | 266/760 [00:02<00:04, 122.08it/s]Loading weights:  37%|███▋      | 280/760 [00:02<00:03, 120.97it/s]Loading weights:  39%|███▊      | 294/760 [00:02<00:03, 121.26it/s]Loading weights:  41%|████      | 308/760 [00:02<00:03, 121.85it/s]Loading weights:  42%|████▏     | 321/760 [00:02<00:03, 121.82it/s]Loading weights:  44%|████▍     | 334/760 [00:03<00:03, 119.13it/s]Loading weights:  46%|████▌     | 347/760 [00:03<00:03, 118.65it/s]Loading weights:  47%|████▋     | 360/760 [00:03<00:03, 116.70it/s]Loading weights:  49%|████▉     | 372/760 [00:03<00:03, 116.48it/s]Loading weights:  51%|█████     | 386/760 [00:03<00:03, 116.88it/s]Loading weights:  53%|█████▎    | 400/760 [00:03<00:03, 119.62it/s]Loading weights:  54%|█████▍    | 414/760 [00:03<00:02, 119.89it/s]Loading weights:  56%|█████▌    | 427/760 [00:03<00:02, 119.94it/s]Loading weights:  72%|███████▏  | 545/760 [00:03<00:00, 412.21it/s]Loading weights:  88%|████████▊ | 671/760 [00:04<00:00, 648.62it/s]Loading weights: 100%|██████████| 760/760 [00:04<00:00, 181.41it/s]
+/usr/local/lib/python3.12/dist-packages/torch/profiler/profiler.py:224: UserWarning: Warning: Profiler clears events at the end of each cycle.Only events from the current cycle will be reported.To keep events across cycles, set acc_events=True.
+  _warn_once(
+## Shape probe: default, pulse, a40
+
+Environment: PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True, TRITON_CACHE_DIR=/root/triton-cache-shapes, preferred_blas=_BlasBackend.Cublas
+
+| kind | n | encode | collate | pre | backbone | head | post | total | device allocs |
+|---|---|---|---|---|---|---|---|---|---|
+| new | 7 | 2.2 | 0.3 | 0.1 | 168.5 | 4.8 | 0.1 | 175.9 | 0 |
+| repeat | 7 | 2.2 | 0.3 | 0.1 | 168.2 | 4.6 | 0.1 | 175.5 | 0 |
+| sibling | 8 | 2.3 | 0.3 | 0.1 | 168.3 | 4.8 | 0.1 | 176.1 | 0.0 |
+| new - repeat | | -0.0 | +0.0 | +0.0 | +0.2 | +0.2 | +0.0 | +0.4 | |
+
+Ops that grew most on a new token count (new pass minus repeat pass):
+
+| op | Δ self CPU ms | Δ self CUDA ms | calls new / repeat |
+|---|---|---|---|
+| `aten::mm` | +0.000 | +0.556 | 254 / 254 |
+| `cudaStreamSynchronize` | +0.502 | +0.000 | 6 / 6 |
+| `Command Buffer Full` | +0.216 | +0.098 | 46 / 46 |
+| `void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_25` | +0.000 | +0.283 | 113 / 113 |
+| `void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_12` | +0.000 | +0.194 | 32 / 32 |
+| `ChunkGatedDeltaRuleFunction` | +0.118 | +0.027 | 24 / 24 |
+| `Activity Buffer Request` | +0.107 | +0.000 | 1 / 1 |
+| `ampere_bf16_s1688gemm_bf16_128x128_ldg8_f2f_stages_32x1_tn` | +0.000 | +0.079 | 56 / 56 |
+| `void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_imp` | +0.000 | +0.055 | 133 / 133 |
+| `LayerNormGatedFunction` | +0.051 | +0.001 | 24 / 24 |
+| `aten::mean` | +0.047 | -0.001 | 92 / 92 |
+| `void at::native::(anonymous namespace)::conv_depthwise2d_forward_kerne` | +0.000 | +0.041 | 24 / 24 |
+| `aten::_conv_depthwise2d` | -0.004 | +0.041 | 24 / 24 |
+| `aten::copy_` | -0.020 | +0.048 | 436 / 436 |
+| `cuLaunchKernelEx` | +0.019 | +0.000 | 192 / 192 |
+
+Batch preview, lengths [843, 300, 2486]: batched 1400.42 ms vs 730.56 ms one at a time; outputs not comparable one to one
+[status] probe_default: ok
+
+==== 2. probe noexpand (pulse) (20:36:50) ====
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 1501.72it/s]
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+Loading weights:   0%|          | 0/760 [00:00<?, ?it/s]Loading weights:   0%|          | 1/760 [00:00<05:41,  2.22it/s]Loading weights:   3%|▎         | 23/760 [00:00<00:13, 52.82it/s]Loading weights:   5%|▌         | 38/760 [00:00<00:09, 75.60it/s]Loading weights:   7%|▋         | 51/760 [00:00<00:09, 77.09it/s]Loading weights:   9%|▉         | 67/760 [00:00<00:07, 88.11it/s]Loading weights:  11%|█         | 81/760 [00:01<00:06, 97.44it/s]Loading weights:  13%|█▎        | 96/760 [00:01<00:06, 106.34it/s]Loading weights:  14%|█▍        | 108/760 [00:01<00:06, 107.72it/s]Loading weights:  16%|█▌        | 121/760 [00:01<00:05, 109.43it/s]Loading weights:  18%|█▊        | 135/760 [00:01<00:05, 113.60it/s]Loading weights:  20%|█▉        | 149/760 [00:01<00:05, 116.64it/s]Loading weights:  21%|██▏       | 162/760 [00:01<00:05, 114.33it/s]Loading weights:  23%|██▎       | 174/760 [00:01<00:05, 111.15it/s]Loading weights:  25%|██▍       | 187/760 [00:02<00:05, 111.82it/s]Loading weights:  27%|██▋       | 202/760 [00:02<00:04, 116.48it/s]Loading weights:  28%|██▊       | 214/760 [00:02<00:04, 116.07it/s]Loading weights:  30%|██▉       | 226/760 [00:02<00:04, 112.44it/s]Loading weights:  32%|███▏      | 241/760 [00:02<00:04, 117.99it/s]Loading weights:  34%|███▎      | 255/760 [00:02<00:04, 119.91it/s]Loading weights:  35%|███▌      | 268/760 [00:02<00:04, 120.75it/s]Loading weights:  37%|███▋      | 281/760 [00:02<00:04, 118.23it/s]Loading weights:  39%|███▊      | 294/760 [00:02<00:03, 116.67it/s]Loading weights:  41%|████      | 308/760 [00:03<00:03, 118.63it/s]Loading weights:  42%|████▏     | 320/760 [00:03<00:03, 117.24it/s]Loading weights:  44%|████▎     | 332/760 [00:03<00:03, 111.77it/s]Loading weights:  46%|████▌     | 347/760 [00:03<00:03, 118.12it/s]Loading weights:  48%|████▊     | 361/760 [00:03<00:03, 120.52it/s]Loading weights:  49%|████▉     | 374/760 [00:03<00:03, 121.47it/s]Loading weights:  51%|█████     | 387/760 [00:03<00:03, 119.62it/s]Loading weights:  53%|█████▎    | 400/760 [00:03<00:03, 118.72it/s]Loading weights:  54%|█████▍    | 414/760 [00:03<00:02, 120.20it/s]Loading weights:  61%|██████    | 463/760 [00:04<00:01, 222.59it/s]Loading weights:  77%|███████▋  | 587/760 [00:04<00:00, 508.45it/s]Loading weights:  93%|█████████▎| 708/760 [00:04<00:00, 704.73it/s]Loading weights: 100%|██████████| 760/760 [00:04<00:00, 177.85it/s]
+## Shape probe: noexpand, pulse, a40
+
+Environment: PYTORCH_CUDA_ALLOC_CONF=expandable_segments:False, TRITON_CACHE_DIR=/root/triton-cache-shapes, preferred_blas=_BlasBackend.Cublas
+
+| kind | n | encode | collate | pre | backbone | head | post | total | device allocs |
+|---|---|---|---|---|---|---|---|---|---|
+| new | 8 | 2.3 | 0.3 | 0.1 | 168.9 | 4.5 | 0.1 | 176.5 | 0.0 |
+| repeat | 8 | 2.4 | 0.3 | 0.1 | 169.0 | 4.8 | 0.1 | 176.8 | 0.0 |
+| sibling | 8 | 2.5 | 0.3 | 0.1 | 169.0 | 4.7 | 0.1 | 177.1 | 0.0 |
+| new - repeat | | -0.0 | +0.0 | +0.0 | -0.2 | -0.3 | +0.0 | -0.3 | |
+[status] probe_noexpand: ok
+
+==== 2. probe eager (pulse) (20:37:11) ====
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 1620.01it/s]
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+Loading weights:   0%|          | 0/760 [00:00<?, ?it/s]Loading weights:   0%|          | 1/760 [00:00<01:59,  6.34it/s]Loading weights:   0%|          | 2/760 [00:00<02:56,  4.30it/s]Loading weights:   3%|▎         | 23/760 [00:00<00:13, 56.53it/s]Loading weights:   4%|▍         | 34/760 [00:00<00:10, 70.35it/s]Loading weights:   6%|▌         | 46/760 [00:00<00:08, 79.72it/s]Loading weights:   9%|▊         | 65/760 [00:00<00:06, 108.45it/s]Loading weights:  11%|█         | 80/760 [00:01<00:05, 113.84it/s]Loading weights:  12%|█▏        | 94/760 [00:01<00:05, 118.65it/s]Loading weights:  14%|█▍        | 107/760 [00:01<00:06, 104.59it/s]Loading weights:  16%|█▌        | 121/760 [00:01<00:05, 108.61it/s]Loading weights:  18%|█▊        | 135/760 [00:01<00:05, 112.49it/s]Loading weights:  19%|█▉        | 148/760 [00:01<00:05, 112.64it/s]Loading weights:  21%|██        | 160/760 [00:01<00:05, 109.78it/s]Loading weights:  23%|██▎       | 174/760 [00:01<00:05, 112.34it/s]Loading weights:  25%|██▍       | 188/760 [00:01<00:04, 114.76it/s]Loading weights:  26%|██▋       | 201/760 [00:02<00:04, 113.30it/s]Loading weights:  28%|██▊       | 213/760 [00:02<00:04, 113.93it/s]Loading weights:  30%|██▉       | 227/760 [00:02<00:04, 116.02it/s]Loading weights:  32%|███▏      | 241/760 [00:02<00:04, 117.71it/s]Loading weights:  34%|███▎      | 255/760 [00:02<00:04, 119.37it/s]Loading weights:  35%|███▌      | 267/760 [00:02<00:04, 115.69it/s]Loading weights:  37%|███▋      | 279/760 [00:02<00:04, 112.18it/s]Loading weights:  40%|███▉      | 301/760 [00:02<00:03, 139.95it/s]Loading weights:  42%|████▏     | 316/760 [00:03<00:03, 127.37it/s]Loading weights:  44%|████▎     | 332/760 [00:03<00:03, 130.98it/s]Loading weights:  46%|████▌     | 346/760 [00:03<00:03, 129.67it/s]Loading weights:  47%|████▋     | 360/760 [00:03<00:03, 119.84it/s]Loading weights:  49%|████▉     | 373/760 [00:03<00:03, 120.51it/s]Loading weights:  51%|█████     | 386/760 [00:03<00:03, 118.45it/s]Loading weights:  53%|█████▎    | 400/760 [00:03<00:02, 120.52it/s]Loading weights:  54%|█████▍    | 414/760 [00:03<00:02, 119.77it/s]Loading weights:  56%|█████▌    | 427/760 [00:03<00:02, 118.94it/s]Loading weights:  80%|████████  | 608/760 [00:04<00:00, 577.81it/s]Loading weights: 100%|██████████| 760/760 [00:04<00:00, 184.11it/s]
+## Shape probe: eager, pulse, a40
+
+Environment: PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True, CUDA_MODULE_LOADING=EAGER, TRITON_CACHE_DIR=/root/triton-cache-shapes, preferred_blas=_BlasBackend.Cublas
+
+| kind | n | encode | collate | pre | backbone | head | post | total | device allocs |
+|---|---|---|---|---|---|---|---|---|---|
+| new | 8 | 2.3 | 0.3 | 0.1 | 168.8 | 4.2 | 0.1 | 176.1 | 0.0 |
+| repeat | 8 | 2.3 | 0.3 | 0.1 | 168.9 | 4.0 | 0.1 | 175.7 | 0.0 |
+| sibling | 8 | 2.3 | 0.3 | 0.1 | 169.3 | 4.3 | 0.1 | 176.4 | 0.0 |
+| new - repeat | | +0.0 | +0.0 | +0.0 | -0.1 | +0.1 | +0.0 | +0.4 | |
+[status] probe_eager: ok
+
+==== 2. probe lt (pulse) (20:37:34) ====
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 1798.50it/s]
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+Loading weights:   0%|          | 0/760 [00:00<?, ?it/s]Loading weights:   0%|          | 1/760 [00:00<02:09,  5.85it/s]Loading weights:   0%|          | 2/760 [00:00<02:55,  4.33it/s]Loading weights:   3%|▎         | 24/760 [00:00<00:12, 60.59it/s]Loading weights:   5%|▍         | 37/760 [00:00<00:09, 79.01it/s]Loading weights:   6%|▋         | 48/760 [00:00<00:09, 73.09it/s]Loading weights:   9%|▉         | 67/760 [00:00<00:07, 91.37it/s]Loading weights:  11%|█         | 82/760 [00:01<00:06, 101.70it/s]Loading weights:  13%|█▎        | 96/760 [00:01<00:06, 105.78it/s]Loading weights:  14%|█▍        | 108/760 [00:01<00:06, 105.67it/s]Loading weights:  16%|█▌        | 121/760 [00:01<00:05, 108.00it/s]Loading weights:  18%|█▊        | 134/760 [00:01<00:05, 110.07it/s]Loading weights:  20%|█▉        | 149/760 [00:01<00:05, 116.33it/s]Loading weights:  21%|██        | 161/760 [00:01<00:05, 112.13it/s]Loading weights:  23%|██▎       | 174/760 [00:01<00:05, 111.58it/s]Loading weights:  25%|██▍       | 187/760 [00:02<00:05, 111.56it/s]Loading weights:  27%|██▋       | 202/760 [00:02<00:04, 115.96it/s]Loading weights:  28%|██▊       | 214/760 [00:02<00:04, 115.51it/s]Loading weights:  30%|██▉       | 227/760 [00:02<00:04, 114.78it/s]Loading weights:  32%|███▏      | 241/760 [00:02<00:04, 116.59it/s]Loading weights:  34%|███▍      | 259/760 [00:02<00:04, 119.95it/s]Loading weights:  38%|███▊      | 288/760 [00:02<00:02, 159.36it/s]Loading weights:  40%|████      | 305/760 [00:02<00:02, 151.92it/s]Loading weights:  42%|████▏     | 321/760 [00:03<00:03, 126.12it/s]Loading weights:  44%|████▍     | 337/760 [00:03<00:03, 132.17it/s]Loading weights:  47%|████▋     | 355/760 [00:03<00:02, 139.43it/s]Loading weights:  49%|████▊     | 370/760 [00:03<00:03, 120.70it/s]Loading weights:  51%|█████     | 385/760 [00:03<00:02, 125.63it/s]Loading weights:  52%|█████▎    | 399/760 [00:03<00:02, 125.49it/s]Loading weights:  54%|█████▍    | 413/760 [00:03<00:02, 124.70it/s]Loading weights:  56%|█████▌    | 426/760 [00:03<00:02, 115.99it/s]Loading weights:  70%|███████   | 535/760 [00:03<00:00, 364.25it/s]Loading weights:  85%|████████▌ | 648/760 [00:04<00:00, 560.80it/s]Loading weights:  99%|█████████▉| 755/760 [00:04<00:00, 683.96it/s]Loading weights: 100%|██████████| 760/760 [00:04<00:00, 180.60it/s]
+## Shape probe: lt, pulse, a40
+
+Environment: PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True, TORCH_BLAS_PREFER_CUBLASLT=1, TRITON_CACHE_DIR=/root/triton-cache-shapes, preferred_blas=_BlasBackend.Cublaslt
+
+| kind | n | encode | collate | pre | backbone | head | post | total | device allocs |
+|---|---|---|---|---|---|---|---|---|---|
+| new | 8 | 2.3 | 0.3 | 0.1 | 162.8 | 4.9 | 0.1 | 170.8 | 0.0 |
+| repeat | 8 | 2.4 | 0.3 | 0.1 | 162.8 | 4.8 | 0.1 | 170.6 | 0.0 |
+| sibling | 8 | 2.4 | 0.3 | 0.1 | 163.2 | 4.7 | 0.1 | 171.6 | 0.0 |
+| new - repeat | | -0.1 | -0.0 | +0.0 | +0.0 | +0.1 | +0.0 | +0.2 | |
+[status] probe_lt: ok
+
+==== 2. probe long (long_2k) (20:37:54) ====
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 1706.51it/s]
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+Loading weights:   0%|          | 0/760 [00:00<?, ?it/s]Loading weights:   0%|          | 1/760 [00:00<01:53,  6.66it/s]Loading weights:   0%|          | 2/760 [00:00<02:52,  4.40it/s]Loading weights:   3%|▎         | 23/760 [00:00<00:12, 58.04it/s]Loading weights:   5%|▍         | 35/760 [00:00<00:09, 73.69it/s]Loading weights:   6%|▌         | 46/760 [00:00<00:08, 82.34it/s]Loading weights:   8%|▊         | 62/760 [00:00<00:06, 103.01it/s]Loading weights:  10%|█         | 76/760 [00:00<00:06, 109.89it/s]Loading weights:  12%|█▏        | 90/760 [00:01<00:05, 113.27it/s]Loading weights:  14%|█▎        | 103/760 [00:01<00:06, 97.08it/s]Loading weights:  16%|█▌        | 120/760 [00:01<00:05, 110.08it/s]Loading weights:  18%|█▊        | 134/760 [00:01<00:05, 113.60it/s]Loading weights:  19%|█▉        | 148/760 [00:01<00:05, 114.37it/s]Loading weights:  22%|██▏       | 168/760 [00:01<00:04, 133.26it/s]Loading weights:  24%|██▍       | 186/760 [00:01<00:04, 141.36it/s]Loading weights:  26%|██▋       | 201/760 [00:01<00:04, 128.08it/s]Loading weights:  28%|██▊       | 215/760 [00:02<00:04, 126.94it/s]Loading weights:  30%|███       | 228/760 [00:02<00:04, 122.58it/s]Loading weights:  32%|███▏      | 241/760 [00:02<00:04, 122.30it/s]Loading weights:  34%|███▎      | 255/760 [00:02<00:04, 122.23it/s]Loading weights:  35%|███▌      | 268/760 [00:02<00:04, 121.28it/s]Loading weights:  37%|███▋      | 281/760 [00:02<00:03, 121.59it/s]Loading weights:  39%|███▊      | 294/760 [00:02<00:03, 123.68it/s]Loading weights:  41%|████      | 311/760 [00:02<00:03, 131.85it/s]Loading weights:  43%|████▎     | 325/760 [00:02<00:03, 133.68it/s]Loading weights:  45%|████▍     | 341/760 [00:03<00:03, 132.81it/s]Loading weights:  47%|████▋     | 355/760 [00:03<00:03, 129.63it/s]Loading weights:  48%|████▊     | 368/760 [00:03<00:03, 109.11it/s]Loading weights:  51%|█████     | 385/760 [00:03<00:03, 119.02it/s]Loading weights:  52%|█████▎    | 399/760 [00:03<00:03, 120.17it/s]Loading weights:  54%|█████▍    | 413/760 [00:03<00:02, 121.17it/s]Loading weights:  56%|█████▌    | 426/760 [00:03<00:02, 113.98it/s]Loading weights:  72%|███████▏  | 547/760 [00:03<00:00, 396.63it/s]Loading weights:  89%|████████▊ | 673/760 [00:04<00:00, 626.55it/s]Loading weights: 100%|██████████| 760/760 [00:04<00:00, 183.56it/s]
+## Shape probe: long, long_2k, a40
+
+Environment: PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True, TRITON_CACHE_DIR=/root/triton-cache-shapes, preferred_blas=_BlasBackend.Cublas
+
+| kind | n | encode | collate | pre | backbone | head | post | total | device allocs |
+|---|---|---|---|---|---|---|---|---|---|
+| new | 8 | 5.4 | 0.6 | 0.1 | 459.5 | 5.8 | 0.1 | 472.1 | 0.0 |
+| repeat | 8 | 5.3 | 0.5 | 0.1 | 459.1 | 5.8 | 0.1 | 472.0 | 0.0 |
+| sibling | 8 | 5.3 | 0.5 | 0.1 | 459.9 | 5.8 | 0.1 | 472.1 | 0.0 |
+| new - repeat | | +0.0 | +0.0 | +0.0 | +0.4 | +0.1 | -0.0 | +0.1 | |
+[status] probe_long: ok
+
+==== 3. push (20:38:24) ====
+fla_active: ok
+weights_prefetched: ok
+probe_default: ok
+probe_noexpand: ok
+probe_eager: ok
+probe_lt: ok
+probe_long: ok
+remote: 
+remote: Create a pull request for 'm5/shapes-a40-20261015-2038' on GitHub by visiting:        
+remote:      https://github.com/ashwinsreedhar28/worker-decide/pull/new/m5/shapes-a40-20261015-2038        
+remote: 
+pushed m5/shapes-a40-20261015-2038
+== done 2026-10-15T20:38:26Z ==
+---- pod_shapes.sh exited 0 (20:38:26)
+---- pod_tier1.sh (20:38:26)
+== pod_tier1.sh 2026-10-15T20:38:26Z == commit d5d510a  gpu NVIDIA A40 (a40)  batch 8
+
+==== 1. fla-core (20:38:26) ====
+chunk_gated_delta_rule: fla.ops.gated_delta_rule.chunk
+fla device_platform: cuda
+KERNEL_RAN
+[status] fla_active: ok
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 1502.42it/s]
+[status] weights_prefetched: ok
+
+==== 2. worker with BATCH_MAX=8 (20:38:33) ====
+[status] worker_batched: ok
+[wait] polling http://127.0.0.1:8000/ping until the worker is ready
+[  1/87] intent77                 tokens=  1379    1519.8 ms
+[  2/87] schema_overflow          tokens=     -    3065.1 ms  ERROR http 400: schema requires 475198 tokens before state; maximu
+[  3/87] opts255                  tokens=  8641    7108.5 ms
+[  4/87] q64                      tokens=  5538    8170.5 ms
+[  5/87] score10                  tokens=   349    9012.7 ms
+[  6/87] empty_instructions       tokens=   203    9086.0 ms
+[  7/87] unicode_options          tokens=   270    9172.5 ms
+[  8/87] list_state               tokens=   386    9277.5 ms
+[  9/87] triage_support           tokens=   475    7876.5 ms
+[ 10/87] tool_select              tokens=   450    6436.0 ms
+[ 11/87] invoice_extract          tokens=   561    2525.0 ms
+[ 12/87] rag_relevance_1          tokens=   312    1991.9 ms
+[ 13/87] rag_relevance_2          tokens=   301    1236.7 ms
+[ 14/87] rag_relevance_3          tokens=   302    1250.2 ms
+[ 15/87] moderation               tokens=   285    1247.8 ms
+[ 16/87] near_dup_a               tokens=   232    1217.8 ms
+[ 17/87] near_dup_b               tokens=   232    1189.2 ms
+[ 18/87] near_dup_c               tokens=   232    1153.4 ms
+[ 19/87] card_trio                tokens=   300    1416.0 ms
+[ 20/87] no_instruction           tokens=   184     974.2 ms
+[ 21/87] img_receipt              tokens=   562     791.7 ms
+[ 22/87] unsorted_choice          tokens=   194    1685.9 ms
+[ 23/87] img_chart                tokens=   388     259.7 ms
+[ 24/87] noul_custom              tokens=   180    1883.5 ms
+[ 25/87] img_shapes               tokens=   483     308.6 ms
+[ 26/87] json_state               tokens=   273    2076.1 ms
+[ 27/87] img_sign448              tokens=   422     252.5 ms
+[ 28/87] many_options             tokens=  1164    2396.6 ms
+[ 29/87] img_board2048            tokens=  3321    1574.0 ms
+[ 30/87] long_2k                  tokens=  2486    4121.6 ms
+[ 31/87] img_two                  tokens=   788     857.0 ms
+[ 32/87] trunc_16k                tokens= 16384    7513.1 ms
+[ 33/87] img_receipt_textonly     tokens=   259    7411.8 ms
+[ 34/87] img_chart_textonly       tokens=   157    6688.2 ms
+[ 35/87] img_shapes_textonly      tokens=   224    6479.1 ms
+[ 36/87] img_sign448_textonly     tokens=   223    6278.1 ms
+[ 37/87] img_board2048_textonly   tokens=   246    5960.6 ms
+[ 38/87] pulse-11714037           tokens=   843    5463.0 ms
+[ 39/87] pulse-10661222           tokens=   872    5249.4 ms
+[ 40/87] pulse-11711957           tokens=   811    2349.3 ms
+[ 41/87] pulse-9854422            tokens=   815    2146.0 ms
+[ 42/87] pulse-11712604           tokens=   852    2246.6 ms
+[ 43/87] pulse-9710164            tokens=   823    2348.3 ms
+[ 44/87] pulse-9709124            tokens=   873    2451.9 ms
+[ 45/87] pulse-11116991           tokens=   821    3718.2 ms
+[ 46/87] pulse-10720478           tokens=   818    2578.6 ms
+[ 47/87] pulse-9708731            tokens=   902    2597.8 ms
+[ 48/87] pulse-9710418            tokens=   815    2596.8 ms
+[ 49/87] pulse-11678677           tokens=   817    2595.4 ms
+[ 50/87] pulse-9711065            tokens=   813    2595.4 ms
+[ 51/87] pulse-9710025            tokens=   852    2596.6 ms
+[ 52/87] pulse-11716232           tokens=   815    3760.0 ms
+[ 53/87] pulse-9710672            tokens=   903    2613.6 ms
+[ 54/87] pulse-9709632            tokens=   826    2613.7 ms
+[ 55/87] pulse-11086438           tokens=   841    2591.7 ms
+[ 56/87] pulse-11680618           tokens=   837    2593.3 ms
+[ 57/87] pulse-9933807            tokens=   810    2594.1 ms
+[ 58/87] pulse-9744321            tokens=   826    2592.5 ms
+[ 59/87] pulse-9709100            tokens=   880    3254.0 ms
+[ 60/87] pulse-11716347           tokens=   889    2089.8 ms
+[ 61/87] pulse-11712187           tokens=   809    2066.1 ms
+[ 62/87] pulse-9709747            tokens=   869    2070.4 ms
+[ 63/87] pulse-10619114           tokens=   316    2477.7 ms
+[ 64/87] pulse-11707797           tokens=   364    2400.0 ms
+[ 65/87] pulse-11711171           tokens=   294    2313.3 ms
+[ 66/87] pulse-9707691            tokens=   305    2224.5 ms
+[ 67/87] pulse-11714938           tokens=   280    1468.1 ms
+[ 68/87] pulse-10426369           tokens=   293    1374.6 ms
+[ 69/87] pulse-9707552            tokens=   370    1298.1 ms
+[ 70/87] pulse-10545020           tokens=   373    1711.9 ms
+[ 71/87] pulse-9708199            tokens=   293    1217.8 ms
+[ 72/87] pulse-9707413            tokens=   293    1210.2 ms
+[ 73/87] pulse-11132428           tokens=   288    1213.1 ms
+[ 74/87] pulse-10702774           tokens=   297    1215.2 ms
+[ 75/87] pulse-9707528            tokens=   272    1217.2 ms
+[ 76/87] pulse-11707888           tokens=   296    1219.1 ms
+[ 77/87] pulse-11617432           tokens=   322    1692.0 ms
+[ 78/87] pulse-9943143            tokens=   351    1191.9 ms
+[ 79/87] pulse-10221259           tokens=   283    1191.0 ms
+[ 80/87] pulse-10729536           tokens=   293    1188.2 ms
+[ 81/87] pulse-10901596           tokens=   323    1187.6 ms
+[ 82/87] pulse-11711123           tokens=   311    1185.0 ms
+[ 83/87] pulse-11711631           tokens=   314    1186.5 ms
+[ 84/87] pulse-9853056            tokens=   353    1488.0 ms
+[ 85/87] pulse-11710845           tokens=   287    1001.4 ms
+[ 86/87] pulse-11393348           tokens=   291     993.5 ms
+[ 87/87] pulse-9708012            tokens=   295     988.8 ms
+[status] parity_batched: PASS
+## Correctness gate (any GPU)
+
+# Parity: runs/http-batched-a40 vs /root/worker-decide/fixtures/clef-flash/float32
+
+| metric | value |
+|---|---|
+| records | 87 |
+| failed | 0 |
+| request mismatches | 0 |
+| span mismatches | 0 |
+| max \|Δp\| (worst question) | 0.0160 (bar 0.025) |
+| mean of record means | 0.00142 (bar 0.0025) |
+| mean of question max \|Δp\| (info) | 0.00188 |
+| near-ties (not judged) | 19 |
+| result | PASS |
+
+[wait] polling http://127.0.0.1:8000/ping until the worker is ready
+[  1/5] order_choice_sorted      tokens=   194     144.9 ms
+[  2/5] order_choice_unsorted    tokens=   194     467.5 ms
+[  3/5] order_questions_reversed tokens=   300     551.4 ms
+[  4/5] order_questions_alphabetical tokens=   300     639.3 ms
+[  5/5] order_questions_as_card  tokens=   300     725.2 ms
+[status] parity_batched_order: PASS
+[status] batching_effective: FAIL
+## Batching: 0 of 87 records answered in batches of 2+
+
+| batch size | records |
+|---|---|
+| 1 | 80 |
+| none | 7 |
+
+Batcher stats: batches=19, requests=85, batched_ok=0, max_ok_size=1, retried_alone=80, stopped=None
+
+result: FAIL (no record was answered in a batch of 2 or more; 80 requests were retried alone after a failed batch)
+[load] ticket (card_trio) c=1 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 12.075, 'req_per_s': 10.6, 'p50_ms': 94.8, 'p90_ms': 97.3, 'p99_ms': 99.4, 'mean_ms': 94.3, 'min_ms': 88.3, 'max_ms': 99.7}
+[load] ticket (card_trio) c=8 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 19.234, 'req_per_s': 6.655, 'p50_ms': 1146.3, 'p90_ms': 1571.4, 'p99_ms': 1583.3, 'mean_ms': 1183.2, 'min_ms': 135.6, 'max_ms': 1589.5}
+[load] ticket (card_trio) c=32 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 19.526, 'req_per_s': 6.555, 'p50_ms': 4814.2, 'p90_ms': 4900.3, 'p99_ms': 5049.9, 'mean_ms': 4359.9, 'min_ms': 381.2, 'max_ms': 5140.0}
+[load] pulse (pulse-11714037) c=1 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 24.186, 'req_per_s': 5.292, 'p50_ms': 189.3, 'p90_ms': 191.8, 'p99_ms': 192.8, 'mean_ms': 188.9, 'min_ms': 181.5, 'max_ms': 193.0}
+[load] pulse (pulse-11714037) c=8 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 42.566, 'req_per_s': 3.007, 'p50_ms': 2529.5, 'p90_ms': 3598.5, 'p99_ms': 3619.1, 'mean_ms': 2621.0, 'min_ms': 193.1, 'max_ms': 3619.6}
+[load] pulse (pulse-11714037) c=32 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 42.867, 'req_per_s': 2.986, 'p50_ms': 10738.1, 'p90_ms': 10768.9, 'p99_ms': 10772.6, 'mean_ms': 9548.7, 'min_ms': 233.8, 'max_ms': 10807.9}
+[load] article (long_2k) c=1 ...
+Terminated
+---- pod_tier1.sh exited 143 (20:43:25)
+== chain done 2026-10-15T20:43:25Z ==
+holding the pod open; stop it from the Runpod console

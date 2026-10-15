@@ -1,0 +1,171 @@
+{
+ "label": "ours-fla-batch8-a40",
+ "base": "http://127.0.0.1:8000",
+ "path": "/v1/systemone",
+ "requests": 128,
+ "finished_utc": "2026-10-15T20:49:53Z",
+ "cells": [
+  {
+   "workload": "ticket",
+   "record": "card_trio",
+   "input_tokens": 300,
+   "concurrency": 1,
+   "stats": {
+    "n": 128,
+    "errors": 0,
+    "wall_s": 12.149,
+    "req_per_s": 10.535,
+    "p50_ms": 94.9,
+    "p90_ms": 96.3,
+    "p99_ms": 98.0,
+    "mean_ms": 94.9,
+    "min_ms": 89.2,
+    "max_ms": 99.1
+   }
+  },
+  {
+   "workload": "ticket",
+   "record": "card_trio",
+   "input_tokens": 300,
+   "concurrency": 8,
+   "stats": {
+    "n": 128,
+    "errors": 0,
+    "wall_s": 8.993,
+    "req_per_s": 14.233,
+    "p50_ms": 561.7,
+    "p90_ms": 570.3,
+    "p99_ms": 573.1,
+    "mean_ms": 558.5,
+    "min_ms": 132.3,
+    "max_ms": 573.3
+   }
+  },
+  {
+   "workload": "ticket",
+   "record": "card_trio",
+   "input_tokens": 300,
+   "concurrency": 32,
+   "stats": {
+    "n": 128,
+    "errors": 0,
+    "wall_s": 8.317,
+    "req_per_s": 15.39,
+    "p50_ms": 1995.7,
+    "p90_ms": 2028.2,
+    "p99_ms": 2372.0,
+    "mean_ms": 1886.1,
+    "min_ms": 363.0,
+    "max_ms": 2372.9
+   }
+  },
+  {
+   "workload": "pulse",
+   "record": "pulse-11714037",
+   "input_tokens": 843,
+   "concurrency": 1,
+   "stats": {
+    "n": 128,
+    "errors": 0,
+    "wall_s": 24.366,
+    "req_per_s": 5.253,
+    "p50_ms": 190.1,
+    "p90_ms": 194.0,
+    "p99_ms": 195.8,
+    "mean_ms": 190.3,
+    "min_ms": 181.4,
+    "max_ms": 196.0
+   }
+  },
+  {
+   "workload": "pulse",
+   "record": "pulse-11714037",
+   "input_tokens": 843,
+   "concurrency": 8,
+   "stats": {
+    "n": 128,
+    "errors": 0,
+    "wall_s": 20.42,
+    "req_per_s": 6.268,
+    "p50_ms": 1275.6,
+    "p90_ms": 1282.9,
+    "p99_ms": 1285.7,
+    "mean_ms": 1267.6,
+    "min_ms": 195.5,
+    "max_ms": 1286.4
+   }
+  },
+  {
+   "workload": "pulse",
+   "record": "pulse-11714037",
+   "input_tokens": 843,
+   "concurrency": 32,
+   "stats": {
+    "n": 128,
+    "errors": 0,
+    "wall_s": 20.281,
+    "req_per_s": 6.311,
+    "p50_ms": 5055.8,
+    "p90_ms": 5063.9,
+    "p99_ms": 5287.6,
+    "mean_ms": 4591.6,
+    "min_ms": 250.6,
+    "max_ms": 5287.9
+   }
+  },
+  {
+   "workload": "article",
+   "record": "long_2k",
+   "input_tokens": 2486,
+   "concurrency": 1,
+   "stats": {
+    "n": 128,
+    "errors": 0,
+    "wall_s": 63.662,
+    "req_per_s": 2.011,
+    "p50_ms": 497.0,
+    "p90_ms": 500.7,
+    "p99_ms": 512.6,
+    "mean_ms": 497.3,
+    "min_ms": 484.1,
+    "max_ms": 520.4
+   }
+  },
+  {
+   "workload": "article",
+   "record": "long_2k",
+   "input_tokens": 2486,
+   "concurrency": 8,
+   "stats": {
+    "n": 128,
+    "errors": 0,
+    "wall_s": 57.814,
+    "req_per_s": 2.214,
+    "p50_ms": 3612.0,
+    "p90_ms": 3626.0,
+    "p99_ms": 3630.8,
+    "mean_ms": 3588.7,
+    "min_ms": 498.7,
+    "max_ms": 3631.0
+   }
+  },
+  {
+   "workload": "article",
+   "record": "long_2k",
+   "input_tokens": 2486,
+   "concurrency": 32,
+   "stats": {
+    "n": 128,
+    "errors": 0,
+    "wall_s": 57.648,
+    "req_per_s": 2.22,
+    "p50_ms": 14392.2,
+    "p90_ms": 14401.5,
+    "p99_ms": 14940.7,
+    "mean_ms": 13041.9,
+    "min_ms": 555.4,
+    "max_ms": 14941.1
+   }
+  }
+ ]
+}

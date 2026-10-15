@@ -1,0 +1,560 @@
+{
+ "engine": {
+  "model": "Cloudflare/clef-flash",
+  "revision": "8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3",
+  "snapshot_path": "/root/hf/hub/models--Cloudflare--clef-flash/snapshots/8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3",
+  "snapshot_source": "hf_cache",
+  "timeline": {
+   "basis": "process_start",
+   "origin_unix": 1792096495.07,
+   "marks": {
+    "engine_init": 1.59,
+    "snapshot_resolved": 1.608,
+    "model_code_imported": 3.635,
+    "weights_loaded": 13.45
+   },
+   "fetch": {
+    "source": "hf_cache",
+    "snapshot_bytes": 19083410555,
+    "bytes_written": 0,
+    "snapshot_dir_existed": true,
+    "bytes_written_disk": 0,
+    "bytes_written_hf_home": 0,
+    "seconds": 0.018
+   }
+  },
+  "warmup_s": null,
+  "files": {
+   "joint_head.safetensors": {
+    "sha256": "19cdcec8c81dc9212be320fff47462ab342fbc1278be4368fb3da71241cf5ba0",
+    "bytes": 243538016
+   },
+   "joint_head_config.json": {
+    "sha256": "77efe959a38b5b17b241543e129e695f3c77465ece55a25985279bd8176279a0",
+    "bytes": 119
+   },
+   "joint_schema_model.py": {
+    "sha256": "0e304cf7c6500e8bb59bef7e2afd2c6373f82596dfb3b57d1aa93c175e2dc3a3",
+    "bytes": 23263
+   },
+   "config.json": {
+    "sha256": "66f87f6fb2616b46604daf2a9c67ddc87938296d07156efa34d59b5be49e3238",
+    "bytes": 2832
+   },
+   "model-00001-of-00004.safetensors": {
+    "bytes": 4942706120
+   },
+   "model-00002-of-00004.safetensors": {
+    "bytes": 4987757928
+   },
+   "model-00003-of-00004.safetensors": {
+    "bytes": 4954810240
+   },
+   "model-00004-of-00004.safetensors": {
+    "bytes": 3934446832
+   }
+  },
+  "dtype": "bfloat16",
+  "device": "cuda",
+  "gpu": "NVIDIA A40",
+  "dry_run": false,
+  "max_length": 16384,
+  "sdp": "efficient",
+  "gdn_fast_path": false,
+  "gdn_kernels": {
+   "source": "transformers",
+   "chunk_gated_delta_rule": "fla",
+   "fused_rms_norm_gated": "fla",
+   "causal_conv1d": "torch",
+   "fla_device": "cuda"
+  },
+  "versions": {
+   "python": "3.12.3",
+   "torch": "2.11.0+cu130",
+   "transformers": "5.10.2",
+   "cuda": "13.0"
+  },
+  "worker_decide_commit": "08b2981a4f88e121e07d6503714e64a710c3eabb",
+  "load_s": 9.8
+ },
+ "record": "pulse-11714037",
+ "base_tokens": 843,
+ "variants": [
+  {
+   "k": 1,
+   "tokens": 844,
+   "sibling": true
+  },
+  {
+   "k": 2,
+   "tokens": 845,
+   "sibling": true
+  },
+  {
+   "k": 3,
+   "tokens": 846,
+   "sibling": true
+  },
+  {
+   "k": 4,
+   "tokens": 847,
+   "sibling": true
+  },
+  {
+   "k": 5,
+   "tokens": 848,
+   "sibling": true
+  },
+  {
+   "k": 6,
+   "tokens": 849,
+   "sibling": true
+  },
+  {
+   "k": 7,
+   "tokens": 850,
+   "sibling": true
+  },
+  {
+   "k": 8,
+   "tokens": 851,
+   "sibling": true
+  }
+ ],
+ "env": {
+  "PYTORCH_CUDA_ALLOC_CONF": "expandable_segments:True",
+  "CUDA_MODULE_LOADING": null,
+  "TORCH_BLAS_PREFER_CUBLASLT": "1",
+  "TRITON_CACHE_DIR": "/root/triton-cache-shapes",
+  "preferred_blas": "_BlasBackend.Cublaslt"
+ },
+ "warmup": [
+  {
+   "kind": "warmup",
+   "k": 0,
+   "encode": 1.9810450030490756,
+   "collate": 0.3941910108551383,
+   "pre": 0.11004800349473953,
+   "backbone": 897.0665283203125,
+   "head": 155.70533752441406,
+   "post": 0.15703903045505285,
+   "total": 1055.5126989493147,
+   "input_tokens": 843,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 8
+  },
+  {
+   "kind": "warmup",
+   "k": 0,
+   "encode": 2.5338579434901476,
+   "collate": 0.34770509228110313,
+   "pre": 0.12169600278139114,
+   "backbone": 161.55795288085938,
+   "head": 4.263999938964844,
+   "post": 0.06781390402466059,
+   "total": 168.94811193924397,
+   "input_tokens": 843,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "warmup",
+   "k": 0,
+   "encode": 2.384845050983131,
+   "collate": 0.28755597304552794,
+   "pre": 0.08716800063848495,
+   "backbone": 162.21119689941406,
+   "head": 4.628672122955322,
+   "post": 0.0761980190873146,
+   "total": 169.73143303766847,
+   "input_tokens": 843,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  }
+ ],
+ "passes": [
+  {
+   "kind": "new",
+   "k": 1,
+   "encode": 1.865331083536148,
+   "collate": 0.33404689747840166,
+   "pre": 0.09366399794816971,
+   "backbone": 161.88563537597656,
+   "head": 4.936543941497803,
+   "post": 0.07591699250042439,
+   "total": 169.2552809836343,
+   "input_tokens": 844,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "repeat",
+   "k": 1,
+   "encode": 2.421339973807335,
+   "collate": 0.30141405295580626,
+   "pre": 0.10527999699115753,
+   "backbone": 163.1273651123047,
+   "head": 4.129055976867676,
+   "post": 0.06647594273090363,
+   "total": 170.20052997395396,
+   "input_tokens": 844,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "sibling",
+   "k": 1,
+   "encode": 2.2191840689629316,
+   "collate": 0.27677894104272127,
+   "pre": 0.08275199681520462,
+   "backbone": 162.6492462158203,
+   "head": 4.063488006591797,
+   "post": 0.06208708509802818,
+   "total": 169.39810407347977,
+   "input_tokens": 844,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "new",
+   "k": 2,
+   "encode": 2.186649013310671,
+   "collate": 0.2776270266622305,
+   "pre": 0.07622399926185608,
+   "backbone": 163.31980895996094,
+   "head": 4.123231887817383,
+   "post": 0.06247602868825197,
+   "total": 170.0904309982434,
+   "input_tokens": 845,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "repeat",
+   "k": 2,
+   "encode": 2.2014540154486895,
+   "collate": 0.2740430645644665,
+   "pre": 0.0767040029168129,
+   "backbone": 163.0485382080078,
+   "head": 3.8928959369659424,
+   "post": 0.06069708615541458,
+   "total": 169.59791409317404,
+   "input_tokens": 845,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "sibling",
+   "k": 2,
+   "encode": 2.132250927388668,
+   "collate": 0.2653410192579031,
+   "pre": 0.06940799951553345,
+   "backbone": 164.58050537109375,
+   "head": 3.857856035232544,
+   "post": 0.05784106906503439,
+   "total": 171.00524296984076,
+   "input_tokens": 845,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "new",
+   "k": 3,
+   "encode": 2.0174160599708557,
+   "collate": 0.2688709646463394,
+   "pre": 0.07599999755620956,
+   "backbone": 163.15065002441406,
+   "head": 4.109951972961426,
+   "post": 0.05824398249387741,
+   "total": 169.7260410292074,
+   "input_tokens": 846,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "repeat",
+   "k": 3,
+   "encode": 2.199921989813447,
+   "collate": 0.26619189884513617,
+   "pre": 0.07491199672222137,
+   "backbone": 164.36019897460938,
+   "head": 3.9975039958953857,
+   "post": 0.06409897468984127,
+   "total": 171.00918595679104,
+   "input_tokens": 846,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "sibling",
+   "k": 3,
+   "encode": 2.097537973895669,
+   "collate": 0.2746550599113107,
+   "pre": 0.07241600006818771,
+   "backbone": 163.1177978515625,
+   "head": 3.94268798828125,
+   "post": 0.06056996062397957,
+   "total": 169.6174059761688,
+   "input_tokens": 846,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "new",
+   "k": 4,
+   "encode": 2.0583830773830414,
+   "collate": 0.26604090817272663,
+   "pre": 0.07046400010585785,
+   "backbone": 163.61590576171875,
+   "head": 4.194431781768799,
+   "post": 0.06505090277642012,
+   "total": 170.31670396681875,
+   "input_tokens": 847,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "repeat",
+   "k": 4,
+   "encode": 2.2234258940443397,
+   "collate": 0.2775120083242655,
+   "pre": 0.07558400183916092,
+   "backbone": 162.67079162597656,
+   "head": 4.0386881828308105,
+   "post": 0.06283004768192768,
+   "total": 169.39487296622247,
+   "input_tokens": 847,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "sibling",
+   "k": 4,
+   "encode": 5.931914085522294,
+   "collate": 0.48059795517474413,
+   "pre": 0.1151999980211258,
+   "backbone": 163.4344024658203,
+   "head": 4.386752128601074,
+   "post": 0.07138599175959826,
+   "total": 174.471182981506,
+   "input_tokens": 847,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "new",
+   "k": 5,
+   "encode": 2.199633978307247,
+   "collate": 0.27309602592140436,
+   "pre": 0.07180800288915634,
+   "backbone": 163.51904296875,
+   "head": 4.225088119506836,
+   "post": 0.06608699914067984,
+   "total": 170.40434898808599,
+   "input_tokens": 848,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "repeat",
+   "k": 5,
+   "encode": 2.24869791418314,
+   "collate": 0.28103101067245007,
+   "pre": 0.08211199939250946,
+   "backbone": 163.75018310546875,
+   "head": 3.9652159214019775,
+   "post": 0.06209290586411953,
+   "total": 170.43464491143823,
+   "input_tokens": 848,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "sibling",
+   "k": 5,
+   "encode": 2.113774069584906,
+   "collate": 0.27557997964322567,
+   "pre": 0.07369600236415863,
+   "backbone": 164.02450561523438,
+   "head": 4.068096160888672,
+   "post": 0.06436696276068687,
+   "total": 170.66566098947078,
+   "input_tokens": 848,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "new",
+   "k": 6,
+   "encode": 2.17223702929914,
+   "collate": 0.28357398696243763,
+   "pre": 0.0799039974808693,
+   "backbone": 163.77626037597656,
+   "head": 4.5207037925720215,
+   "post": 0.07163500413298607,
+   "total": 170.95794901251793,
+   "input_tokens": 849,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "repeat",
+   "k": 6,
+   "encode": 2.4104960029944777,
+   "collate": 0.30793098267167807,
+   "pre": 0.08291199803352356,
+   "backbone": 164.1961669921875,
+   "head": 4.335455894470215,
+   "post": 0.07102498784661293,
+   "total": 171.45997192710638,
+   "input_tokens": 849,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "sibling",
+   "k": 6,
+   "encode": 2.7414949145168066,
+   "collate": 0.29352307319641113,
+   "pre": 0.08860799670219421,
+   "backbone": 162.9851837158203,
+   "head": 4.620512008666992,
+   "post": 0.07823400665074587,
+   "total": 170.86554097477347,
+   "input_tokens": 849,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "new",
+   "k": 7,
+   "encode": 2.892834017984569,
+   "collate": 0.30827498994767666,
+   "pre": 0.09020800143480301,
+   "backbone": 164.10855102539062,
+   "head": 4.41212797164917,
+   "post": 0.0686870189383626,
+   "total": 171.93842201959342,
+   "input_tokens": 850,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "repeat",
+   "k": 7,
+   "encode": 2.30225408449769,
+   "collate": 0.29077997896820307,
+   "pre": 0.08380799740552902,
+   "backbone": 164.32199096679688,
+   "head": 4.149248123168945,
+   "post": 0.06641598884016275,
+   "total": 171.26436601392925,
+   "input_tokens": 850,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "sibling",
+   "k": 7,
+   "encode": 2.1947359200567007,
+   "collate": 0.2786479890346527,
+   "pre": 0.08393599838018417,
+   "backbone": 163.8194580078125,
+   "head": 4.583072185516357,
+   "post": 0.08052203338593245,
+   "total": 171.09703400637954,
+   "input_tokens": 850,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "new",
+   "k": 8,
+   "encode": 2.422646968625486,
+   "collate": 0.31219900120049715,
+   "pre": 0.0899519994854927,
+   "backbone": 164.82669067382812,
+   "head": 4.825247764587402,
+   "post": 0.07395399734377861,
+   "total": 172.6071450393647,
+   "input_tokens": 851,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "repeat",
+   "k": 8,
+   "encode": 2.294059027917683,
+   "collate": 0.29834394808858633,
+   "pre": 0.09884800016880035,
+   "backbone": 163.8363800048828,
+   "head": 4.250592231750488,
+   "post": 0.06698898505419493,
+   "total": 170.89926602784544,
+   "input_tokens": 851,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "sibling",
+   "k": 8,
+   "encode": 2.3289560340344906,
+   "collate": 0.28389692306518555,
+   "pre": 0.07971200346946716,
+   "backbone": 163.7818603515625,
+   "head": 4.5273919105529785,
+   "post": 0.07295398972928524,
+   "total": 171.12922796513885,
+   "input_tokens": 851,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  }
+ ],
+ "summary": {
+  "new": {
+   "n": 8,
+   "encode": 2.18,
+   "collate": 0.28,
+   "pre": 0.08,
+   "backbone": 163.57,
+   "head": 4.32,
+   "post": 0.07,
+   "total": 170.36,
+   "device_allocs": 0.0
+  },
+  "repeat": {
+   "n": 8,
+   "encode": 2.27,
+   "collate": 0.29,
+   "pre": 0.08,
+   "backbone": 163.79,
+   "head": 4.08,
+   "post": 0.07,
+   "total": 170.67,
+   "device_allocs": 0.0
+  },
+  "sibling": {
+   "n": 8,
+   "encode": 2.21,
+   "collate": 0.28,
+   "pre": 0.08,
+   "backbone": 163.61,
+   "head": 4.23,
+   "post": 0.07,
+   "total": 170.94,
+   "device_allocs": 0.0
+  },
+  "new_minus_repeat": {
+   "encode": -0.09,
+   "collate": -0.01,
+   "pre": 0.0,
+   "backbone": -0.22,
+   "head": 0.24,
+   "post": 0.0,
+   "total": -0.31
+  }
+ },
+ "op_diff": null,
+ "batch_preview": null,
+ "finished_utc": "2026-10-15T20:35:14Z"
+}

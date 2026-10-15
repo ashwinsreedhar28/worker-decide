@@ -766,6 +766,141 @@ buckets through the gate); then tier 1, batching concurrent requests, where SGLa
 (6.8× at c=32 on ticket), which also amortizes the CPU-bound short-input path. The A40
 numbers are still owed.
 
+### Results: shape probe and tier 1 on the A40, Oct 15 (`m5/shapes-a40-20261015-2029`, `m5/tier1-a40-20261015-2056`)
+
+One A40 pod ran `scripts/pod_shapes.sh` and then `scripts/pod_tier1.sh` (via `pod_chain.sh`),
+fla-core 0.5.2 installed as in tier 0.
+
+**No per-length cost on the A40, in-process or over HTTP.** The probe ran 8 variants of the
+843-token Pulse record (+1 to +8 tokens) and of long_2k, each as new / repeat / sibling (same
+count, other words). Backbone medians, run 1:
+
+| probe | new | repeat | sibling | new − repeat |
+|---|---|---|---|---|
+| default (expandable segments, the image's) | 168.1 ms | 167.8 ms | 167.6 ms | +0.2 ms |
+| noexpand (plain allocator) | 168.4 ms | 168.6 ms | 168.9 ms | −0.1 ms |
+| eager (CUDA_MODULE_LOADING=EAGER) | 168.7 ms | 168.8 ms | 169.2 ms | −0.0 ms |
+| lt (cuBLASLt) | 162.9 ms | 162.7 ms | 163.3 ms | +0.2 ms |
+| long_2k, default | 459.0 ms | 459.1 ms | 459.8 ms | −0.1 ms |
+
+- Two more runs of all five probes (two container restarts reran the chain:
+  `runs/shapes-a40-run2`, `run3`) agree: new − repeat within ±0.4 ms in every probe, though the
+  medians themselves moved by up to 2.3 ms between runs. One device allocation in all: long_2k's
+  first new length, in each run, and it was not slower (454.6 ms in run 1). Run 1's traced
+  pair has no op that grew more than 0.5 ms. Runs 2–3 have up to 1.3 ms in single ops
+  (Command Buffer Full, aten::mm) with no net backbone change.
+- Over HTTP, the tier 1 run's sequential gate shows the same: `near_dup_a/b/c` (232 tokens)
+  took 76.3 / 75.6 / 75.5 ms. On the H100 the same three took 169.7 / 55.1 / 52.7 ms.
+- So the H100's ~110 ms per new length is not intrinsic to our code: the same code on the A40
+  does not pay it. The allocator, module-loading and BLAS variants ran only on the A40, so they
+  rule nothing out on the H100. The two GPUs also differ in driver (580.126.09 on the H100 pod,
+  595.91.07 here) as well as architecture. The cost hit fla and pure torch alike on the H100.
+  The leading hypothesis is Hopper's GEMM selection: cuBLAS picks among nvjet kernels per new
+  matrix shape there. The H100 kernel tables show nvjet GEMMs for both paths; the A40 runs
+  cutlass sm80 and ampere cuBLAS kernels. Unverified until `pod_shapes.sh` runs on an H100.
+- cuBLASLt was about 3.1–3.4% faster on the A40 backbone (162.8–163.6 vs 168.1–169.3 ms new
+  passes, all three runs): a candidate default, after the gate.
+
+**The A40 is GPU-bound even at 843 tokens.** In the traced new pass, kernels run 166.7 ms of a
+177.8 ms span (94%), GEMMs 112.8 ms of that (68%). On the H100 the same 843-token request left
+the GPU idle about two-thirds of the time (tier 0). With the forward approximated as 2 × 6.92B
+non-embedding backbone parameters × tokens (the 7.94B backbone count includes the 1.02B token
+embedding):
+- pulse: 168 ms for 11.7 TFLOP, 69 TFLOP/s, 46% of the A40's 149.7 dense bf16;
+- long_2k: 459 ms for 34.4 TFLOP, 75 TFLOP/s, 50%;
+- the H100 ran pulse in 50 ms, 232 TFLOP/s, 23% of 989.
+Batching can only fill idle GPU time, so on the A40 it should mostly help short inputs.
+
+**Tier 1 on the A40 (BATCH_MAX=8).**
+- First attempt: the batched path read only the first record's output. The model returns one
+  entry per record; the single-record path has always taken `[0]`. The count check turned this
+  into retries, not wrong answers. Fixed in `046dcde` before the measured run.
+- Process note: my first command to stop that run matched PID 1
+  (`/sbin/docker-init -- python3 -m worker`) and restarted the container. On a pod, stop
+  session scripts by their own names only.
+  - The chain restarted twice (20:33:37 and 20:36:16, `runs/m4-a40/pod_chain.log`); the second
+    restart is not explained. The buggy tier 1 code ran twice before the fix (20:29 and 20:38),
+    and both times recorded batching_effective FAIL with 80 requests retried alone.
+  - The fix was swapped into the d5d510a checkout by hand, so the worker info records
+    `worker_decide_commit` d5d510a, which does not contain 046dcde. The swap is documented in
+    the data commit's message (eb09401).
+- Gates:
+  - Batched answers vs fp32: PASS, worst question 0.0154, mean of record means 0.00121 (bar
+    0.025 / 0.0025).
+  - Order records: PASS.
+  - Batching really happened: 71 of 87 records were answered in batches of 2–7, 0 retried
+    alone (`batch_report_a40.md`).
+  - The same worker one at a time: PASS, worst 0.0160, mean 0.00142.
+- **Batched vs single on the same GPU: FAIL** against the regression bar (0.005 / 0.001). 11
+  records are over it; worst `invoice_extract/overdue` 0.0233, mean of record means 0.00114.
+  - Padding changes the GEMM shapes, so bf16 rounding differs.
+  - That question is the most sensitive in the set: SGLang vs ours 0.0286, fla vs torch 0.0229,
+    cross-GPU up to 0.029.
+  - Both runs are within the truth bar, and the batched one is closer to fp32 on average
+    (mean of record means 0.00121 vs 0.00142; closer on 82 questions vs 64).
+  - The direct test for padding leaking into real tokens: on the 131 questions of records that
+    were padded in their batch, batched answers are no further from fp32 than single ones
+    (mean 0.00132 vs 0.00162).
+  - Some records do get worse. The batched run's worst question vs fp32,
+    `invoice_extract/lines_sum_matches_total`, is 0.0154 batched against 0.0009 single, and that
+    record was the longest in its batch (no padding). `pulse-10702774` is 0.0088 vs 0.0011.
+    That is the shape effect, not leakage, but it is per-record and can be large.
+  - So the 0.005 bar (built for same code, same shapes) does not fit batched vs single. The
+    result stands as a property, not hidden by a looser bar: a request's probabilities can move
+    by up to 0.023 with what it is batched with. Batching servers in general share this;
+    SGLang's own batched answers were not tested for it.
+
+Throughput, req/s (HTTP, same harness; one at a time → batched):
+
+| workload | tokens | c=1 | c=8 | c=32 |
+|---|---|---|---|---|
+| ticket | 300 | 11.05 → 10.54 | 8.03 → 14.23 (+77%) | 8.16 → 15.39 (+89%) |
+| pulse | 843 | 5.49 → 5.25 | 5.33 → 6.27 (+18%) | 5.35 → 6.31 (+18%) |
+| article | 2,486 | 2.07 → 2.01 | 2.04 → 2.21 (+8%) | 2.04 → 2.22 (+9%) |
+
+- As the compute bound predicts: large gains for short inputs, small ones above about 800
+  tokens on this GPU.
+- One at a time, concurrency costs throughput (ticket 11.05 → 8.03 req/s from c=1 to c=8);
+  batching removes that.
+- The batched path adds 4.9 / 8.1 / 14.6 ms at c=1 (p50 90.0 → 94.9, 182.0 → 190.1,
+  482.4 → 497.0 ms). Not yet explained.
+
+**The A40 comparison: pure torch → fla → fla + batching, against SGLang** (same pod; pure torch
+and SGLang from `pod_m4.sh` steps 3 and 4 after fla was uninstalled, `m4/pod-a40-20261015`, data
+in `runs/load-ours-a40`, `runs/load-sglang-a40`, `runs/m4-a40/`):
+
+| workload | tokens | c=1 p50: torch / fla / fla + batch / SGLang | c=32 req/s: torch / fla / fla + batch / SGLang |
+|---|---|---|---|
+| ticket | 300 | 165.2 / 90.0 / 94.9 / 80.3 ms | 4.27 / 8.16 / 15.39 / 22.02 |
+| pulse | 843 | 313.2 / 182.0 / 190.1 / 155.3 ms | 2.98 / 5.35 / 6.31 / 8.14 |
+| article | 2,486 | 821.1 / 482.4 / 497.0 / 403.1 ms | 1.19 / 2.04 / 2.22 / 2.75 |
+
+- On the target GPU, our worker with batching does 70% / 78% / 81% of SGLang's throughput at
+  32 concurrent requests (15.39/22.02, 6.31/8.14, 2.22/2.75). Without batching it is 37% / 66% /
+  74%. On the H100, fla without batching was at 15% / 31% / 56%.
+- One request at a time, SGLang's latency is 85% / 82% / 81% of the batching worker's
+  (80.3/94.9, 155.3/190.1, 403.1/497.0), and 89% / 85% / 84% of BATCH_MAX=1's (80.3/90.0,
+  155.3/182.0, 403.1/482.4).
+- From pure torch, the batching worker is 3.6× / 2.1× / 1.9× the throughput at c=32. One at a
+  time it is 1.7× / 1.6× / 1.7× faster (BATCH_MAX=1: 1.8× / 1.7× / 1.7×).
+- SGLang passes the gate on the A40 too: worst question 0.0130, mean of record means 0.00137;
+  order records worst 0.0106; `empty_instructions` refused with 422 as on the H100 (SKIP). Our
+  pure-torch A40 answers (milestone 2's run) and SGLang's are equally close to the truth
+  (closer on 90 vs 88 questions; worst 0.0163 vs 0.0130). On the Pulse 50, SGLang is within
+  0.0112 of fp32 and Workers AI 0.1435 away, as on the H100.
+- Where the remaining A40 gap is likely to be (not yet measured): GPU efficiency, not
+  scheduling.
+  - Ours is GPU-bound here. SGLang's throughput under load suggests it is too, but it was not
+    profiled.
+  - Candidates: the kernels fla and torch still leave unfused (short convolution, layout
+    copies), and padding to the longest request in a batch. BATCH_MAX_RATIO 2.0 admits lengths
+    from half to twice the oldest request's, so a record can be padded up to 4×.
+  - The H100 gap is the CPU-bound kind (launches, the head's per-record Python loop, request
+    handling on the same GIL) and has to be measured on an H100.
+- SGLang's first start on this pod failed: its sm_86 JIT activation kernel needs nvcc, and
+  `pod_m4.sh` installed nvcc only when gcc was missing (gcc was there from the earlier scripts).
+  After installing cuda-nvcc-13-0 by hand, step 4 ran clean. The script fix is a separate PR.
+
 ## Built ahead: milestone 5b cost calculator and milestone 6 Typical decider (Oct 15)
 
 Both are written and audited but not yet run on real numbers or weights.

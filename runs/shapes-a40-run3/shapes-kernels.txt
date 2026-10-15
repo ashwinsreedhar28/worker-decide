@@ -1,0 +1,3 @@
+chunk_gated_delta_rule: fla.ops.gated_delta_rule.chunk
+fla device_platform: cuda
+KERNEL_RAN

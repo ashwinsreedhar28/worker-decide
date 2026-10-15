@@ -1,0 +1,61 @@
+{
+ "base": "http://127.0.0.1:8000",
+ "reference": "/root/worker-decide/fixtures/clef-flash/float32",
+ "regression": null,
+ "engine": {
+  "model": "Cloudflare/clef-flash",
+  "revision": "8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3",
+  "dtype": "bfloat16",
+  "sdp": "efficient",
+  "gdn_fast_path": false,
+  "gdn_kernels": {
+   "source": "transformers",
+   "chunk_gated_delta_rule": "fla",
+   "fused_rms_norm_gated": "fla",
+   "causal_conv1d": "torch",
+   "fla_device": "cuda"
+  },
+  "versions": {
+   "python": "3.12.3",
+   "torch": "2.11.0+cu130",
+   "transformers": "5.10.2",
+   "cuda": "13.0"
+  },
+  "gpu": "NVIDIA A40",
+  "worker_decide_commit": "d5d510ab6781b83b7d4ac827c6ab4b6211cea148",
+  "load_s": 10.7,
+  "snapshot_source": "hf_cache",
+  "warmup_s": null,
+  "timeline": {
+   "basis": "process_start",
+   "origin_unix": 1792097394.684,
+   "marks": {
+    "engine_init": 0.56,
+    "snapshot_resolved": 0.578,
+    "model_code_imported": 4.5,
+    "weights_loaded": 15.242,
+    "ready": 15.242
+   },
+   "fetch": {
+    "source": "hf_cache",
+    "snapshot_bytes": 19083410555,
+    "bytes_written": 0,
+    "snapshot_dir_existed": true,
+    "bytes_written_disk": 0,
+    "bytes_written_hf_home": 0,
+    "seconds": 0.018
+   }
+  },
+  "code_sha": "0e304cf7c6500e8bb59bef7e2afd2c6373f82596dfb3b57d1aa93c175e2dc3a3",
+  "batching": null
+ },
+ "counts": {
+  "ok": 86,
+  "error": 1
+ },
+ "requests": [
+  "/root/worker-decide/fixtures/requests/*.jsonl"
+ ],
+ "concurrency": 1,
+ "finished_utc": "2026-10-15T20:50:32Z"
+}
