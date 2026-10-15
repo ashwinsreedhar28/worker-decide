@@ -260,6 +260,7 @@ def test_summarize_mode_rederives_old_v1_runs_and_warns(tmp_path, capsys, monkey
     assert "weight load | 7.999 |" in out
     assert "v1 metric" in out and "fetch: GB" not in out  # no byte rows from the broken metric
     assert "snapshot hf_download" not in out  # the label the v1 metric produced is not shown
+    assert "not model_store (v1" in out  # but the run is not silently dropped from the label
     assert json.loads((tmp_path / "summary.json").read_text())["fetch_metrics"] == ["v1"]
 
 
@@ -269,5 +270,5 @@ def test_a_v1_model_store_label_stands_because_it_came_from_the_path():
         "snapshot_source": "model_store", "fetch_metric": "v1", "fetch_s": 0.01,
         "platform_est_s": 6.0, "marks": {"ready": 14.0}}}  # fmt: skip
     assert cs.summarize([row])["snapshot_sources"] == ["model_store"]
-    row["cold"]["snapshot_source"] = "hf_download"  # v1's byte-derived label: hidden
-    assert cs.summarize([row])["snapshot_sources"] == []
+    row["cold"]["snapshot_source"] = "hf_download"  # v1's byte-derived label: replaced, not hidden
+    assert cs.summarize([row])["snapshot_sources"] == [cs.V1_NOT_STORE]
