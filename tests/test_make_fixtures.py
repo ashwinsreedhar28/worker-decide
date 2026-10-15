@@ -101,3 +101,30 @@ def test_make_images_without_system_fonts(tmp_path, monkeypatch):
     recs = mf.make_images(tmp_path)
     assert sorted(p.name for p in tmp_path.glob("*.png")) == sorted(IMAGE_SHA16)
     assert len(recs) == 11
+
+
+def test_order_fixtures_keep_their_key_order_on_disk():
+    # Oct 15: write_jsonl's sort_keys=True sorted "unsorted_choice" and card_trio's questions on
+    # disk. order.jsonl is the coverage for that, so its order must survive the file.
+    path = mf.ROOT / "fixtures" / "requests-order" / "order.jsonl"
+    on_disk = {json.loads(x)["id"]: json.loads(x) for x in path.read_text().splitlines() if x}
+    built = {r["id"]: r for r in mf.order_records()}
+    assert on_disk == built  # same content
+    team = on_disk["order_choice_unsorted"]["request"]["questions"]["team"]["criteria"]
+    assert list(team) == ["technical", "billing", "sales"]
+    assert list(on_disk["order_questions_as_card"]["request"]["questions"]) == [
+        "department", "urgency", "outage"]  # fmt: skip
+    assert list(on_disk["order_questions_reversed"]["request"]["questions"]) == [
+        "outage", "urgency", "department"]  # fmt: skip
+
+
+def test_the_sorted_fixture_files_really_are_sorted():
+    # Documents the finding rather than hiding it: these bodies are what the oracle saw.
+    by_id = {}
+    for p in (mf.REQ).glob("*.jsonl"):
+        for x in p.read_text().splitlines():
+            if x:
+                by_id[json.loads(x)["id"]] = json.loads(x)
+    assert list(by_id["card_trio"]["request"]["questions"]) == ["department", "outage", "urgency"]
+    team = by_id["unsorted_choice"]["request"]["questions"]["team"]["criteria"]
+    assert list(team) == sorted(team)

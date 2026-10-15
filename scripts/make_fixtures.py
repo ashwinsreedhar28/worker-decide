@@ -11,7 +11,9 @@ English); the pod's `oracle.py --dry-run` reports the real `input_tokens`, and t
 acceptance ranges are checked there, not here.
 
 Usage:
-    python scripts/make_fixtures.py   # writes fixtures/requests/{edge,images}.jsonl + images/
+    python scripts/make_fixtures.py   # writes fixtures/requests/{edge,coverage,images}.jsonl
+                                      # + images/ (key-sorted) and fixtures/requests-order/
+                                      # order.jsonl (order-preserving)
 """
 
 from __future__ import annotations
@@ -474,6 +476,65 @@ def make_images(out_dir: Path = IMG) -> list[dict]:
     return recs
 
 
+def order_records() -> list[dict]:
+    """Records whose key order is the point, for order.jsonl (written order-preserving).
+
+    Oct 15 finding: write_jsonl sorts every dict (sort_keys=True), so on disk the
+    "unsorted_choice" record is sorted and card_trio's questions are alphabetical; no existing
+    fixture exercises a non-alphabetical order. Those files stay as they are (the oracle numbers
+    are tied to their exact bodies); these records cover the gap:
+
+    - order_choice_unsorted: unsorted_choice's content, options out of order on the wire. The
+      encoder sorts choice ids, so this must encode to the same token ids as unsorted_choice.
+    - order_questions_as_card / _reversed: card_trio's questions in the model card's order and
+      reversed. Questions share one prompt and attend to each other, so order can move the
+      numbers; with card_trio's alphabetical copy that is three orders of one request.
+    """
+    trio = CARD_TRIO["questions"]
+    reversed_q = {k: trio[k] for k in reversed(list(trio))}
+    recs = [
+        {
+            "id": "order_choice_unsorted",
+            "source": {
+                "kind": "order",
+                "targets": "options out of order on the wire; same ids as unsorted_choice expected",
+            },  # fmt: skip
+            "request": {
+                "state": TICKET,
+                "questions": {
+                    "team": {
+                        "type": "choice",
+                        "instructions": "Which team should handle this?",
+                        "criteria": {
+                            "technical": "Outages, errors, configuration",
+                            "billing": "Payments, invoices, refunds",
+                            "sales": "Plans and upgrades",
+                        },
+                    }
+                },
+            },
+        },
+        {
+            "id": "order_questions_as_card",
+            "source": {"kind": "order", "targets": "card_trio questions in model-card order"},
+            "request": {"state": CARD_TRIO["state"], "questions": dict(trio)},
+        },
+        {
+            "id": "order_questions_reversed",
+            "source": {"kind": "order", "targets": "card_trio questions reversed"},
+            "request": {"state": CARD_TRIO["state"], "questions": reversed_q},
+        },
+    ]
+    return recs
+
+
+def write_jsonl_ordered(path: Path, recs: list[dict]) -> None:
+    """Key order kept as built: the requests' question and option order is the content."""
+    with path.open("w") as f:
+        for r in recs:
+            f.write(json.dumps(r, ensure_ascii=False) + "\n")
+
+
 def write_jsonl(path: Path, recs: list[dict]) -> None:
     with path.open("w") as f:
         for r in recs:
@@ -489,7 +550,12 @@ def main() -> None:
     write_jsonl(REQ / "coverage.jsonl", cov)
     imgs = make_images()
     write_jsonl(REQ / "images.jsonl", imgs)
-    for r in edge + cov + imgs:
+    order = order_records()
+    # Own directory: everything under fixtures/requests/ has a committed oracle record, which
+    # several tests rely on; these get theirs (fixtures/clef-flash/float32-order) on a pod.
+    (ROOT / "fixtures" / "requests-order").mkdir(exist_ok=True)
+    write_jsonl_ordered(ROOT / "fixtures" / "requests-order" / "order.jsonl", order)
+    for r in edge + cov + imgs + order:
         chars = len(json.dumps(r["request"]["state"]))
         print(f"{r['id']:<22} state_chars={chars:>6}  {r['source']['targets']}")
 
