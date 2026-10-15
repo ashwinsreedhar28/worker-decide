@@ -1,0 +1,11 @@
+fla_active: ok
+weights_prefetched: ok
+worker_batched: ok
+parity_batched: PASS
+parity_batched_order: PASS
+batching_effective: PASS
+load_batched: ok
+worker_single: ok
+parity_single: PASS
+batched_vs_single: FAIL
+load_single: ok

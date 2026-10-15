@@ -1,0 +1,326 @@
+== pod_tier1.sh 2026-10-15T20:43:53Z == commit d5d510a  gpu NVIDIA A40 (a40)  batch 8
+
+==== 1. fla-core (20:43:53) ====
+chunk_gated_delta_rule: fla.ops.gated_delta_rule.chunk
+fla device_platform: cuda
+KERNEL_RAN
+[status] fla_active: ok
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]Fetching 17 files: 100%|██████████| 17/17 [00:00<00:00, 1484.86it/s]
+[status] weights_prefetched: ok
+
+==== 2. worker with BATCH_MAX=8 (20:44:00) ====
+[status] worker_batched: ok
+[wait] polling http://127.0.0.1:8000/ping until the worker is ready
+[  1/87] intent77                 tokens=  1379    1541.6 ms
+[  2/87] schema_overflow          tokens=     -    3032.1 ms  ERROR http 400: schema requires 475198 tokens before state; maximu
+[  3/87] q64                      tokens=  5538    5583.3 ms
+[  4/87] opts255                  tokens=  8641    5586.7 ms
+[  5/87] score10                  tokens=   349    6820.9 ms
+[  6/87] list_state               tokens=   386    6819.4 ms
+[  7/87] empty_instructions       tokens=   203    6821.9 ms
+[  8/87] tool_select              tokens=   450    3789.3 ms
+[  9/87] triage_support           tokens=   475    5284.4 ms
+[ 10/87] unicode_options          tokens=   270    6824.3 ms
+[ 11/87] invoice_extract          tokens=   561    1486.0 ms
+[ 12/87] rag_relevance_1          tokens=   312    1484.6 ms
+[ 13/87] rag_relevance_2          tokens=   301     635.7 ms
+[ 14/87] rag_relevance_3          tokens=   302     636.0 ms
+[ 15/87] moderation               tokens=   285     635.6 ms
+[ 16/87] near_dup_c               tokens=   232     635.0 ms
+[ 17/87] near_dup_a               tokens=   232     637.9 ms
+[ 18/87] near_dup_b               tokens=   232     636.2 ms
+[ 19/87] card_trio                tokens=   300     541.9 ms
+[ 20/87] no_instruction           tokens=   184     542.5 ms
+[ 21/87] json_state               tokens=   273    1004.1 ms
+[ 22/87] unsorted_choice          tokens=   194    1009.6 ms
+[ 23/87] noul_custom              tokens=   180    1008.2 ms
+[ 24/87] img_receipt              tokens=   562    1447.6 ms
+[ 25/87] trunc_16k                tokens= 16384    4666.7 ms
+[ 26/87] img_shapes               tokens=   483    3837.0 ms
+[ 27/87] img_chart                tokens=   388    4037.0 ms
+[ 28/87] long_2k                  tokens=  2486    5508.5 ms
+[ 29/87] img_sign448              tokens=   422     997.0 ms
+[ 30/87] img_board2048            tokens=  3321    1936.4 ms
+[ 31/87] many_options             tokens=  1164    7199.8 ms
+[ 32/87] img_two                  tokens=   788    1827.5 ms
+[ 33/87] img_receipt_textonly     tokens=   259    7654.4 ms
+[ 34/87] img_shapes_textonly      tokens=   224    6208.2 ms
+[ 35/87] img_chart_textonly       tokens=   157    6801.1 ms
+[ 36/87] img_board2048_textonly   tokens=   246    2296.5 ms
+[ 37/87] img_sign448_textonly     tokens=   223    2962.9 ms
+[ 38/87] pulse-11714037           tokens=   843    1322.8 ms
+[ 39/87] pulse-10661222           tokens=   872    1103.6 ms
+[ 40/87] pulse-11711957           tokens=   811     811.2 ms
+[ 41/87] pulse-9710164            tokens=   823    1321.5 ms
+[ 42/87] pulse-9709124            tokens=   873    1322.8 ms
+[ 43/87] pulse-11712604           tokens=   852    1325.3 ms
+[ 44/87] pulse-9854422            tokens=   815    1330.4 ms
+[ 45/87] pulse-11116991           tokens=   821    1326.8 ms
+[ 46/87] pulse-10720478           tokens=   818    1360.8 ms
+[ 47/87] pulse-9708731            tokens=   902    1359.3 ms
+[ 48/87] pulse-9710418            tokens=   815    1359.4 ms
+[ 49/87] pulse-11678677           tokens=   817    1403.6 ms
+[ 50/87] pulse-9710672            tokens=   903    1400.5 ms
+[ 51/87] pulse-9711065            tokens=   813    1404.2 ms
+[ 52/87] pulse-9710025            tokens=   852    1404.8 ms
+[ 53/87] pulse-11716232           tokens=   815    1403.8 ms
+[ 54/87] pulse-9709632            tokens=   826    1356.8 ms
+[ 55/87] pulse-11680618           tokens=   837    1357.2 ms
+[ 56/87] pulse-11086438           tokens=   841    1359.2 ms
+[ 57/87] pulse-9744321            tokens=   826    1340.4 ms
+[ 58/87] pulse-11712187           tokens=   809    1339.8 ms
+[ 59/87] pulse-9933807            tokens=   810    1349.7 ms
+[ 60/87] pulse-9709100            tokens=   880    1343.1 ms
+[ 61/87] pulse-11716347           tokens=   889    1343.5 ms
+[ 62/87] pulse-9709747            tokens=   869    1047.2 ms
+[ 63/87] pulse-11707797           tokens=   364    1544.9 ms
+[ 64/87] pulse-9707691            tokens=   305     684.5 ms
+[ 65/87] pulse-11714938           tokens=   280     684.5 ms
+[ 66/87] pulse-9707552            tokens=   370     686.8 ms
+[ 67/87] pulse-10619114           tokens=   316    1550.8 ms
+[ 68/87] pulse-11711171           tokens=   294     692.9 ms
+[ 69/87] pulse-10426369           tokens=   293     690.0 ms
+[ 70/87] pulse-10545020           tokens=   373     622.4 ms
+[ 71/87] pulse-11132428           tokens=   288     564.5 ms
+[ 72/87] pulse-11617432           tokens=   322     561.9 ms
+[ 73/87] pulse-9707528            tokens=   272     569.1 ms
+[ 74/87] pulse-9707413            tokens=   293     571.2 ms
+[ 75/87] pulse-11707888           tokens=   296     568.7 ms
+[ 76/87] pulse-9708199            tokens=   293     573.6 ms
+[ 77/87] pulse-10702774           tokens=   297     565.8 ms
+[ 78/87] pulse-9943143            tokens=   351     562.7 ms
+[ 79/87] pulse-10221259           tokens=   283     598.9 ms
+[ 80/87] pulse-11711123           tokens=   311     594.2 ms
+[ 81/87] pulse-10729536           tokens=   293     600.2 ms
+[ 82/87] pulse-11710845           tokens=   287     596.8 ms
+[ 83/87] pulse-10901596           tokens=   323     598.7 ms
+[ 84/87] pulse-11711631           tokens=   314     599.6 ms
+[ 85/87] pulse-9853056            tokens=   353     598.4 ms
+[ 86/87] pulse-11393348           tokens=   291     578.8 ms
+[ 87/87] pulse-9708012            tokens=   295     172.1 ms
+[status] parity_batched: PASS
+## Correctness gate (any GPU)
+
+# Parity: runs/http-batched-a40 vs /root/worker-decide/fixtures/clef-flash/float32
+
+| metric | value |
+|---|---|
+| records | 87 |
+| failed | 0 |
+| request mismatches | 0 |
+| span mismatches | 0 |
+| max \|Δp\| (worst question) | 0.0154 (bar 0.025) |
+| mean of record means | 0.00121 (bar 0.0025) |
+| mean of question max \|Δp\| (info) | 0.00165 |
+| near-ties (not judged) | 19 |
+| result | PASS |
+
+[wait] polling http://127.0.0.1:8000/ping until the worker is ready
+[  1/5] order_choice_unsorted    tokens=   194     140.6 ms
+[  2/5] order_choice_sorted      tokens=   194     390.1 ms
+[  3/5] order_questions_reversed tokens=   300     389.3 ms
+[  4/5] order_questions_alphabetical tokens=   300     390.9 ms
+[  5/5] order_questions_as_card  tokens=   300     390.9 ms
+[status] parity_batched_order: PASS
+[status] batching_effective: PASS
+## Batching: 71 of 87 records answered in batches of 2+
+
+| batch size | records |
+|---|---|
+| 1 | 9 |
+| 2 | 6 |
+| 3 | 12 |
+| 5 | 20 |
+| 6 | 12 |
+| 7 | 21 |
+| none | 7 |
+
+Batcher stats: batches=27, requests=85, batched_ok=17, max_ok_size=7, retried_alone=0, stopped=None
+
+result: PASS
+[load] ticket (card_trio) c=1 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 12.149, 'req_per_s': 10.535, 'p50_ms': 94.9, 'p90_ms': 96.3, 'p99_ms': 98.0, 'mean_ms': 94.9, 'min_ms': 89.2, 'max_ms': 99.1}
+[load] ticket (card_trio) c=8 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 8.993, 'req_per_s': 14.233, 'p50_ms': 561.7, 'p90_ms': 570.3, 'p99_ms': 573.1, 'mean_ms': 558.5, 'min_ms': 132.3, 'max_ms': 573.3}
+[load] ticket (card_trio) c=32 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 8.317, 'req_per_s': 15.39, 'p50_ms': 1995.7, 'p90_ms': 2028.2, 'p99_ms': 2372.0, 'mean_ms': 1886.1, 'min_ms': 363.0, 'max_ms': 2372.9}
+[load] pulse (pulse-11714037) c=1 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 24.366, 'req_per_s': 5.253, 'p50_ms': 190.1, 'p90_ms': 194.0, 'p99_ms': 195.8, 'mean_ms': 190.3, 'min_ms': 181.4, 'max_ms': 196.0}
+[load] pulse (pulse-11714037) c=8 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 20.42, 'req_per_s': 6.268, 'p50_ms': 1275.6, 'p90_ms': 1282.9, 'p99_ms': 1285.7, 'mean_ms': 1267.6, 'min_ms': 195.5, 'max_ms': 1286.4}
+[load] pulse (pulse-11714037) c=32 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 20.281, 'req_per_s': 6.311, 'p50_ms': 5055.8, 'p90_ms': 5063.9, 'p99_ms': 5287.6, 'mean_ms': 4591.6, 'min_ms': 250.6, 'max_ms': 5287.9}
+[load] article (long_2k) c=1 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 63.662, 'req_per_s': 2.011, 'p50_ms': 497.0, 'p90_ms': 500.7, 'p99_ms': 512.6, 'mean_ms': 497.3, 'min_ms': 484.1, 'max_ms': 520.4}
+[load] article (long_2k) c=8 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 57.814, 'req_per_s': 2.214, 'p50_ms': 3612.0, 'p90_ms': 3626.0, 'p99_ms': 3630.8, 'mean_ms': 3588.7, 'min_ms': 498.7, 'max_ms': 3631.0}
+[load] article (long_2k) c=32 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 57.648, 'req_per_s': 2.22, 'p50_ms': 14392.2, 'p90_ms': 14401.5, 'p99_ms': 14940.7, 'mean_ms': 13041.9, 'min_ms': 555.4, 'max_ms': 14941.1}
+## Load: ours-fla-batch8-a40
+
+| workload | tokens | concurrency | n | errors | req/s | p50 ms | p90 ms | p99 ms |
+|---|---|---|---|---|---|---|---|---|
+| ticket | 300 | 1 | 128 | 0 | 10.535 | 94.9 | 96.3 | 98.0 |
+| ticket | 300 | 8 | 128 | 0 | 14.233 | 561.7 | 570.3 | 573.1 |
+| ticket | 300 | 32 | 128 | 0 | 15.39 | 1995.7 | 2028.2 | 2372.0 |
+| pulse | 843 | 1 | 128 | 0 | 5.253 | 190.1 | 194.0 | 195.8 |
+| pulse | 843 | 8 | 128 | 0 | 6.268 | 1275.6 | 1282.9 | 1285.7 |
+| pulse | 843 | 32 | 128 | 0 | 6.311 | 5055.8 | 5063.9 | 5287.6 |
+| article | 2486 | 1 | 128 | 0 | 2.011 | 497.0 | 500.7 | 512.6 |
+| article | 2486 | 8 | 128 | 0 | 2.214 | 3612.0 | 3626.0 | 3630.8 |
+| article | 2486 | 32 | 128 | 0 | 2.22 | 14392.2 | 14401.5 | 14940.7 |
+[status] load_batched: ok
+
+==== 3. worker with BATCH_MAX=1 (tier 0 baseline on this GPU) (20:49:54) ====
+[status] worker_single: ok
+[wait] polling http://127.0.0.1:8000/ping until the worker is ready
+[  1/87] intent77                 tokens=  1379    1502.9 ms
+[  2/87] opts255                  tokens=  8641    1628.7 ms
+[  3/87] q64                      tokens=  5538    1117.2 ms
+[  4/87] score10                  tokens=   349      96.6 ms
+[  5/87] empty_instructions       tokens=   203      73.8 ms
+[  6/87] unicode_options          tokens=   270      87.4 ms
+[  7/87] list_state               tokens=   386     107.8 ms
+[  8/87] schema_overflow          tokens=     -    2140.9 ms  ERROR http 400: schema requires 475198 tokens before state; maximu
+[  9/87] triage_support           tokens=   475     117.9 ms
+[ 10/87] tool_select              tokens=   450     114.9 ms
+[ 11/87] invoice_extract          tokens=   561     134.7 ms
+[ 12/87] rag_relevance_1          tokens=   312      92.3 ms
+[ 13/87] rag_relevance_2          tokens=   301      90.9 ms
+[ 14/87] rag_relevance_3          tokens=   302      90.0 ms
+[ 15/87] moderation               tokens=   285      88.2 ms
+[ 16/87] near_dup_a               tokens=   232      76.3 ms
+[ 17/87] near_dup_b               tokens=   232      75.6 ms
+[ 18/87] near_dup_c               tokens=   232      75.5 ms
+[ 19/87] card_trio                tokens=   300      89.2 ms
+[ 20/87] no_instruction           tokens=   184      60.2 ms
+[ 21/87] unsorted_choice          tokens=   194      72.2 ms
+[ 22/87] noul_custom              tokens=   180      60.7 ms
+[ 23/87] json_state               tokens=   273      86.4 ms
+[ 24/87] many_options             tokens=  1164     238.6 ms
+[ 25/87] long_2k                  tokens=  2486     479.7 ms
+[ 26/87] trunc_16k                tokens= 16384    3140.1 ms
+[ 27/87] img_receipt              tokens=   562     333.1 ms
+[ 28/87] img_receipt_textonly     tokens=   259      86.2 ms
+[ 29/87] img_chart                tokens=   388     167.6 ms
+[ 30/87] img_chart_textonly       tokens=   157      58.9 ms
+[ 31/87] img_shapes               tokens=   483     152.2 ms
+[ 32/87] img_shapes_textonly      tokens=   224      76.5 ms
+[ 33/87] img_sign448              tokens=   422     145.9 ms
+[ 34/87] img_sign448_textonly     tokens=   223      76.5 ms
+[ 35/87] img_board2048            tokens=  3321    1343.0 ms
+[ 36/87] img_board2048_textonly   tokens=   246      81.2 ms
+[ 37/87] img_two                  tokens=   788     370.4 ms
+[ 38/87] pulse-11714037           tokens=   843     183.0 ms
+[ 39/87] pulse-10661222           tokens=   872     185.7 ms
+[ 40/87] pulse-11711957           tokens=   811     180.2 ms
+[ 41/87] pulse-9854422            tokens=   815     181.6 ms
+[ 42/87] pulse-11712604           tokens=   852     184.2 ms
+[ 43/87] pulse-9710164            tokens=   823     181.1 ms
+[ 44/87] pulse-9709124            tokens=   873     187.3 ms
+[ 45/87] pulse-11116991           tokens=   821     181.3 ms
+[ 46/87] pulse-10720478           tokens=   818     180.1 ms
+[ 47/87] pulse-9708731            tokens=   902     205.6 ms
+[ 48/87] pulse-9710418            tokens=   815     179.1 ms
+[ 49/87] pulse-11678677           tokens=   817     180.7 ms
+[ 50/87] pulse-9711065            tokens=   813     180.7 ms
+[ 51/87] pulse-9710025            tokens=   852     182.9 ms
+[ 52/87] pulse-11716232           tokens=   815     178.6 ms
+[ 53/87] pulse-9710672            tokens=   903     204.1 ms
+[ 54/87] pulse-9709632            tokens=   826     180.4 ms
+[ 55/87] pulse-11086438           tokens=   841     182.0 ms
+[ 56/87] pulse-11680618           tokens=   837     181.6 ms
+[ 57/87] pulse-9933807            tokens=   810     178.9 ms
+[ 58/87] pulse-9744321            tokens=   826     179.6 ms
+[ 59/87] pulse-9709100            tokens=   880     184.6 ms
+[ 60/87] pulse-11716347           tokens=   889     185.9 ms
+[ 61/87] pulse-11712187           tokens=   809     179.1 ms
+[ 62/87] pulse-9709747            tokens=   869     184.3 ms
+[ 63/87] pulse-10619114           tokens=   316      91.4 ms
+[ 64/87] pulse-11707797           tokens=   364     101.2 ms
+[ 65/87] pulse-11711171           tokens=   294      90.1 ms
+[ 66/87] pulse-9707691            tokens=   305      89.7 ms
+[ 67/87] pulse-11714938           tokens=   280      87.3 ms
+[ 68/87] pulse-10426369           tokens=   293      88.2 ms
+[ 69/87] pulse-9707552            tokens=   370     101.7 ms
+[ 70/87] pulse-10545020           tokens=   373     102.4 ms
+[ 71/87] pulse-9708199            tokens=   293      88.2 ms
+[ 72/87] pulse-9707413            tokens=   293      88.3 ms
+[ 73/87] pulse-11132428           tokens=   288      87.5 ms
+[ 74/87] pulse-10702774           tokens=   297      88.0 ms
+[ 75/87] pulse-9707528            tokens=   272      85.7 ms
+[ 76/87] pulse-11707888           tokens=   296      87.9 ms
+[ 77/87] pulse-11617432           tokens=   322      91.3 ms
+[ 78/87] pulse-9943143            tokens=   351      94.2 ms
+[ 79/87] pulse-10221259           tokens=   283      87.5 ms
+[ 80/87] pulse-10729536           tokens=   293      87.4 ms
+[ 81/87] pulse-10901596           tokens=   323      91.5 ms
+[ 82/87] pulse-11711123           tokens=   311      89.9 ms
+[ 83/87] pulse-11711631           tokens=   314      89.9 ms
+[ 84/87] pulse-9853056            tokens=   353      93.8 ms
+[ 85/87] pulse-11710845           tokens=   287      87.2 ms
+[ 86/87] pulse-11393348           tokens=   291      87.6 ms
+[ 87/87] pulse-9708012            tokens=   295      87.9 ms
+[status] parity_single: PASS
+[status] batched_vs_single: FAIL
+# Parity: runs/http-batched-a40 vs runs/http-single-a40
+
+| metric | value |
+|---|---|
+| records | 87 |
+| failed | 11 |
+| request mismatches | 0 |
+| span mismatches | 0 |
+| max \|Δp\| (worst question) | 0.0233 (bar 0.005) |
+| mean of record means | 0.00114 (bar 0.001) |
+| mean of question max \|Δp\| (info) | 0.00166 |
+| near-ties (not judged) | 4 |
+| result | FAIL |
+
+## Failures
+
+[load] ticket (card_trio) c=1 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 11.586, 'req_per_s': 11.047, 'p50_ms': 90.0, 'p90_ms': 92.3, 'p99_ms': 96.0, 'mean_ms': 90.5, 'min_ms': 88.6, 'max_ms': 96.6}
+[load] ticket (card_trio) c=8 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 15.933, 'req_per_s': 8.034, 'p50_ms': 1004.5, 'p90_ms': 1061.1, 'p99_ms': 1106.7, 'mean_ms': 972.6, 'min_ms': 106.9, 'max_ms': 1111.4}
+[load] ticket (card_trio) c=32 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 15.694, 'req_per_s': 8.156, 'p50_ms': 3868.4, 'p90_ms': 3985.9, 'p99_ms': 4108.9, 'mean_ms': 3463.3, 'min_ms': 159.0, 'max_ms': 4111.8}
+[load] pulse (pulse-11714037) c=1 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 23.322, 'req_per_s': 5.488, 'p50_ms': 182.0, 'p90_ms': 183.2, 'p99_ms': 184.6, 'mean_ms': 182.2, 'min_ms': 180.9, 'max_ms': 185.2}
+[load] pulse (pulse-11714037) c=8 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 24.0, 'req_per_s': 5.333, 'p50_ms': 1497.2, 'p90_ms': 1517.2, 'p99_ms': 1535.0, 'mean_ms': 1459.6, 'min_ms': 192.7, 'max_ms': 1547.0}
+[load] pulse (pulse-11714037) c=32 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 23.925, 'req_per_s': 5.35, 'p50_ms': 5962.9, 'p90_ms': 6038.7, 'p99_ms': 6075.8, 'mean_ms': 5269.2, 'min_ms': 214.3, 'max_ms': 6092.3}
+[load] article (long_2k) c=1 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 61.757, 'req_per_s': 2.073, 'p50_ms': 482.4, 'p90_ms': 484.0, 'p99_ms': 485.3, 'mean_ms': 482.5, 'min_ms': 480.0, 'max_ms': 485.8}
+[load] article (long_2k) c=8 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 62.662, 'req_per_s': 2.043, 'p50_ms': 3914.8, 'p90_ms': 3928.0, 'p99_ms': 3978.1, 'mean_ms': 3810.3, 'min_ms': 493.0, 'max_ms': 3978.3}
+[load] article (long_2k) c=32 ...
+[load]   {'n': 128, 'errors': 0, 'wall_s': 62.659, 'req_per_s': 2.043, 'p50_ms': 15652.1, 'p90_ms': 15773.4, 'p99_ms': 15801.1, 'mean_ms': 13786.0, 'min_ms': 519.2, 'max_ms': 15815.5}
+## Load: ours-fla-single-a40
+
+| workload | tokens | concurrency | n | errors | req/s | p50 ms | p90 ms | p99 ms |
+|---|---|---|---|---|---|---|---|---|
+| ticket | 300 | 1 | 128 | 0 | 11.047 | 90.0 | 92.3 | 96.0 |
+| ticket | 300 | 8 | 128 | 0 | 8.034 | 1004.5 | 1061.1 | 1106.7 |
+| ticket | 300 | 32 | 128 | 0 | 8.156 | 3868.4 | 3985.9 | 4108.9 |
+| pulse | 843 | 1 | 128 | 0 | 5.488 | 182.0 | 183.2 | 184.6 |
+| pulse | 843 | 8 | 128 | 0 | 5.333 | 1497.2 | 1517.2 | 1535.0 |
+| pulse | 843 | 32 | 128 | 0 | 5.35 | 5962.9 | 6038.7 | 6075.8 |
+| article | 2486 | 1 | 128 | 0 | 2.073 | 482.4 | 484.0 | 485.3 |
+| article | 2486 | 8 | 128 | 0 | 2.043 | 3914.8 | 3928.0 | 3978.1 |
+| article | 2486 | 32 | 128 | 0 | 2.043 | 15652.1 | 15773.4 | 15801.1 |
+[status] load_single: ok
+
+==== 4. push (20:56:08) ====
+fla_active: ok
+weights_prefetched: ok
+worker_batched: ok
+parity_batched: PASS
+parity_batched_order: PASS
+batching_effective: PASS
+load_batched: ok
+worker_single: ok
+parity_single: PASS
+batched_vs_single: FAIL
+load_single: ok
