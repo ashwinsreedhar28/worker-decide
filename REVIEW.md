@@ -845,3 +845,29 @@ Throughput, req/s (HTTP, same harness; one at a time → batched):
 - Tier 0 on the A40 (one at a time): c=1 p50 90.0 / 182.0 / 482.4 ms. Pure torch and SGLang on
   the same A40 are being measured (`pod_m4.sh` steps 3 and 4 on the same pod, fla
   uninstalled).
+
+## Built ahead: milestone 5b cost calculator and milestone 6 Typical decider (Oct 15)
+
+Both are written and audited but not yet run on real numbers or weights.
+
+- `scripts/cost.py`: steady-state cost per 1,000 requests from `loadtest.py` output (hourly
+  flex price ÷ measured throughput), next to Workers AI's per-token price. Prices are a dated,
+  sourced data file (`fixtures/prices/2026-10-15.json`). Workers AI cut clef-flash to
+  $0.038/M input tokens on Oct 9 (from the $0.090 in our plan) and its hosted context to
+  24,576 tokens. Cells with errors are not priced; the billed parts of cold starts and the idle
+  timeout are not included.
+- `deciders/typical/engine.py`: Oz Labs' Typical behind the SystemOne wire format and
+  ClefEngine's interface, verified against typical-ai 0.1.1. It needs torch ≥ 2.14 and
+  transformers ≥ 5.17, so it cannot share the Clef image (torch 2.11, transformers 5.10.2);
+  its image is not built yet. Each question records `p_null` (abstain), query length against
+  Typical's trained 64 tokens, and state truncation (4,096 vs Clef's 16,384).
+- Open methodology choice for Brian's table: Pulse's score levels are `["1".."5"]`. In
+  `score_labels=index` mode Typical reads options 0..4 under instructions that say 1 to 5; in
+  `criteria` mode it reads the levels' own text (the SDK's `score()`). Pulse's instructions are
+  also ~600 tokens on half the records, far past Typical's trained query length. The table
+  should state which mode it used and split by instruction variant.
+
+Audit (independent, Oct 15): no arithmetic or label-convention bugs; the first draft could not
+feed `haiku_eval` (empty table without an error), did not fit `WorkerCore`, dropped images
+silently, and its tests let a last-label argmax pass. All fixed; the audit's surviving
+mutations now fail.

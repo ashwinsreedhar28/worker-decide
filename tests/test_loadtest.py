@@ -45,17 +45,35 @@ def test_errors_and_exceptions_are_counted_not_raised():
 
 
 def test_a_serialized_server_shows_flat_throughput_and_queueing_latency():
-    # What our worker is today (one forward at a time behind a lock): more concurrency adds
-    # queueing latency, not throughput. SGLang batching should break this pattern.
-    gpu = threading.Lock()
+    # A server that answers one request at a time, in arrival order: more concurrency adds
+    # queueing latency, not throughput. The server is a FIFO queue drained by one thread, not
+    # a bare threading.Lock: Lock is not fair, and on Python 3.11 (CI) the thread that releases
+    # it re-acquires it first, so one client got nearly every turn and the p50 never moved.
+    import queue
+
+    q: queue.Queue = queue.Queue()
+
+    def server():
+        while True:
+            done = q.get()
+            if done is None:
+                return
+            time.sleep(0.01)
+            done.set()
+
+    t = threading.Thread(target=server, daemon=True)
+    t.start()
 
     def poster(body):
-        with gpu:
-            time.sleep(0.01)
+        done = threading.Event()
+        q.put(done)
+        done.wait(5)
         return 200
 
     c1 = lt.run_cell(poster, {}, concurrency=1, requests=20, warmup=1)
     c4 = lt.run_cell(poster, {}, concurrency=4, requests=20, warmup=4)
+    q.put(None)
+    t.join(2)
     assert c4["p50_ms"] > 2.5 * c1["p50_ms"]
     assert c4["req_per_s"] < 1.5 * c1["req_per_s"]
 

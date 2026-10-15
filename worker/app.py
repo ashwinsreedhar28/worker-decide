@@ -8,7 +8,8 @@
 
 The engine loads in a background thread so the port is open from the first second and
 /ping can report "initializing" instead of refusing connections. Requests are handled in the
-threadpool (sync route) and serialized by the engine's own lock. Set PORT and PORT_HEALTH to the
+threadpool and serialized by the engine's own lock; with BATCH_MAX > 1, concurrent requests
+share forward passes (worker/batcher.py). Set PORT and PORT_HEALTH to the
 same value (default 8000) on the endpoint; see README.md.
 
     python -m worker.app            # uvicorn on 0.0.0.0:$PORT
@@ -33,9 +34,9 @@ TRUE_VALUES = {"1", "true", "yes"}
 
 def default_loader() -> WorkerCore:
     from deciders.clef.engine import ClefEngine
-    from worker.core import config_from_env
+    from worker.core import batch_settings_from_env, config_from_env
 
-    return WorkerCore(ClefEngine(config_from_env()))
+    return WorkerCore(ClefEngine(config_from_env()), batch_settings_from_env())
 
 
 def create_app(
@@ -76,6 +77,7 @@ def create_app(
                 "state": "error" if state["error"] else ("ready" if c else "loading"),
                 "error": state["error"],
                 "engine": c.info if c else None,
+                "batcher": c.batcher.snapshot() if c and c.batcher else None,
                 "routes": ["POST /v1/decide", "POST /v1/systemone", "GET /ping", "GET /"],
             }
         )

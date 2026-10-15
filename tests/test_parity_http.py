@@ -189,3 +189,68 @@ def test_wait_ready_reports_progress_while_initializing(monkeypatch, capsys):
     err = capsys.readouterr().err
     assert "[wait] polling https://ep.api.runpod.ai/ping" in err
     assert "status 204 (initializing)" in err
+
+
+def test_collect_with_concurrency_keeps_requests_in_flight_and_writes_every_record(tmp_path):
+    import threading
+    import time
+
+    lock, state = threading.Lock(), {"now": 0, "peak": 0}
+
+    def poster(body):
+        with lock:
+            state["now"] += 1
+            state["peak"] = max(state["peak"], state["now"])
+        time.sleep(0.02)
+        with lock:
+            state["now"] -= 1
+        if body["state"] == "s3":
+            return 400, {"error": "schema too long"}
+        return 200, {"model": "m", "answers": {}, "debug": {"engine": {"gpu": "g"}}}
+
+    lines = [{"id": f"r{i}", "request": {**BODY, "state": f"s{i}"}} for i in range(8)]
+    meta = {}
+    counts = ph.collect(lines, tmp_path / "run", poster, meta, concurrency=4)
+    assert counts == {"ok": 7, "error": 1} and meta["engine"] == {"gpu": "g"}
+    assert sorted(p.name for p in (tmp_path / "run").iterdir()) == [f"r{i}.json" for i in range(8)]
+    assert 2 <= state["peak"] <= 4
+
+
+def test_collect_sequential_by_default_and_the_flag_parses():
+    peak, now = [0], [0]
+
+    def poster(body):
+        now[0] += 1
+        peak[0] = max(peak[0], now[0])
+        now[0] -= 1
+        return 400, {"error": "x"}
+
+    import tempfile
+    from pathlib import Path
+
+    with tempfile.TemporaryDirectory() as d:
+        ph.collect([{"id": f"r{i}", "request": BODY} for i in range(3)], Path(d), poster)
+    assert peak[0] == 1
+    assert ph.build_parser().parse_args(["http://x", "r", "--concurrency", "8"]).concurrency == 8
+    assert ph.build_parser().parse_args(["http://x", "r"]).concurrency == 1
+
+
+def test_records_keep_the_batch_block_only_when_the_worker_sent_one():
+    line = {"id": "r", "request": BODY}
+    reply = {"model": "m", "answers": {}, "debug": {"encoding": None, "questions": [],
+             "batch": {"size": 3, "tokens": [1, 2, 3], "forward_ms": 5.0}}}  # fmt: skip
+    assert ph.record_from_reply(line, 200, reply)["batch"]["size"] == 3
+    plain = {"model": "m", "answers": {}, "debug": {"encoding": None, "questions": []}}
+    assert "batch" not in ph.record_from_reply(line, 200, plain)  # old records unchanged
+    assert "batch" not in ph.record_from_reply(line, 200, {**plain, "debug": {"batch": None}})
+
+
+def test_collect_with_concurrency_reraises_a_posters_exception(tmp_path):
+    import pytest
+
+    def poster(body):
+        raise ConnectionResetError("worker went away")
+
+    lines = [{"id": f"r{i}", "request": BODY} for i in range(3)]
+    with pytest.raises(ConnectionResetError):
+        ph.collect(lines, tmp_path / "run", poster, concurrency=2)

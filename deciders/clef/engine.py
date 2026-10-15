@@ -274,6 +274,57 @@ class Decision:
         return asdict(self)
 
 
+@dataclass
+class Prepared:
+    """A request after the CPU half of decide (hash, encode), waiting for a forward pass."""
+
+    rid: str
+    body: dict[str, Any]
+    encoded: Any
+    decision: Decision
+    t0: float  # perf_counter when preparation started; the total runs from here
+
+    @property
+    def tokens(self) -> int:
+        return len(self.encoded.input_ids)
+
+
+def records_from_output(out: Any, n: int) -> list[Any]:
+    """The first n entries of the model's output, one per record (its per-question logits).
+
+    The model returns one entry per record in batch order; the single-record path has always
+    taken entry [0]. Fewer entries than records, or an entry that is a bare tensor rather than
+    a list of question tensors, raises RuntimeError, which sends each request through the
+    batcher's retry-alone path instead of mis-assigning answers.
+    """
+    try:
+        entries = [out[i] for i in range(n)]
+    except (IndexError, KeyError, TypeError) as e:
+        raise RuntimeError(f"model output has no entry per record for {n} records: {e}") from e
+    for i, e in enumerate(entries):
+        if hasattr(e, "shape") or not hasattr(e, "__len__"):
+            raise RuntimeError(f"model output entry {i} is not a list of question logits")
+    return entries
+
+
+def check_counts(per_record: list[list[Any]], encoded_list: list[Any]) -> None:
+    """Each record must get one output per question, and each question one value per option.
+    A mismatch (records out of order with different shapes, outputs padded to the widest
+    question) raises RuntimeError inside the forward, so the batcher retries each request alone
+    instead of the mismatch surfacing later as a 400 from assemble()."""
+    for r, (outs, e) in enumerate(zip(per_record, encoded_list, strict=True)):
+        if len(outs) != len(e.questions):
+            raise RuntimeError(
+                f"record {r}: {len(outs)} question outputs for {len(e.questions)} questions"
+            )
+        for q, (logits, _probs) in zip(e.questions, outs, strict=True):
+            if len(logits) != len(q.option_ids):
+                raise RuntimeError(
+                    f"record {r} question {q.question_id!r}: {len(logits)} outputs for "
+                    f"{len(q.option_ids)} options"
+                )
+
+
 class ClefEngine:
     def __init__(self, cfg: EngineConfig):
         from huggingface_hub import snapshot_download
@@ -328,7 +379,11 @@ class ClefEngine:
         from transformers import AutoProcessor
 
         self.jsm, self.torch = jsm, torch
-        self.lock = threading.Lock()
+        self.lock = threading.Lock()  # one forward pass at a time
+        # The HF tokenizer is not safe to share across threads (transformers resets its
+        # truncation settings per call; concurrent calls can raise "Already borrowed" or encode
+        # under another call's settings), and prepare() encodes outside self.lock.
+        self.encode_lock = threading.Lock()
         self.timeline.mark("model_code_imported")
         t0 = time.perf_counter()
         if cfg.dry_run:
@@ -380,26 +435,34 @@ class ClefEngine:
     # -- pieces ----------------------------------------------------------------------------
 
     def encode(self, record: dict[str, Any]):
-        return self.jsm.encode_record(
-            self.processor.tokenizer,
-            record,
-            max_length=self.cfg.max_length,
-            processor=self.processor,
-        )
+        with self.encode_lock:
+            return self.jsm.encode_record(
+                self.processor.tokenizer,
+                record,
+                max_length=self.cfg.max_length,
+                processor=self.processor,
+            )
 
     def _forward(self, batch):
+        """The first record's per-question logits (the single-record path)."""
+        return self._forward_records(batch)[0]
+
+    def _forward_records(self, batch):
+        """The model's output for a collated batch: one list of per-question logits per record
+        (verified on an A40, Oct 15: a 3-record batch's output indexed [0] held only the first
+        record's one question; the single-record path has always taken [0])."""
         if self._sdp_backends is None:
-            return self.model(batch)[0]
+            return self.model(batch)
         from torch.nn.attention import SDPBackend, sdpa_kernel
 
         try:
             with sdpa_kernel(self._sdp_backends):
-                return self.model(batch)[0]
+                return self.model(batch)
         except RuntimeError as e:
             if "No available kernel" not in str(e) or self._sdp_backends == [SDPBackend.MATH]:
                 raise
             with sdpa_kernel([SDPBackend.MATH]):  # last resort; OOMs at 16k in fp32
-                return self.model(batch)[0]
+                return self.model(batch)
 
     def forward(self, encoded) -> list[tuple[list[float], list[float]]]:
         """(logits, probs) per question, as Python lists. Batch size 1 on purpose."""
@@ -450,6 +513,61 @@ class ClefEngine:
         d.timing_ms["total"] = round((time.perf_counter() - t0) * 1000, 2)
         return d
 
+    # -- the batched request path (tier 1; WorkerCore with BATCH_MAX > 1) -------------------
+
+    def prepare(
+        self, body: dict[str, Any], images: list[Any] | None = None, rid: str = ""
+    ) -> Prepared:
+        """The CPU half of decide: hash and encode. Runs outside the lock, so request threads
+        encode in parallel while the GPU runs another batch. Raises the encoder's ValueError."""
+        d = Decision(request_sha=request_sha(body))
+        rec = {k: v for k, v in body.items() if k != "images"}
+        rec["id"] = rid
+        if images:
+            rec["images"] = images
+        t0 = time.perf_counter()
+        encoded = self.encode(rec)
+        d.encoding = encoding_block(encoded)
+        d.timing_ms["encode"] = round((time.perf_counter() - t0) * 1000, 2)
+        return Prepared(rid=rid, body=body, encoded=encoded, decision=d, t0=t0)
+
+    def forward_batch(self, encoded_list: list[Any]) -> list[list[tuple[list[float], list[float]]]]:
+        """One forward pass for several encoded records (the reference collate pads them to the
+        longest); (logits, probs) per question, one list per record. Holds the lock."""
+        torch = self.torch
+        with self.lock, torch.inference_mode():
+            batch = self.jsm.collate_records(
+                list(encoded_list), self.processor.tokenizer.pad_token_id, self.device
+            )
+            out = self._forward_records(batch)
+            if self.device.type == "cuda":
+                torch.cuda.synchronize()
+        per_record = records_from_output(out, len(encoded_list))
+        result = []
+        for qls in per_record:
+            rec = []
+            for ql in qls:
+                lg = ql.float().cpu()
+                rec.append((lg.tolist(), lg.softmax(-1).tolist()))
+            result.append(rec)
+        check_counts(result, encoded_list)
+        return result
+
+    def finish(self, p: Prepared, per_question: list[Any], forward_ms: float) -> Decision:
+        """Assemble the SystemOne answer for a prepared request from its forward outputs."""
+        d = p.decision
+        d.timing_ms["forward"] = round(forward_ms, 2)
+        d.questions, answers = assemble(
+            p.encoded.questions, per_question, p.body, self.jsm.systemone_answer
+        )
+        d.response = {
+            "model": self.cfg.model,
+            "answers": answers,
+            "usage": {"input_tokens": p.tokens, "output_tokens": 0},
+        }
+        d.timing_ms["total"] = round((time.perf_counter() - p.t0) * 1000, 2)
+        return d
+
     def manifest(self) -> dict[str, Any]:
         torch = self.torch
         import transformers
@@ -469,6 +587,7 @@ class ClefEngine:
             "max_length": self.cfg.max_length,
             "sdp": self.cfg.sdp,
             "gdn_fast_path": gdn_fast_path(),
+            "gdn_kernels": gdn_kernels(),
             "versions": {
                 "python": platform.python_version(),
                 "torch": torch.__version__,
@@ -481,11 +600,51 @@ class ClefEngine:
 
 
 def gdn_fast_path() -> bool:
-    """Whether Qwen3.5 Gated DeltaNet runs the fla/causal-conv1d kernels or pure torch."""
-    try:
-        import causal_conv1d  # noqa: F401
-        import fla  # noqa: F401
+    """Whether Qwen3.5 Gated DeltaNet runs the full fast path (fla and causal-conv1d)."""
+    k = gdn_kernels()
+    return k["chunk_gated_delta_rule"] != "torch" and k["causal_conv1d"] != "torch"
 
-        return True
-    except ImportError:
-        return False
+
+def _origin(obj: Any) -> str:
+    """Top-level package an object came from; "torch" when transformers bound None (its
+    signal to use the pure-torch fallback)."""
+    if obj is None:
+        return "torch"
+    return (getattr(obj, "__module__", None) or "unknown").split(".")[0]
+
+
+def gdn_kernels() -> dict[str, str | None]:
+    """What Qwen3.5's Gated DeltaNet layers call, per piece, read from what transformers bound in
+    modeling_qwen3_5 (it falls back per piece: fla supplies chunk_gated_delta_rule and
+    FusedRMSNormGated, the expensive part on a prefill; causal-conv1d only the short convolution,
+    which otherwise runs as torch's conv1d). fla_device is fla's own device probe
+    (fla.utils.device_platform; None when fla is not imported): fla falls back to CPU silently
+    when its Triton probe fails, and transformers binds its functions anyway, so a bound "fla"
+    alone does not mean GPU kernels. Importing modeling_qwen3_5 imports fla when it is
+    installed, so the probe has run by the time it is read. Without transformers (tests, dry
+    runs) it reports what is installed, source "find_spec"."""
+    import importlib.util
+
+    try:
+        from transformers.models.qwen3_5 import modeling_qwen3_5 as m
+    except Exception:
+        fla = importlib.util.find_spec("fla") is not None
+        return {
+            "source": "find_spec",
+            "chunk_gated_delta_rule": "fla" if fla else "torch",
+            "fused_rms_norm_gated": "fla" if fla else "torch",
+            "causal_conv1d": "causal_conv1d"
+            if importlib.util.find_spec("causal_conv1d") is not None
+            else "torch",
+            "fla_device": None,
+        }
+    fla_utils = sys.modules.get("fla.utils")
+    fla_device = getattr(fla_utils, "device_platform", None) if fla_utils is not None else None
+    fla_device = None if fla_device is None else str(fla_device)
+    return {
+        "source": "transformers",
+        "chunk_gated_delta_rule": _origin(getattr(m, "chunk_gated_delta_rule", None)),
+        "fused_rms_norm_gated": _origin(getattr(m, "FusedRMSNormGated", None)),
+        "causal_conv1d": _origin(getattr(m, "causal_conv1d_fn", None)),
+        "fla_device": fla_device,
+    }
