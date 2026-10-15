@@ -156,3 +156,18 @@ def test_pod_script_pops_pod_script_from_the_environment(monkeypatch, tmp_path):
     monkeypatch.setattr(wm.os, "execvp", lambda f, a: None)
     wm.run_pod_script("scripts/pod_http_parity.sh")
     assert "POD_SCRIPT" not in os.environ
+
+
+def test_root_reports_live_batcher_stats_when_batching():
+    from worker.core import BatchSettings
+
+    from .test_worker_core import BatchEngine, body_of
+
+    with _client(core=WorkerCore(FakeEngine())) as c:
+        assert c.get("/").json()["batcher"] is None
+    core = WorkerCore(BatchEngine(), BatchSettings(max_batch=4))
+    with _client(core=core) as c:
+        assert c.post("/v1/decide", json=body_of(50)).status_code == 200
+        info = c.get("/").json()
+        assert info["batcher"]["requests"] == 1 and info["engine"]["batching"]["max_batch"] == 4
+    core.batcher.close()

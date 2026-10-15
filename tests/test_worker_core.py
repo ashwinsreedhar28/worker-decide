@@ -176,3 +176,127 @@ def test_info_carries_the_gdn_kernels_report():
     info = wc.WorkerCore(FakeEngine()).info
     assert info["gdn_kernels"] == {"chunk_gated_delta_rule": "fla", "fla_device": "cuda"}
     assert info["gdn_fast_path"] is False
+
+
+# -- batched path (BATCH_MAX > 1) ----------------------------------------------------------
+
+
+class BatchEngine(FakeEngine):
+    """FakeEngine plus the batched API: p(true) = 0.5 + tokens / 1000, so each request's answer
+    is its own and a mis-routed one shows."""
+
+    def __init__(self, fail_batched=False, fail_single=None):
+        super().__init__()
+        self.batches = []
+        self.fail_batched = fail_batched
+        self.fail_single = fail_single
+        self.gate = None
+        self.entered = None
+
+    def prepare(self, body, images=None, rid=""):
+        from types import SimpleNamespace
+
+        from deciders.clef.engine import Decision, Prepared
+
+        if body["state"] == "reject":
+            raise ValueError("schema exceeds max_length")
+        enc = SimpleNamespace(input_ids=list(range(len(body["state"]))), questions=["q"])
+        return Prepared(rid=rid, body=body, encoded=enc,
+                        decision=Decision(request_sha=request_sha(body)), t0=0.0)  # fmt: skip
+
+    def forward_batch(self, encoded_list):
+        if self.entered is not None:
+            self.entered.set()
+        if self.gate is not None:
+            self.gate.wait(2)
+        self.batches.append([len(e.input_ids) for e in encoded_list])
+        if self.fail_batched and len(encoded_list) > 1:
+            raise RuntimeError("CUDA out of memory")
+        if (
+            self.fail_single
+            and len(encoded_list) == 1
+            and len(encoded_list[0].input_ids) == self.fail_single
+        ):
+            raise RuntimeError("kernel failed")
+        return [[([0.0, 0.0], [0.5 + len(e.input_ids) / 1000, 0.5 - len(e.input_ids) / 1000])]
+                for e in encoded_list]  # fmt: skip
+
+    def finish(self, p, per_q, forward_ms):
+        d = p.decision
+        d.timing_ms["forward"] = round(forward_ms, 2)
+        d.response = {"answers": {"q": {"probability": per_q[0][1][0]}},
+                      "usage": {"input_tokens": p.tokens, "output_tokens": 0}}  # fmt: skip
+        return d
+
+
+def body_of(n):
+    return {"state": "s" * n, "questions": {"q": {"type": "noul"}}}
+
+
+def test_batch_settings_from_env():
+    env = {"BATCH_MAX": "8", "BATCH_MAX_TOKENS": "16384", "BATCH_MAX_RATIO": "1.5",
+           "BATCH_MAX_WAIT_MS": "2"}  # fmt: skip
+    s = wc.batch_settings_from_env(env)
+    assert s == wc.BatchSettings(8, 16384, 1.5, 2.0)
+    assert wc.batch_settings_from_env({}) == wc.BatchSettings(1, 32768, 2.0, 0.0)
+
+
+def test_batching_is_off_by_default_and_without_a_batch_api():
+    assert wc.WorkerCore(BatchEngine()).batcher is None
+    core = wc.WorkerCore(FakeEngine(), wc.BatchSettings(max_batch=8))
+    assert core.batcher is None and core.info["batching"] is None and core.concurrency == 1
+
+
+def test_concurrent_requests_share_a_forward_and_each_gets_its_own_answer():
+    import threading
+    import time
+
+    eng = BatchEngine()
+    eng.gate, eng.entered = threading.Event(), threading.Event()
+    core = wc.WorkerCore(eng, wc.BatchSettings(max_batch=8))
+    assert core.concurrency == 8 and core.info["batching"]["max_batch"] == 8
+    results = {}
+
+    def call(n):
+        results[n] = core.decide(body_of(n), debug=True)
+
+    first = threading.Thread(target=call, args=(100,))
+    first.start()
+    assert eng.entered.wait(2)  # the first request is inside the forward, holding it
+    rest = [threading.Thread(target=call, args=(n,)) for n in (110, 120, 130)]
+    for t in rest:
+        t.start()
+    deadline = time.monotonic() + 2
+    while len(core.batcher.pending) < 3 and time.monotonic() < deadline:
+        time.sleep(0.005)
+    eng.gate.set()
+    for t in [first, *rest]:
+        t.join(2)
+    assert eng.batches[0] == [100] and sorted(eng.batches[1]) == [110, 120, 130]
+    for n, o in results.items():
+        assert o.status == 200
+        assert o.body["answers"]["q"]["probability"] == 0.5 + n / 1000  # routed to its request
+        assert o.body["usage"]["input_tokens"] == n
+        assert n in o.body["debug"]["batch"]["tokens"]
+    assert results[100].body["debug"]["batch"]["size"] == 1
+    assert {results[n].body["debug"]["batch"]["size"] for n in (110, 120, 130)} == {3}
+    core.batcher.close()
+
+
+def test_batched_path_maps_rejections_and_failures_to_statuses():
+    eng = BatchEngine(fail_single=7)
+    core = wc.WorkerCore(eng, wc.BatchSettings(max_batch=4))
+    assert core.decide({"state": "reject", "questions": {"q": {"type": "noul"}}}).status == 400
+    bad = core.decide(body_of(7))
+    assert bad.status == 500 and "kernel failed" in bad.body["error"]
+    assert core.decide(body_of(9)).status == 200
+    core.batcher.close()
+
+
+def test_image_requests_bypass_the_batcher():
+    eng = BatchEngine()
+    core = wc.WorkerCore(eng, wc.BatchSettings(max_batch=4))
+    o = core.decide({**BODY, "images": [_png_url()]}, debug=True)
+    assert o.status == 200 and eng.calls and eng.batches == []
+    assert o.body["debug"]["batch"] is None
+    core.batcher.close()
