@@ -17,8 +17,14 @@
 #   6. in-process profile with traces
 #   7. on a Runpod pod only: commit runs/ to m5/tier0-fla-<gpu>-<date>-<hhmm> and push
 #
-# Run from the worker image (POD_SCRIPT=scripts/pod_tier0.sh) or, on a pod that already ran
-# pod_m4.sh, from its checkout:  cd /root/worker-decide && git pull && bash scripts/pod_tier0.sh
+# Run from the worker image: POD_SCRIPT=scripts/pod_tier0.sh (and REPO_REF=<branch> until it is
+# on main). On a pod that already ran pod_m4.sh (a shallow clone on a local branch, so no
+# `git pull`; REF is main once merged, m5/tier0-fla before), detached so it survives the shell:
+#   cd /root/worker-decide && git fetch -q --depth 1 origin REF && git checkout -q FETCH_HEAD
+#   EXIT_WHEN_DONE=1 setsid nohup bash scripts/pod_tier0.sh > /dev/null 2>&1 &
+# (two lines: a trailing & on the first would background the cd too), then follow
+# runs/pod_tier0.log. Commits and pushes only if RUNPOD_POD_ID and GH_TOKEN are set
+# in that shell. It does not stop the pod.
 # Env: FLA_SPEC (default fla-core==0.5.2), GH_TOKEN, EXIT_WHEN_DONE.
 set -uo pipefail
 
@@ -67,55 +73,106 @@ wait_gpu_free() {
   done
 }
 
-start_worker() {  # log file; sets WPID and READY_S
-  local t0=$SECONDS
-  env -u POD_SCRIPT TRANSPORT=http PORT=8000 python3 -m worker > "$1" 2>&1 &
+start_worker() {  # log file, info file; sets WPID. WARMUP=0: no kernel compiles before ready,
+                 # so first requests carry the JIT cost. The worker's own timeline (GET /) is
+                 # saved: it has process start -> ready to the millisecond, unlike $SECONDS.
+  env -u POD_SCRIPT TRANSPORT=http PORT=8000 WARMUP=0 python3 -m worker > "$1" 2>&1 &
   WPID=$!
-  if wait_200 http://127.0.0.1:8000/ping 900 $WPID; then READY_S=$(( SECONDS - t0 )); return 0; fi
-  READY_S=""; return 1
+  if wait_200 http://127.0.0.1:8000/ping 900 $WPID; then
+    python3 -c 'import json, sys, urllib.request
+print(json.dumps(json.load(urllib.request.urlopen("http://127.0.0.1:8000/", timeout=10)), indent=1))' \
+      > "$2" 2>/dev/null || true
+    return 0
+  fi
+  return 1
 }
 
-stop_worker() { kill "$WPID" 2>/dev/null; wait "$WPID" 2>/dev/null; wait_gpu_free || true; }
+ready_s() {  # info file -> the worker's ready mark (seconds since process start)
+  python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))["timeline"]["marks"].get("ready"))' "$1" 2>/dev/null
+}
+
+stop_worker() {  # kill, wait up to 30 s, then -9
+  kill "$WPID" 2>/dev/null
+  for _ in $(seq 30); do kill -0 "$WPID" 2>/dev/null || break; sleep 1; done
+  kill -9 "$WPID" 2>/dev/null; wait "$WPID" 2>/dev/null; wait_gpu_free || true
+}
 
 # ---- 1. install ------------------------------------------------------------------------------
 step "1. install $FLA_SPEC"
-if ! command -v gcc >/dev/null; then  # Triton builds a small C launcher on first use
-  apt-get update -qq && apt-get install -y -qq --no-install-recommends gcc libc6-dev >/dev/null \
-    && record gcc ok || record gcc FAIL
+# Triton builds a C launcher that includes Python.h with gcc on first use. The worker image is
+# CUDA "base" with python3-pip installed --no-install-recommends: no gcc and no Python.h
+# (Oct 15 audit; SGLang's Triton worked only because its uv Python ships headers). Decide by
+# the header, not by gcc: a pod that ran pod_m4.sh has gcc but still no headers.
+PYINC=$(python3 -c 'import sysconfig; s = sysconfig.get_default_scheme(); s = "posix_prefix" if s == "posix_local" else s; print(sysconfig.get_paths(scheme=s)["include"])')
+if ! command -v gcc >/dev/null || [ ! -f "$PYINC/Python.h" ]; then
+  apt-get update -qq && apt-get install -y -qq --no-install-recommends gcc libc6-dev python3-dev \
+    >/dev/null && record compilers_headers ok || record compilers_headers FAIL
 fi
 python3 -m pip install -q "$FLA_SPEC" einops && record fla_install ok || record fla_install FAIL
+# Not just "is it bound": fla catches a failed Triton probe at import and falls back to CPU, and
+# transformers binds its functions anyway. So run the kernel on the GPU next to transformers'
+# own torch fallback, on Qwen3.5-9B's Gated DeltaNet shapes (32 heads x 128 after the q/k
+# repeat, bf16 inputs, float32 gate), and require it to run on CUDA and agree.
 python3 - <<'PY' > runs/tier0-kernels.txt 2>&1
 import importlib.metadata as md
+import torch
+import fla.utils
 from transformers.models.qwen3_5 import modeling_qwen3_5 as m
 print("fla-core", md.version("fla-core"), "| triton", md.version("triton"))
 print("chunk_gated_delta_rule:", getattr(m.chunk_gated_delta_rule, "__module__", None))
 print("FusedRMSNormGated:", m.FusedRMSNormGated)
 print("causal_conv1d_fn:", m.causal_conv1d_fn, "| is_fast_path_available:", m.is_fast_path_available)
+print("fla device_platform:", fla.utils.device_platform)
+torch.manual_seed(0)
+B, T, H, D = 1, 300, 32, 128
+dev = "cuda"
+q, k, v = (torch.randn(B, T, H, D, device=dev, dtype=torch.bfloat16) for _ in range(3))
+g = -torch.rand(B, T, H, device=dev, dtype=torch.float32)
+beta = torch.rand(B, T, H, device=dev, dtype=torch.bfloat16).sigmoid()
+kw = dict(g=g, beta=beta, initial_state=None, output_final_state=False, use_qk_l2norm_in_kernel=True)
+o_fla, _ = m.chunk_gated_delta_rule(q, k, v, **kw)
+o_ref, _ = m.torch_chunk_gated_delta_rule(q, k, v, **kw)
+torch.cuda.synchronize()
+diff = (o_fla.float() - o_ref.float()).abs().max().item()
+scale = o_ref.float().abs().max().item()
+print(f"kernel on {o_fla.device}: max |fla - torch| = {diff:.3e} (output scale {scale:.3e})")
+print("KERNEL_OK" if o_fla.is_cuda and diff <= 0.05 * max(scale, 1e-6) else "KERNEL_MISMATCH")
 PY
 cat runs/tier0-kernels.txt
-if ! grep -q "chunk_gated_delta_rule: fla" runs/tier0-kernels.txt; then
-  record fla_active FAIL
-  echo "transformers did not pick up fla; nothing to measure"
-  STEPS_DONE=0
-else
+if grep -q "chunk_gated_delta_rule: fla" runs/tier0-kernels.txt \
+   && grep -q "fla device_platform: cuda" runs/tier0-kernels.txt \
+   && grep -q "KERNEL_OK" runs/tier0-kernels.txt; then
   record fla_active ok
   STEPS_DONE=1
+else
+  record fla_active FAIL
+  echo "fla is not running on the GPU (see runs/tier0-kernels.txt); nothing to measure"
+  STEPS_DONE=0
 fi
 
 if [ "$STEPS_DONE" = 1 ]; then
   # ---- 2. empty cache: ready time, first requests ----------------------------------------------
+  # Weights first, so neither start pays a download (a fresh pod has an empty HF_HOME).
+  python3 -c "from huggingface_hub import snapshot_download as s; s('Cloudflare/clef-flash', revision='$(python3 -c "import json;print(json.load(open('fixtures/clef-flash/float32/manifest.json'))['revision'])")')" \
+    > /dev/null && record weights_prefetched ok || record weights_prefetched FAIL
   step "2. our worker, empty Triton cache"
   rm -rf "$TRITON_CACHE_DIR"
-  if start_worker runs/worker-tier0.log; then
-    record ready_empty_cache "${READY_S}s"
+  EMPTY_OK=0
+  if start_worker runs/worker-tier0.log runs/worker-tier0-info.json; then
+    EMPTY_OK=1
+    record ready_empty_cache "$(ready_s runs/worker-tier0-info.json)s"
     python3 scripts/first_requests.py http://127.0.0.1:8000 "runs/first-fla-$SLUG" \
       --label "fla, empty cache, $SLUG" && record first_empty ok || record first_empty FAIL
 
     # ---- 3. correctness ----------------------------------------------------------------------
     step "3. correctness gate"
+    # Pure-torch baseline on the same GPU if we have one: a worker run for this GPU, else the
+    # bf16 oracle fixture if it was made here (H100), else the A40 run (cross-GPU, info only).
     OURS_TORCH=runs/http-a40
     BF16_GPU=$(python3 -c "import json;print(json.load(open('fixtures/clef-flash/bfloat16/manifest.json'))['gpu'])")
     [ "$GPU" = "$BF16_GPU" ] && OURS_TORCH=fixtures/clef-flash/bfloat16
+    for d in "runs/http-$SLUG" "runs/http-${SLUG%%-*}"; do [ -d "$d" ] && OURS_TORCH="$d" && break; done
+    record torch_baseline "$OURS_TORCH"
     python3 scripts/parity_http.py http://127.0.0.1:8000 "runs/http-fla-$SLUG" \
       --also "$OURS_TORCH" --json "runs/parity_fla_$SLUG.json" \
       > "runs/parity_fla_$SLUG.md" && record parity_fla PASS || record parity_fla FAIL
@@ -139,8 +196,10 @@ if [ "$STEPS_DONE" = 1 ]; then
 
   # ---- 5. warm cache ---------------------------------------------------------------------------
   step "5. restart with the cache warm"
-  if start_worker runs/worker-tier0-warm.log; then
-    record ready_warm_cache "${READY_S}s"
+  if [ "$EMPTY_OK" != 1 ]; then
+    record warm_cache "skipped (the empty-cache run did not start)"
+  elif start_worker runs/worker-tier0-warm.log runs/worker-tier0-warm-info.json; then
+    record ready_warm_cache "$(ready_s runs/worker-tier0-warm-info.json)s"
     python3 scripts/first_requests.py http://127.0.0.1:8000 "runs/first-fla-warmcache-$SLUG" \
       --label "fla, warm cache, $SLUG" && record first_warm ok || record first_warm FAIL
   else
