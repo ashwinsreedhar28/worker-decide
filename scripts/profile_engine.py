@@ -15,15 +15,21 @@ The backbone is found at runtime (the model code is downloaded with the weights,
 attribute names are not hard-coded): every module on the largest-parameter chain from the root
 is hooked, and the outermost one that actually ran is timed. The chain, the module used and the
 top-level module tree with parameter counts are written out so a wrong pick is visible, and
---backbone overrides it. Events are recorded on the current stream around
-Python calls, so "head" includes the GPU idling while Python launches the head's small
-kernels: that is the cost the native-head work (milestone 8) would remove.
+--backbone overrides it. Events are recorded on the current stream around Python calls, so
+"head" includes GPU idle time while Python launches the head's small kernels, where that time
+is not hidden behind queued backbone work.
+
+What it does not time: image decoding (done once per record, before the passes), the worker's
+encoding_block / assemble / systemone_answer, and HTTP (loadtest.py measures end to end).
+Shares depend on the backbone path: our image runs Qwen3.5's Gated DeltaNet layers in pure
+torch (gdn_fast_path=False, printed in the header), SGLang uses Triton kernels, so the
+backbone share here is higher, and head + overhead lower, than on a faster backbone.
 
     python scripts/profile_engine.py runs/profile-a40 [--records card_trio pulse long_2k]
         [--reps 20] [--warmup 3] [--trace]
 
---trace also runs one pass per record under torch.profiler and writes a Chrome trace and the
-top kernels by CUDA time. Needs a GPU and the model environment (requirements-oracle.txt).
+--trace also runs one pass per record under torch.profiler and writes a gzipped Chrome trace and
+the top kernels by CUDA time. Needs a GPU and the model environment (requirements-oracle.txt).
 """
 
 from __future__ import annotations
@@ -58,18 +64,36 @@ def module_tree(model, depth: int = 2, prefix: str = "") -> list[dict[str, Any]]
     return out
 
 
-def backbone_chain(model, override: str | None = None) -> list[tuple[str, Any]]:
-    """Candidate backbone modules, outermost first: from the root, repeatedly the child with the
-    most parameters (the 9B backbone next to a 122M head), while it still holds more than half of
-    all parameters, stopping above a layer list. Which of them actually runs depends on how the
-    model code calls its backbone (a wrapper may call the inner language model directly, never
-    the outer module), so all of them are hooked and the outermost one that ran is used.
-    --backbone replaces the chain with one dotted path."""
+def _layer_span(mod) -> tuple[str, Any, Any] | None:
+    """A decoder-layer list under `mod` (depth <= 2): its name, first and last layer."""
+    for name, child in mod.named_children():
+        if type(child).__name__ in ("ModuleList", "Sequential"):
+            layers = [m for _, m in child.named_children()]
+            if layers:
+                return name, layers[0], layers[-1]
+    for name, child in mod.named_children():
+        for gname, grand in child.named_children():
+            if type(grand).__name__ in ("ModuleList", "Sequential"):
+                layers = [m for _, m in grand.named_children()]
+                if layers:
+                    return f"{name}.{gname}", layers[0], layers[-1]
+    return None
+
+
+def backbone_chain(model, override: str | None = None) -> list[tuple[str, Any, Any]]:
+    """Candidate backbone spans (path, start module, end module), outermost first: from the
+    root, repeatedly the child with the most parameters (the 9B backbone next to a 122M head),
+    while it still holds more than half of all parameters, stopping above a layer list. Which
+    of them actually runs depends on how the model code calls its backbone (a wrapper may call
+    the inner language model directly, never the outer module's forward), so all are hooked
+    and the outermost one that ran is used. Last, a span from the first to the last decoder
+    layer, which runs however the backbone is entered (it leaves out the embedding and the
+    final norm, so it slightly under-counts). --backbone replaces the chain with one path."""
     if override:
         mod = model
         for part in override.split("."):
             mod = getattr(mod, part)
-        return [(override, mod)]
+        return [(override, mod, mod)]
     chain, path, mod = [], "", model
     total = param_count(model)
     for _ in range(5):
@@ -80,9 +104,13 @@ def backbone_chain(model, override: str | None = None) -> list[tuple[str, Any]]:
         if param_count(best) <= 0.5 * total or type(best).__name__ in ("ModuleList", "Sequential"):
             break
         path, mod = f"{path}.{name}" if path else name, best
-        chain.append((path, mod))
+        chain.append((path, mod, mod))
     if not chain:
         raise SystemExit("could not find a backbone child; pass --backbone")
+    span = _layer_span(mod)
+    if span:
+        name, first, last = span
+        chain.append((f"{path}.{name}[first..last]", first, last))
     return chain
 
 
@@ -103,14 +131,14 @@ def outermost_fired(chain_paths: list[str], fired: set[str]) -> str | None:
 class Splitter:
     """CUDA events at model-call start/end and around each candidate backbone's forward."""
 
-    def __init__(self, torch, chain: list[tuple[str, Any]]):
+    def __init__(self, torch, chain: list[tuple[str, Any, Any]]):
         self.torch = torch
-        self.paths = [p for p, _ in chain]
+        self.paths = [p for p, _, _ in chain]
         self.events: dict[str, Any] = {}
-        for path, mod in chain:
+        for path, start, end in chain:
             # Default args bind each path at definition time.
-            mod.register_forward_pre_hook(lambda m, a, p=path: self._mark(f"{p}:start"))
-            mod.register_forward_hook(lambda m, a, o, p=path: self._mark(f"{p}:end"))
+            start.register_forward_pre_hook(lambda m, a, p=path: self._mark(f"{p}:start"))
+            end.register_forward_hook(lambda m, a, o, p=path: self._mark(f"{p}:end"))
 
     def _mark(self, name: str) -> None:
         if name in self.events:  # a module called twice per pass: keep the first span
@@ -159,8 +187,8 @@ class Splitter:
 
 
 def record_for(engine_rid: str, line: dict) -> dict:
-    """The record ClefEngine.decide builds: images go through the worker's own data-URL decoder,
-    as they do over HTTP, so the profiled path is the served one."""
+    """The record ClefEngine.decide builds. Images go through the worker's own data-URL decoder
+    (once, outside the timed passes), so the model sees what it sees over HTTP."""
     from parity_http import data_url
 
     from deciders.clef.engine import images_from_data_urls
@@ -212,16 +240,18 @@ def main() -> None:
 
             with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA]) as prof:
                 split.one_pass(engine, rec)
-            prof.export_chrome_trace(str(a.out_dir / f"trace-{line['id']}.json"))
+            # .gz: torch gzips by suffix; an uncompressed trace of the 2k record can approach
+            # GitHub's 100 MB file limit and fail the whole push (Oct 15 audit).
+            prof.export_chrome_trace(str(a.out_dir / f"trace-{line['id']}.json.gz"))
             (a.out_dir / f"kernels-{line['id']}.txt").write_text(
                 prof.key_averages().table(sort_by="cuda_time_total", row_limit=30)
             )
     used = {r["backbone_path"] for r in results.values()}
     path = used.pop() if len(used) == 1 else ", ".join(sorted(used))
-    backbone = dict(chain).get(path, chain[0][1])
+    backbone = next((m for p, m, _ in chain if p == path), chain[0][1])
     out = {
         "engine": engine.manifest(),
-        "backbone_chain": [p for p, _ in chain],
+        "backbone_chain": [p for p, _, _ in chain],
         "backbone_path": path,
         "backbone_params": param_count(backbone),
         "model_params": param_count(engine.model),

@@ -28,7 +28,7 @@ def test_a_moved_answer_and_different_ids_are_reported(tmp_path):
     c = json.loads((BASE / "card_trio.json").read_text())
     shutil.copy(BASE / "card_trio.json", tmp_path / "order_questions_as_card.json")
     q = next(x for x in c["questions"] if x["id"] == "outage")
-    q["probs"] = [q["probs"][0] - 0.03, q["probs"][1] + 0.03]
+    q["probs"] = [q["probs"][0] - 0.03, q["probs"][1] + 0.01]  # asymmetric: max, not min
     (tmp_path / "order_questions_reversed.json").write_text(json.dumps(c))
     f = of.findings(BASE, tmp_path)
     assert not f["unsorted_same_ids"] and "DIFFERENT" in of.render(f)
