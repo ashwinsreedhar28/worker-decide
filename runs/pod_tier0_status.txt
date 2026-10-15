@@ -1,0 +1,13 @@
+compilers_headers: ok
+fla_install: ok
+fla_active: ok
+weights_prefetched: ok
+ready_empty_cache: s
+first_empty: ok
+torch_baseline: fixtures/clef-flash/bfloat16
+parity_fla: PASS
+parity_fla_order: PASS
+load_fla: ok
+ready_warm_cache: s
+first_warm: ok
+profile_fla: ok

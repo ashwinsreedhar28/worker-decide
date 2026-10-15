@@ -1,0 +1,41 @@
+{
+ "ticket": {
+  "ms": [
+   1171.5,
+   53.8,
+   51.7
+  ],
+  "statuses": [
+   200,
+   200,
+   200
+  ],
+  "first_minus_steady_ms": 1118.8
+ },
+ "pulse": {
+  "ms": [
+   186.9,
+   54.6,
+   52.5
+  ],
+  "statuses": [
+   200,
+   200,
+   200
+  ],
+  "first_minus_steady_ms": 133.4
+ },
+ "article": {
+  "ms": [
+   263.0,
+   102.9,
+   103.0
+  ],
+  "statuses": [
+   200,
+   200,
+   200
+  ],
+  "first_minus_steady_ms": 160.1
+ }
+}
