@@ -18,7 +18,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["deciders", "deciders.clef", "worker"]
+packages = ["deciders", "deciders.clef", "deciders.typical", "worker"]
 
 [tool.ruff]
 line-length = 100
