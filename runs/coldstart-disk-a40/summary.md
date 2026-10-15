@@ -1,6 +1,6 @@
 ## Cold start: disk-a40
 
-10/10 cold starts, 0 resumed (process already up at submit), 0 excluded as suspected warm; gap after cold 0 s; GPU NVIDIA A40; snapshot not measured (v1); 2 distinct workers; idle slots before each submit: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+10/10 cold starts, 0 resumed (process already up at submit), 0 excluded as suspected warm; gap after cold 0 s; GPU NVIDIA A40; snapshot not model_store (v1: download vs cache unknown); 2 distinct workers; idle slots before each submit: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 
 | segment (seconds unless noted) | median | p90 | min | max |
 |---|---|---|---|---|

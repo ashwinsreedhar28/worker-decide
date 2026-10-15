@@ -11,7 +11,9 @@
  "gpus": [
   "NVIDIA A40"
  ],
- "snapshot_sources": [],
+ "snapshot_sources": [
+  "not model_store (v1: download vs cache unknown)"
+ ],
  "fetch_metrics": [
   "v1"
  ],

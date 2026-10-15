@@ -12,7 +12,8 @@
   "NVIDIA A40"
  ],
  "snapshot_sources": [
-  "model_store"
+  "model_store",
+  "not model_store (v1: download vs cache unknown)"
  ],
  "fetch_metrics": [
   "v1"
