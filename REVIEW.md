@@ -842,9 +842,37 @@ Throughput, req/s (HTTP, same harness; one at a time → batched):
   batching removes that.
 - The batched path adds 4.9 / 8.1 / 14.6 ms at c=1 (p50 90.0 → 94.9, 182.0 → 190.1,
   482.4 → 497.0 ms). Not yet explained.
-- Tier 0 on the A40 (one at a time): c=1 p50 90.0 / 182.0 / 482.4 ms. Pure torch and SGLang on
-  the same A40 are being measured (`pod_m4.sh` steps 3 and 4 on the same pod, fla
-  uninstalled).
+
+**The A40 comparison: pure torch → fla → fla + batching, against SGLang** (same pod; pure torch
+and SGLang from `pod_m4.sh` steps 3 and 4 after fla was uninstalled, `m4/pod-a40-20261015`, data
+in `runs/load-ours-a40`, `runs/load-sglang-a40`, `runs/m4-a40/`):
+
+| workload | tokens | c=1 p50: torch / fla / fla + batch / SGLang | c=32 req/s: torch / fla / fla + batch / SGLang |
+|---|---|---|---|
+| ticket | 300 | 165.2 / 90.0 / 94.9 / 80.3 ms | 4.27 / 8.16 / 15.39 / 22.02 |
+| pulse | 843 | 313.2 / 182.0 / 190.1 / 155.3 ms | 2.98 / 5.35 / 6.31 / 8.14 |
+| article | 2,486 | 821.1 / 482.4 / 497.0 / 403.1 ms | 1.19 / 2.04 / 2.22 / 2.75 |
+
+- On the target GPU, our worker does 70% / 78% / 81% of SGLang's throughput at 32 concurrent
+  requests (15.39/22.02, 6.31/8.14, 2.22/2.75). One request at a time, SGLang's latency is 89%
+  / 85% / 84% of ours (80.3/90.0, 155.3/182.0, 403.1/482.4). On the H100, under load, we were
+  at 15–56%.
+- From pure torch, today's worker is 3.6× / 2.1× / 1.9× the throughput at c=32 and 1.8× /
+  1.7× / 1.7× faster one at a time.
+- SGLang passes the gate on the A40 too: worst question 0.0130, mean of record means 0.00137;
+  order records worst 0.0106; `empty_instructions` refused with 422 as on the H100 (SKIP). Our
+  pure-torch A40 answers (milestone 2's run) and SGLang's are equally close to the truth
+  (closer on 90 vs 88 questions; worst 0.0163 vs 0.0130). On the Pulse 50, SGLang is within
+  0.0112 of fp32 and Workers AI 0.1435 away, as on the H100.
+- Where the remaining A40 gap is likely to be (not yet measured): GPU efficiency, not
+  scheduling. Both servers are compute-bound here. Candidates: the kernels fla and torch still
+  leave unfused (short convolution, layout copies), and padding to the longest request in a
+  batch (BATCH_MAX_RATIO 2.0 allows up to 2× padded tokens). The H100 gap is the CPU-bound
+  kind (launches, the head's per-record Python loop, request handling on the same GIL) and has
+  to be measured on an H100.
+- SGLang's first start on this pod failed: its sm_86 JIT activation kernel needs nvcc, and
+  `pod_m4.sh` installed nvcc only when gcc was missing (gcc was there from the earlier scripts).
+  After installing cuda-nvcc-13-0 by hand, step 4 ran clean. The script fix is a separate PR.
 
 ## Built ahead: milestone 5b cost calculator and milestone 6 Typical decider (Oct 15)
 
