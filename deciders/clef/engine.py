@@ -484,17 +484,46 @@ class ClefEngine:
 def gdn_fast_path() -> bool:
     """Whether Qwen3.5 Gated DeltaNet runs the full fast path (fla and causal-conv1d)."""
     k = gdn_kernels()
-    return k["fla"] and k["causal_conv1d"]
+    return k["chunk_gated_delta_rule"] != "torch" and k["causal_conv1d"] != "torch"
 
 
-def gdn_kernels() -> dict[str, bool]:
-    """Which Gated DeltaNet pieces have kernels. transformers 5.10.2 falls back per piece
-    (modeling_qwen3_5.py): fla supplies chunk_gated_delta_rule and FusedRMSNormGated, the
-    expensive part on a prefill; causal-conv1d only the short convolution, which otherwise runs
-    as torch's conv1d. So fla alone already replaces the pure-torch recurrence."""
+def _origin(obj: Any) -> str:
+    """Top-level package an object came from; "torch" when transformers bound None (its
+    signal to use the pure-torch fallback)."""
+    if obj is None:
+        return "torch"
+    return (getattr(obj, "__module__", None) or "unknown").split(".")[0]
+
+
+def gdn_kernels() -> dict[str, str | None]:
+    """What Qwen3.5's Gated DeltaNet layers call, per piece, read from what transformers bound in
+    modeling_qwen3_5 (it falls back per piece: fla supplies chunk_gated_delta_rule and
+    FusedRMSNormGated, the expensive part on a prefill; causal-conv1d only the short convolution,
+    which otherwise runs as torch's conv1d). fla_device is fla's own device probe, read only if
+    fla is already imported: fla falls back to CPU silently when its Triton probe fails, and
+    transformers binds its functions anyway, so a bound "fla" alone does not mean GPU kernels.
+    Without transformers (tests, dry runs) it reports what is installed, source "find_spec"."""
     import importlib.util
 
+    try:
+        from transformers.models.qwen3_5 import modeling_qwen3_5 as m
+    except Exception:
+        fla = importlib.util.find_spec("fla") is not None
+        return {
+            "source": "find_spec",
+            "chunk_gated_delta_rule": "fla" if fla else "torch",
+            "fused_rms_norm_gated": "fla" if fla else "torch",
+            "causal_conv1d": "causal_conv1d"
+            if importlib.util.find_spec("causal_conv1d") is not None
+            else "torch",
+            "fla_device": None,
+        }
+    fla_utils = sys.modules.get("fla.utils")
+    fla_device = None if fla_utils is None else str(getattr(fla_utils, "device_platform", None))
     return {
-        "fla": importlib.util.find_spec("fla") is not None,
-        "causal_conv1d": importlib.util.find_spec("causal_conv1d") is not None,
+        "source": "transformers",
+        "chunk_gated_delta_rule": _origin(getattr(m, "chunk_gated_delta_rule", None)),
+        "fused_rms_norm_gated": _origin(getattr(m, "FusedRMSNormGated", None)),
+        "causal_conv1d": _origin(getattr(m, "causal_conv1d_fn", None)),
+        "fla_device": fla_device,
     }

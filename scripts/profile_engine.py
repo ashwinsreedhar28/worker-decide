@@ -22,8 +22,9 @@ is not hidden behind queued backbone work.
 What it does not time: image decoding (done once per record, before the passes), the worker's
 encoding_block / assemble / systemone_answer, and HTTP (loadtest.py measures end to end).
 Shares depend on the backbone path: our image runs Qwen3.5's Gated DeltaNet layers in pure
-torch (gdn_fast_path=False, printed in the header), SGLang uses Triton kernels, so the
-backbone share here is higher, and head + overhead lower, than on a faster backbone.
+torch unless fla is installed (gdn_kernels, printed in the header); SGLang uses Triton kernels.
+On the pure-torch path the backbone share is higher, and head + overhead lower, than on a
+faster backbone.
 
     python scripts/profile_engine.py runs/profile-a40 [--records card_trio pulse long_2k]
         [--reps 20] [--warmup 3] [--trace]

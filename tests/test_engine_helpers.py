@@ -180,12 +180,75 @@ def test_fetch_source_needs_the_bytes_to_match_the_snapshot():
     assert engine.fetch_source(False, 0, 0) == "hf_cache"
 
 
-def test_gdn_kernels_reports_each_piece(monkeypatch):
-    import importlib.util
+def _fake_transformers(monkeypatch, **bound):
+    import sys
+    import types
 
+    names = ["transformers", "transformers.models", "transformers.models.qwen3_5"]
+    mods = {n: types.ModuleType(n) for n in names}
+    m = types.ModuleType("transformers.models.qwen3_5.modeling_qwen3_5")
+    for k, v in bound.items():
+        setattr(m, k, v)
+    mods["transformers.models"].qwen3_5 = mods["transformers.models.qwen3_5"]
+    mods["transformers"].models = mods["transformers.models"]
+    mods["transformers.models.qwen3_5"].modeling_qwen3_5 = m
+    for n, mod in {**mods, m.__name__: m}.items():
+        monkeypatch.setitem(sys.modules, n, mod)
+
+
+def _from(module):
+    def f():
+        pass
+
+    f.__module__ = module
+    return f
+
+
+def test_gdn_kernels_reads_what_transformers_bound(monkeypatch):
+    import sys
+    import types
+
+    rms = type("FusedRMSNormGated", (), {"__module__": "fla.modules.fused_norm_gate"})
+    chunk = _from("fla.ops.gated_delta_rule.chunk")
+    _fake_transformers(monkeypatch, chunk_gated_delta_rule=chunk, FusedRMSNormGated=rms,
+                       causal_conv1d_fn=None)  # fmt: skip
+    fla_utils = types.ModuleType("fla.utils")
+    fla_utils.device_platform = "cuda"
+    monkeypatch.setitem(sys.modules, "fla.utils", fla_utils)
+    assert engine.gdn_kernels() == {
+        "source": "transformers", "chunk_gated_delta_rule": "fla", "fused_rms_norm_gated": "fla",
+        "causal_conv1d": "torch", "fla_device": "cuda",
+    }  # fmt: skip
+    assert engine.gdn_fast_path() is False  # the full fast path needs causal-conv1d too
+
+
+def test_gdn_kernels_pure_torch_and_full_fast_path(monkeypatch):
+    import sys
+
+    monkeypatch.delitem(sys.modules, "fla.utils", raising=False)
+    _fake_transformers(monkeypatch, chunk_gated_delta_rule=None, FusedRMSNormGated=None,
+                       causal_conv1d_fn=None)  # fmt: skip
+    k = engine.gdn_kernels()
+    assert (k["chunk_gated_delta_rule"], k["fused_rms_norm_gated"], k["causal_conv1d"]) == (
+        "torch", "torch", "torch")  # fmt: skip
+    assert k["fla_device"] is None  # fla not imported: not probed here
+    conv = _from("causal_conv1d.cpp")
+    _fake_transformers(monkeypatch, chunk_gated_delta_rule=_from("fla.ops"),
+                       FusedRMSNormGated=None, causal_conv1d_fn=conv)  # fmt: skip
+    assert engine.gdn_fast_path() is True
+
+
+def test_gdn_kernels_without_transformers_reports_installed_packages(monkeypatch):
+    import importlib.util
+    import sys
+
+    monkeypatch.setitem(sys.modules, "transformers", None)  # import fails
     real = importlib.util.find_spec
     monkeypatch.setattr(importlib.util, "find_spec",
                         lambda name, *a: object() if name == "fla" else (None if name ==
                         "causal_conv1d" else real(name, *a)))  # fmt: skip
-    assert engine.gdn_kernels() == {"fla": True, "causal_conv1d": False}
-    assert engine.gdn_fast_path() is False  # the full fast path needs both
+    assert engine.gdn_kernels() == {
+        "source": "find_spec", "chunk_gated_delta_rule": "fla", "fused_rms_norm_gated": "fla",
+        "causal_conv1d": "torch", "fla_device": None,
+    }  # fmt: skip
+    assert engine.gdn_fast_path() is False
