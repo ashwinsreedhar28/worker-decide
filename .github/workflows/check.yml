@@ -14,3 +14,17 @@ jobs:
           python-version: "3.11"
       - run: pip install -e ".[dev]"
       - run: make check
+
+  # The same suite with the model card's torch/transformers pair installed (CPU torch), so the
+  # tests that need them run instead of skipping: tests/test_fused.py checks every tier 2 fusion
+  # on a tiny Qwen3.5 against the unpatched model, and runs in one process with the rest.
+  torch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install --index-url https://download.pytorch.org/whl/cpu torch==2.11.0
+      - run: pip install transformers==5.10.2 -e ".[dev]"
+      - run: python -m pytest -q -rs
