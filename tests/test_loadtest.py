@@ -113,3 +113,27 @@ def test_the_model_field_is_added_only_when_asked(monkeypatch):
     lt.http_poster("http://x", "/v1/systemone", "Cloudflare/clef-flash", 5)(body)
     assert "model" not in sent[0] and sent[1]["model"] == "Cloudflare/clef-flash"
     assert list(sent[0]["questions"]) == ["z", "a"]  # order kept on the wire
+
+
+def test_main_exits_non_zero_on_a_failed_preflight_or_errored_cell(tmp_path, monkeypatch):
+    import pytest
+
+    answers = {"status": 500}
+    monkeypatch.setattr(lt, "http_poster", lambda *a, **k: lambda body: answers["status"])
+    argv = ["loadtest.py", "http://x", str(tmp_path / "out"), "--workload", "t=card_trio",
+            "--concurrency", "1", "--requests", "3"]  # fmt: skip
+    monkeypatch.setattr("sys.argv", argv)
+    with pytest.raises(SystemExit, match="preflight"):
+        lt.main()
+    n = {"i": 0}
+
+    def flaky(body):
+        n["i"] += 1
+        return 200 if n["i"] <= 2 else 500  # preflight and warm-up fine, counted requests fail
+
+    monkeypatch.setattr(lt, "http_poster", lambda *a, **k: flaky)
+    with pytest.raises(SystemExit, match="cells with errors"):
+        lt.main()
+    monkeypatch.setattr(lt, "http_poster", lambda *a, **k: lambda body: 200)
+    lt.main()  # all good: returns normally
+    assert (tmp_path / "out" / "load.json").exists()
