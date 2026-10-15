@@ -275,7 +275,7 @@ def main() -> None:
     params = f"{out['backbone_params'] / 1e9:.2f}B of {out['model_params'] / 1e9:.2f}B params"
     text = (
         f"## Profile ({out['engine'].get('gpu')}, backbone = `{path}`, {params}, "
-        f"gdn_fast_path={out['engine'].get('gdn_fast_path')})\n\n" + "\n".join(rows)
+        f"gdn_kernels={out['engine'].get('gdn_kernels')})\n\n" + "\n".join(rows)
     )
     (a.out_dir / "profile.md").write_text(text + "\n")
     print(text)

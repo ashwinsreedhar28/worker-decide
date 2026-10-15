@@ -178,3 +178,14 @@ def test_fetch_source_needs_the_bytes_to_match_the_snapshot():
         engine.fetch_source(False, 129_851, snap) == "hf_cache"
     )  # Oct 14's 130 KB: not a download
     assert engine.fetch_source(False, 0, 0) == "hf_cache"
+
+
+def test_gdn_kernels_reports_each_piece(monkeypatch):
+    import importlib.util
+
+    real = importlib.util.find_spec
+    monkeypatch.setattr(importlib.util, "find_spec",
+                        lambda name, *a: object() if name == "fla" else (None if name ==
+                        "causal_conv1d" else real(name, *a)))  # fmt: skip
+    assert engine.gdn_kernels() == {"fla": True, "causal_conv1d": False}
+    assert engine.gdn_fast_path() is False  # the full fast path needs both

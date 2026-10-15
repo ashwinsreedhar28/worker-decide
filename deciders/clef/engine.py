@@ -469,6 +469,7 @@ class ClefEngine:
             "max_length": self.cfg.max_length,
             "sdp": self.cfg.sdp,
             "gdn_fast_path": gdn_fast_path(),
+            "gdn_kernels": gdn_kernels(),
             "versions": {
                 "python": platform.python_version(),
                 "torch": torch.__version__,
@@ -481,11 +482,19 @@ class ClefEngine:
 
 
 def gdn_fast_path() -> bool:
-    """Whether Qwen3.5 Gated DeltaNet runs the fla/causal-conv1d kernels or pure torch."""
-    try:
-        import causal_conv1d  # noqa: F401
-        import fla  # noqa: F401
+    """Whether Qwen3.5 Gated DeltaNet runs the full fast path (fla and causal-conv1d)."""
+    k = gdn_kernels()
+    return k["fla"] and k["causal_conv1d"]
 
-        return True
-    except ImportError:
-        return False
+
+def gdn_kernels() -> dict[str, bool]:
+    """Which Gated DeltaNet pieces have kernels. transformers 5.10.2 falls back per piece
+    (modeling_qwen3_5.py): fla supplies chunk_gated_delta_rule and FusedRMSNormGated, the
+    expensive part on a prefill; causal-conv1d only the short convolution, which otherwise runs
+    as torch's conv1d. So fla alone already replaces the pure-torch recurrence."""
+    import importlib.util
+
+    return {
+        "fla": importlib.util.find_spec("fla") is not None,
+        "causal_conv1d": importlib.util.find_spec("causal_conv1d") is not None,
+    }
