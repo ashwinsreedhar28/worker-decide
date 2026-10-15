@@ -1,0 +1,898 @@
+{
+ "engine": {
+  "model": "Cloudflare/clef-flash",
+  "revision": "8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3",
+  "snapshot_path": "/root/hf/hub/models--Cloudflare--clef-flash/snapshots/8b2e5fd17c09fd49bc2880b805d5323ec7ff4ff3",
+  "snapshot_source": "hf_cache",
+  "timeline": {
+   "basis": "process_start",
+   "origin_unix": 1792096425.003,
+   "marks": {
+    "engine_init": 1.4,
+    "snapshot_resolved": 1.417,
+    "model_code_imported": 3.307,
+    "weights_loaded": 13.617
+   },
+   "fetch": {
+    "source": "hf_cache",
+    "snapshot_bytes": 19083410555,
+    "bytes_written": 0,
+    "snapshot_dir_existed": true,
+    "bytes_written_disk": 0,
+    "bytes_written_hf_home": 0,
+    "seconds": 0.017
+   }
+  },
+  "warmup_s": null,
+  "files": {
+   "joint_head.safetensors": {
+    "sha256": "19cdcec8c81dc9212be320fff47462ab342fbc1278be4368fb3da71241cf5ba0",
+    "bytes": 243538016
+   },
+   "joint_head_config.json": {
+    "sha256": "77efe959a38b5b17b241543e129e695f3c77465ece55a25985279bd8176279a0",
+    "bytes": 119
+   },
+   "joint_schema_model.py": {
+    "sha256": "0e304cf7c6500e8bb59bef7e2afd2c6373f82596dfb3b57d1aa93c175e2dc3a3",
+    "bytes": 23263
+   },
+   "config.json": {
+    "sha256": "66f87f6fb2616b46604daf2a9c67ddc87938296d07156efa34d59b5be49e3238",
+    "bytes": 2832
+   },
+   "model-00001-of-00004.safetensors": {
+    "bytes": 4942706120
+   },
+   "model-00002-of-00004.safetensors": {
+    "bytes": 4987757928
+   },
+   "model-00003-of-00004.safetensors": {
+    "bytes": 4954810240
+   },
+   "model-00004-of-00004.safetensors": {
+    "bytes": 3934446832
+   }
+  },
+  "dtype": "bfloat16",
+  "device": "cuda",
+  "gpu": "NVIDIA A40",
+  "dry_run": false,
+  "max_length": 16384,
+  "sdp": "efficient",
+  "gdn_fast_path": false,
+  "gdn_kernels": {
+   "source": "transformers",
+   "chunk_gated_delta_rule": "fla",
+   "fused_rms_norm_gated": "fla",
+   "causal_conv1d": "torch",
+   "fla_device": "cuda"
+  },
+  "versions": {
+   "python": "3.12.3",
+   "torch": "2.11.0+cu130",
+   "transformers": "5.10.2",
+   "cuda": "13.0"
+  },
+  "worker_decide_commit": "08b2981a4f88e121e07d6503714e64a710c3eabb",
+  "load_s": 10.3
+ },
+ "record": "pulse-11714037",
+ "base_tokens": 843,
+ "variants": [
+  {
+   "k": 1,
+   "tokens": 844,
+   "sibling": true
+  },
+  {
+   "k": 2,
+   "tokens": 845,
+   "sibling": true
+  },
+  {
+   "k": 3,
+   "tokens": 846,
+   "sibling": true
+  },
+  {
+   "k": 4,
+   "tokens": 847,
+   "sibling": true
+  },
+  {
+   "k": 5,
+   "tokens": 848,
+   "sibling": true
+  },
+  {
+   "k": 6,
+   "tokens": 849,
+   "sibling": true
+  },
+  {
+   "k": 7,
+   "tokens": 850,
+   "sibling": true
+  },
+  {
+   "k": 8,
+   "tokens": 851,
+   "sibling": true
+  }
+ ],
+ "env": {
+  "PYTORCH_CUDA_ALLOC_CONF": "expandable_segments:True",
+  "CUDA_MODULE_LOADING": null,
+  "TORCH_BLAS_PREFER_CUBLASLT": null,
+  "TRITON_CACHE_DIR": "/root/triton-cache-shapes",
+  "preferred_blas": "_BlasBackend.Cublas"
+ },
+ "warmup": [
+  {
+   "kind": "warmup",
+   "k": 0,
+   "encode": 1.9955020397901535,
+   "collate": 0.40727504529058933,
+   "pre": 0.1509760022163391,
+   "backbone": 909.0374145507812,
+   "head": 156.75914001464844,
+   "post": 0.18046097829937935,
+   "total": 1068.6709110159427,
+   "input_tokens": 843,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 7
+  },
+  {
+   "kind": "warmup",
+   "k": 0,
+   "encode": 2.989090047776699,
+   "collate": 0.37099095061421394,
+   "pre": 0.12364800274372101,
+   "backbone": 168.95535278320312,
+   "head": 4.273568153381348,
+   "post": 0.06536697037518024,
+   "total": 176.8303019925952,
+   "input_tokens": 843,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "warmup",
+   "k": 0,
+   "encode": 2.2775629768148065,
+   "collate": 0.2785519463941455,
+   "pre": 0.07667200267314911,
+   "backbone": 169.89488220214844,
+   "head": 4.033504009246826,
+   "post": 0.0627799890935421,
+   "total": 176.67057900689542,
+   "input_tokens": 843,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  }
+ ],
+ "passes": [
+  {
+   "kind": "new",
+   "k": 1,
+   "encode": 1.7661440651863813,
+   "collate": 0.2823680406436324,
+   "pre": 0.07561600208282471,
+   "backbone": 168.3567657470703,
+   "head": 4.1844801902771,
+   "post": 0.06309198215603828,
+   "total": 174.77574606891721,
+   "input_tokens": 844,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "repeat",
+   "k": 1,
+   "encode": 2.080547041259706,
+   "collate": 0.27193198911845684,
+   "pre": 0.07686399668455124,
+   "backbone": 169.41116333007812,
+   "head": 4.041440010070801,
+   "post": 0.06270501762628555,
+   "total": 175.9916100418195,
+   "input_tokens": 844,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "sibling",
+   "k": 1,
+   "encode": 2.0967560121789575,
+   "collate": 0.2645469503477216,
+   "pre": 0.0748480036854744,
+   "backbone": 169.3577880859375,
+   "head": 4.0316162109375,
+   "post": 0.062052044086158276,
+   "total": 175.93366105575114,
+   "input_tokens": 844,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "new",
+   "k": 2,
+   "encode": 6.21913094073534,
+   "collate": 0.28989999555051327,
+   "pre": 0.07635200023651123,
+   "backbone": 169.22991943359375,
+   "head": 4.192319869995117,
+   "post": 0.06109301466494799,
+   "total": 180.11785997077823,
+   "input_tokens": 845,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "repeat",
+   "k": 2,
+   "encode": 2.135742921382189,
+   "collate": 0.2765690442174673,
+   "pre": 0.07443200051784515,
+   "backbone": 169.74697875976562,
+   "head": 4.01200008392334,
+   "post": 0.06002001464366913,
+   "total": 176.35199602227658,
+   "input_tokens": 845,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "sibling",
+   "k": 2,
+   "encode": 2.0523290149867535,
+   "collate": 0.27386704459786415,
+   "pre": 0.07500799745321274,
+   "backbone": 170.3753662109375,
+   "head": 4.845503807067871,
+   "post": 0.07401604671031237,
+   "total": 177.75471601635218,
+   "input_tokens": 845,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "new",
+   "k": 3,
+   "encode": 2.447717939503491,
+   "collate": 0.31593209132552147,
+   "pre": 0.09424000233411789,
+   "backbone": 170.2487030029297,
+   "head": 5.304224014282227,
+   "post": 0.07284898310899734,
+   "total": 178.54225193150342,
+   "input_tokens": 846,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "repeat",
+   "k": 3,
+   "encode": 2.4042149307206273,
+   "collate": 0.3432850353419781,
+   "pre": 0.09743999689817429,
+   "backbone": 169.8834228515625,
+   "head": 4.523551940917969,
+   "post": 0.07050996646285057,
+   "total": 177.38204100169241,
+   "input_tokens": 846,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "sibling",
+   "k": 3,
+   "encode": 2.297236933372915,
+   "collate": 0.3006469924002886,
+   "pre": 0.08777599781751633,
+   "backbone": 169.42410278320312,
+   "head": 4.387296199798584,
+   "post": 0.06559595931321383,
+   "total": 176.61448591388762,
+   "input_tokens": 846,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "new",
+   "k": 4,
+   "encode": 2.2658929228782654,
+   "collate": 0.2834510523825884,
+   "pre": 0.08150400221347809,
+   "backbone": 169.29632568359375,
+   "head": 4.070655822753906,
+   "post": 0.0617180485278368,
+   "total": 176.10545898787677,
+   "input_tokens": 847,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "repeat",
+   "k": 4,
+   "encode": 2.199363079853356,
+   "collate": 0.27433899231255054,
+   "pre": 0.08476799726486206,
+   "backbone": 169.64767456054688,
+   "head": 3.8983678817749023,
+   "post": 0.05879008676856756,
+   "total": 176.20876408182085,
+   "input_tokens": 847,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "sibling",
+   "k": 4,
+   "encode": 2.1813249913975596,
+   "collate": 0.26714999694377184,
+   "pre": 0.07398399710655212,
+   "backbone": 170.32666015625,
+   "head": 3.9244799613952637,
+   "post": 0.060169026255607605,
+   "total": 176.87774798832834,
+   "input_tokens": 847,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "profiler-warmup",
+   "k": 0,
+   "encode": 2.2686850279569626,
+   "collate": 0.468868063762784,
+   "pre": 0.09126400202512741,
+   "backbone": 170.92422485351562,
+   "head": 7.321695804595947,
+   "post": 0.10728498455137014,
+   "total": 181.2392850406468,
+   "input_tokens": 843,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "new-traced",
+   "k": 5,
+   "encode": 2.177721937187016,
+   "collate": 0.4818240413442254,
+   "pre": 0.10278400033712387,
+   "backbone": 170.82777404785156,
+   "head": 7.284512042999268,
+   "post": 0.10038097389042377,
+   "total": 181.03984196204692,
+   "input_tokens": 848,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "repeat-traced",
+   "k": 5,
+   "encode": 2.4141260655596852,
+   "collate": 0.5765719106420875,
+   "pre": 0.1122559979557991,
+   "backbone": 170.40771484375,
+   "head": 7.640895843505859,
+   "post": 0.10290904901921749,
+   "total": 181.32305203471333,
+   "input_tokens": 848,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "sibling",
+   "k": 5,
+   "encode": 2.393634058535099,
+   "collate": 0.48153800889849663,
+   "pre": 0.11484800279140472,
+   "backbone": 168.9656982421875,
+   "head": 5.229983806610107,
+   "post": 0.07797300349920988,
+   "total": 177.3355060722679,
+   "input_tokens": 848,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "new",
+   "k": 6,
+   "encode": 2.319387043826282,
+   "collate": 0.3212069859728217,
+   "pre": 0.15244799852371216,
+   "backbone": 169.31651306152344,
+   "head": 5.179808139801025,
+   "post": 0.06903999019414186,
+   "total": 177.4108880199492,
+   "input_tokens": 849,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "repeat",
+   "k": 6,
+   "encode": 2.2491150302812457,
+   "collate": 0.29832206200808287,
+   "pre": 0.07971200346946716,
+   "backbone": 169.6149139404297,
+   "head": 5.05785608291626,
+   "post": 0.07055001333355904,
+   "total": 177.42028401698917,
+   "input_tokens": 849,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "sibling",
+   "k": 6,
+   "encode": 2.1672339644283056,
+   "collate": 0.29080500826239586,
+   "pre": 0.08028800040483475,
+   "backbone": 169.4578857421875,
+   "head": 4.960927963256836,
+   "post": 0.06736395880579948,
+   "total": 177.07353900186718,
+   "input_tokens": 849,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "new",
+   "k": 7,
+   "encode": 2.124898019246757,
+   "collate": 0.29222993180155754,
+   "pre": 0.07539200037717819,
+   "backbone": 169.88720703125,
+   "head": 5.109375953674316,
+   "post": 0.06460805889219046,
+   "total": 177.6028670137748,
+   "input_tokens": 850,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "repeat",
+   "k": 7,
+   "encode": 2.1834680810570717,
+   "collate": 0.29339094180613756,
+   "pre": 0.07631999999284744,
+   "backbone": 170.23385620117188,
+   "head": 5.440288066864014,
+   "post": 0.07656810339540243,
+   "total": 178.36170608643442,
+   "input_tokens": 850,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "sibling",
+   "k": 7,
+   "encode": 2.3736520670354366,
+   "collate": 0.314133008942008,
+   "pre": 0.08640000224113464,
+   "backbone": 170.42752075195312,
+   "head": 5.529056072235107,
+   "post": 0.08403195533901453,
+   "total": 178.8758470211178,
+   "input_tokens": 850,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "new",
+   "k": 8,
+   "encode": 2.364551997743547,
+   "collate": 0.32057706266641617,
+   "pre": 0.09100800007581711,
+   "backbone": 170.87283325195312,
+   "head": 5.146080017089844,
+   "post": 0.0733769265934825,
+   "total": 178.92340698745102,
+   "input_tokens": 851,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "repeat",
+   "k": 8,
+   "encode": 2.327040070667863,
+   "collate": 0.2999149728566408,
+   "pre": 0.08265600353479385,
+   "backbone": 171.11187744140625,
+   "head": 5.0489277839660645,
+   "post": 0.06970495451241732,
+   "total": 178.99115500040352,
+   "input_tokens": 851,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  },
+  {
+   "kind": "sibling",
+   "k": 8,
+   "encode": 2.1630750270560384,
+   "collate": 0.2873699413612485,
+   "pre": 0.07503999769687653,
+   "backbone": 170.3633575439453,
+   "head": 5.043136119842529,
+   "post": 0.0705840066075325,
+   "total": 178.0536490259692,
+   "input_tokens": 851,
+   "backbone_path": "language_model.model.language_model",
+   "device_allocs": 0
+  }
+ ],
+ "summary": {
+  "new": {
+   "n": 7,
+   "encode": 2.32,
+   "collate": 0.29,
+   "pre": 0.08,
+   "backbone": 169.32,
+   "head": 5.11,
+   "post": 0.06,
+   "total": 177.6,
+   "device_allocs": 0
+  },
+  "repeat": {
+   "n": 7,
+   "encode": 2.2,
+   "collate": 0.29,
+   "pre": 0.08,
+   "backbone": 169.75,
+   "head": 4.52,
+   "post": 0.07,
+   "total": 177.38,
+   "device_allocs": 0
+  },
+  "sibling": {
+   "n": 8,
+   "encode": 2.17,
+   "collate": 0.29,
+   "pre": 0.08,
+   "backbone": 169.89,
+   "head": 4.9,
+   "post": 0.07,
+   "total": 177.2,
+   "device_allocs": 0.0
+  },
+  "new_minus_repeat": {
+   "encode": 0.12,
+   "collate": 0.0,
+   "pre": 0.0,
+   "backbone": -0.43,
+   "head": 0.59,
+   "post": -0.01,
+   "total": 0.22
+  }
+ },
+ "op_diff": [
+  {
+   "op": "Command Buffer Full",
+   "d_cpu_ms": 1.281,
+   "d_cuda_ms": 0.287,
+   "count_new": 66,
+   "count_repeat": 62
+  },
+  {
+   "op": "aten::mm",
+   "d_cpu_ms": -0.097,
+   "d_cuda_ms": 0.686,
+   "count_new": 254,
+   "count_repeat": 254
+  },
+  {
+   "op": "cudaStreamSynchronize",
+   "d_cpu_ms": 0.516,
+   "d_cuda_ms": 0.0,
+   "count_new": 6,
+   "count_repeat": 6
+  },
+  {
+   "op": "void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_256x128_32x3_tn_align8>(cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_256x128_32x3_tn_align8::Params)",
+   "d_cpu_ms": 0.0,
+   "d_cuda_ms": 0.357,
+   "count_new": 113,
+   "count_repeat": 113
+  },
+  {
+   "op": "void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_128x256_32x3_tn_align8>(cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_128x256_32x3_tn_align8::Params)",
+   "d_cpu_ms": 0.0,
+   "d_cuda_ms": 0.227,
+   "count_new": 32,
+   "count_repeat": 32
+  },
+  {
+   "op": "ampere_bf16_s1688gemm_bf16_128x128_ldg8_f2f_stages_32x1_tn",
+   "d_cpu_ms": 0.0,
+   "d_cuda_ms": 0.102,
+   "count_new": 56,
+   "count_repeat": 56
+  },
+  {
+   "op": "void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_impl_nocast<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#12}::operator()() const::{lambda(c10::BFloat16)#1}>(at::TensorIteratorBase&, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#12}::operator()() const::{lambda(c10::BFloat16)#1} const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#12}::operator()() const::{lambda(c10::BFloat16)#1}>(at::TensorIteratorBase&, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#12}::operator()() const::{lambda(c10::BFloat16)#1} const&)::{lambda(int)#1})",
+   "d_cpu_ms": 0.0,
+   "d_cuda_ms": 0.042,
+   "count_new": 133,
+   "count_repeat": 133
+  },
+  {
+   "op": "void at::native::(anonymous namespace)::conv_depthwise2d_forward_kernel_generic<c10::BFloat16, int>(torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, c10::BFloat16 const, 3ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<4ul, int>, c10::BFloat16 const, 4ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, c10::BFloat16, 3ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<4ul, int>, c10::BFloat16, 4ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, c10::BFloat16 const, 3ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<4ul, int>, c10::BFloat16 const, 4ul, torch::headeronly::DefaultPtrTraits, int>, torch::headeronly::detail::GenericPackedTensorAccessor<torch::headeronly::detail::TensorAccessor<c10::ArrayRef<long>, c10::BFloat16 const, 0ul, torch::headeronly::DefaultPtrTraits, int>, at::detail::IndexBoundsCheck<1ul, int>, c10::BFloat16 const, 1ul, torch::headeronly::DefaultPtrTraits, int>, bool, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int)",
+   "d_cpu_ms": 0.0,
+   "d_cuda_ms": 0.03,
+   "count_new": 24,
+   "count_repeat": 24
+  },
+  {
+   "op": "aten::_conv_depthwise2d",
+   "d_cpu_ms": -0.002,
+   "d_cuda_ms": 0.03,
+   "count_new": 24,
+   "count_repeat": 24
+  },
+  {
+   "op": "chunk_gated_delta_rule_fwd_kkt_solve_kernel",
+   "d_cpu_ms": 0.0,
+   "d_cuda_ms": 0.011,
+   "count_new": 24,
+   "count_repeat": 24
+  },
+  {
+   "op": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1})",
+   "d_cpu_ms": 0.0,
+   "d_cuda_ms": 0.009,
+   "count_new": 186,
+   "count_repeat": 186
+  },
+  {
+   "op": "aten::sigmoid",
+   "d_cpu_ms": 0.006,
+   "d_cuda_ms": -0.0,
+   "count_new": 33,
+   "count_repeat": 33
+  },
+  {
+   "op": "aten::neg",
+   "d_cpu_ms": 0.006,
+   "d_cuda_ms": -0.0,
+   "count_new": 40,
+   "count_repeat": 40
+  },
+  {
+   "op": "cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags",
+   "d_cpu_ms": 0.005,
+   "d_cuda_ms": 0.0,
+   "count_new": 2,
+   "count_repeat": 0
+  },
+  {
+   "op": "void at::native::vectorized_elementwise_kernel<4, at::native::CUDAFunctor_add<c10::BFloat16>, std::array<char*, 3ul> >(int, at::native::CUDAFunctor_add<c10::BFloat16>, std::array<char*, 3ul>)",
+   "d_cpu_ms": 0.0,
+   "d_cuda_ms": 0.005,
+   "count_new": 87,
+   "count_repeat": 87
+  }
+ ],
+ "batch_preview": {
+  "lengths": [
+   843,
+   300,
+   2486
+  ],
+  "batch": {
+   "input_ids": {
+    "tensor": [
+     3,
+     2486
+    ],
+    "dtype": "torch.int64"
+   },
+   "attention_mask": {
+    "tensor": [
+     3,
+     2486
+    ],
+    "dtype": "torch.int64"
+   },
+   "records": {
+    "type": "list",
+    "len": 3,
+    "first": [
+     {
+      "type": "EncodedRecord",
+      "fields": {
+       "input_ids": {
+        "type": "tuple",
+        "len": 843,
+        "first": [
+         "int",
+         "int",
+         "int"
+        ]
+       },
+       "questions": {
+        "type": "tuple",
+        "len": 1,
+        "first": [
+         {
+          "type": "EncodedQuestion",
+          "fields": {
+           "question_id": "str",
+           "question_type": "int",
+           "question_span": "tuple",
+           "option_spans": "tuple",
+           "option_ids": "tuple"
+          }
+         }
+        ]
+       },
+       "record_id": "str",
+       "media": "NoneType"
+      }
+     },
+     {
+      "type": "EncodedRecord",
+      "fields": {
+       "input_ids": {
+        "type": "tuple",
+        "len": 300,
+        "first": [
+         "int",
+         "int",
+         "int"
+        ]
+       },
+       "questions": {
+        "type": "tuple",
+        "len": 3,
+        "first": [
+         {
+          "type": "EncodedQuestion",
+          "fields": {
+           "question_id": "str",
+           "question_type": "int",
+           "question_span": "tuple",
+           "option_spans": "tuple",
+           "option_ids": "tuple"
+          }
+         },
+         {
+          "type": "EncodedQuestion",
+          "fields": {
+           "question_id": "str",
+           "question_type": "int",
+           "question_span": "tuple",
+           "option_spans": "tuple",
+           "option_ids": "tuple"
+          }
+         },
+         {
+          "type": "EncodedQuestion",
+          "fields": {
+           "question_id": "str",
+           "question_type": "int",
+           "question_span": "tuple",
+           "option_spans": "tuple",
+           "option_ids": "tuple"
+          }
+         }
+        ]
+       },
+       "record_id": "str",
+       "media": "NoneType"
+      }
+     },
+     {
+      "type": "EncodedRecord",
+      "fields": {
+       "input_ids": {
+        "type": "tuple",
+        "len": 2486,
+        "first": [
+         "int",
+         "int",
+         "int"
+        ]
+       },
+       "questions": {
+        "type": "tuple",
+        "len": 2,
+        "first": [
+         {
+          "type": "EncodedQuestion",
+          "fields": {
+           "question_id": "str",
+           "question_type": "int",
+           "question_span": "tuple",
+           "option_spans": "tuple",
+           "option_ids": "tuple"
+          }
+         },
+         {
+          "type": "EncodedQuestion",
+          "fields": {
+           "question_id": "str",
+           "question_type": "int",
+           "question_span": "tuple",
+           "option_spans": "tuple",
+           "option_ids": "tuple"
+          }
+         }
+        ]
+       },
+       "record_id": "str",
+       "media": "NoneType"
+      }
+     }
+    ]
+   },
+   "media": {}
+  },
+  "output": {
+   "type": "list",
+   "len": 1,
+   "first": [
+    {
+     "tensor": [
+      5
+     ],
+     "dtype": "torch.bfloat16"
+    }
+   ]
+  },
+  "single_output": {
+   "type": "list",
+   "len": 1,
+   "first": [
+    {
+     "tensor": [
+      5
+     ],
+     "dtype": "torch.bfloat16"
+    }
+   ]
+  },
+  "batched_ms": 1413.37,
+  "singles_ms": [
+   175.43,
+   85.39,
+   471.19
+  ],
+  "singles_ms_sum": 732.01,
+  "comparable": false,
+  "shapes_batched": [
+   [
+    5
+   ]
+  ],
+  "shapes_single": [
+   [
+    5
+   ],
+   [
+    2
+   ],
+   [
+    2
+   ],
+   [
+    3
+   ],
+   [
+    2
+   ],
+   [
+    4
+   ]
+  ],
+  "ambiguous_shapes": true,
+  "records": [
+   "pulse",
+   "card_trio",
+   "long_2k"
+  ]
+ },
+ "finished_utc": "2026-10-15T20:34:07Z"
+}

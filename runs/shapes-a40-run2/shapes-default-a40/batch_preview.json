@@ -1,0 +1,219 @@
+{
+ "lengths": [
+  843,
+  300,
+  2486
+ ],
+ "batch": {
+  "input_ids": {
+   "tensor": [
+    3,
+    2486
+   ],
+   "dtype": "torch.int64"
+  },
+  "attention_mask": {
+   "tensor": [
+    3,
+    2486
+   ],
+   "dtype": "torch.int64"
+  },
+  "records": {
+   "type": "list",
+   "len": 3,
+   "first": [
+    {
+     "type": "EncodedRecord",
+     "fields": {
+      "input_ids": {
+       "type": "tuple",
+       "len": 843,
+       "first": [
+        "int",
+        "int",
+        "int"
+       ]
+      },
+      "questions": {
+       "type": "tuple",
+       "len": 1,
+       "first": [
+        {
+         "type": "EncodedQuestion",
+         "fields": {
+          "question_id": "str",
+          "question_type": "int",
+          "question_span": "tuple",
+          "option_spans": "tuple",
+          "option_ids": "tuple"
+         }
+        }
+       ]
+      },
+      "record_id": "str",
+      "media": "NoneType"
+     }
+    },
+    {
+     "type": "EncodedRecord",
+     "fields": {
+      "input_ids": {
+       "type": "tuple",
+       "len": 300,
+       "first": [
+        "int",
+        "int",
+        "int"
+       ]
+      },
+      "questions": {
+       "type": "tuple",
+       "len": 3,
+       "first": [
+        {
+         "type": "EncodedQuestion",
+         "fields": {
+          "question_id": "str",
+          "question_type": "int",
+          "question_span": "tuple",
+          "option_spans": "tuple",
+          "option_ids": "tuple"
+         }
+        },
+        {
+         "type": "EncodedQuestion",
+         "fields": {
+          "question_id": "str",
+          "question_type": "int",
+          "question_span": "tuple",
+          "option_spans": "tuple",
+          "option_ids": "tuple"
+         }
+        },
+        {
+         "type": "EncodedQuestion",
+         "fields": {
+          "question_id": "str",
+          "question_type": "int",
+          "question_span": "tuple",
+          "option_spans": "tuple",
+          "option_ids": "tuple"
+         }
+        }
+       ]
+      },
+      "record_id": "str",
+      "media": "NoneType"
+     }
+    },
+    {
+     "type": "EncodedRecord",
+     "fields": {
+      "input_ids": {
+       "type": "tuple",
+       "len": 2486,
+       "first": [
+        "int",
+        "int",
+        "int"
+       ]
+      },
+      "questions": {
+       "type": "tuple",
+       "len": 2,
+       "first": [
+        {
+         "type": "EncodedQuestion",
+         "fields": {
+          "question_id": "str",
+          "question_type": "int",
+          "question_span": "tuple",
+          "option_spans": "tuple",
+          "option_ids": "tuple"
+         }
+        },
+        {
+         "type": "EncodedQuestion",
+         "fields": {
+          "question_id": "str",
+          "question_type": "int",
+          "question_span": "tuple",
+          "option_spans": "tuple",
+          "option_ids": "tuple"
+         }
+        }
+       ]
+      },
+      "record_id": "str",
+      "media": "NoneType"
+     }
+    }
+   ]
+  },
+  "media": {}
+ },
+ "output": {
+  "type": "list",
+  "len": 1,
+  "first": [
+   {
+    "tensor": [
+     5
+    ],
+    "dtype": "torch.bfloat16"
+   }
+  ]
+ },
+ "single_output": {
+  "type": "list",
+  "len": 1,
+  "first": [
+   {
+    "tensor": [
+     5
+    ],
+    "dtype": "torch.bfloat16"
+   }
+  ]
+ },
+ "batched_ms": 1413.37,
+ "singles_ms": [
+  175.43,
+  85.39,
+  471.19
+ ],
+ "singles_ms_sum": 732.01,
+ "comparable": false,
+ "shapes_batched": [
+  [
+   5
+  ]
+ ],
+ "shapes_single": [
+  [
+   5
+  ],
+  [
+   2
+  ],
+  [
+   2
+  ],
+  [
+   3
+  ],
+  [
+   2
+  ],
+  [
+   4
+  ]
+ ],
+ "ambiguous_shapes": true,
+ "records": [
+  "pulse",
+  "card_trio",
+  "long_2k"
+ ]
+}

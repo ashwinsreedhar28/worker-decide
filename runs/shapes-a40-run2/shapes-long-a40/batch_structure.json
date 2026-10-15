@@ -1,0 +1,65 @@
+{
+ "input_ids": {
+  "tensor": [
+   1,
+   2486
+  ],
+  "dtype": "torch.int64"
+ },
+ "attention_mask": {
+  "tensor": [
+   1,
+   2486
+  ],
+  "dtype": "torch.int64"
+ },
+ "records": {
+  "type": "list",
+  "len": 1,
+  "first": [
+   {
+    "type": "EncodedRecord",
+    "fields": {
+     "input_ids": {
+      "type": "tuple",
+      "len": 2486,
+      "first": [
+       "int",
+       "int",
+       "int"
+      ]
+     },
+     "questions": {
+      "type": "tuple",
+      "len": 2,
+      "first": [
+       {
+        "type": "EncodedQuestion",
+        "fields": {
+         "question_id": "str",
+         "question_type": "int",
+         "question_span": "tuple",
+         "option_spans": "tuple",
+         "option_ids": "tuple"
+        }
+       },
+       {
+        "type": "EncodedQuestion",
+        "fields": {
+         "question_id": "str",
+         "question_type": "int",
+         "question_span": "tuple",
+         "option_spans": "tuple",
+         "option_ids": "tuple"
+        }
+       }
+      ]
+     },
+     "record_id": "str",
+     "media": "NoneType"
+    }
+   }
+  ]
+ },
+ "media": {}
+}
