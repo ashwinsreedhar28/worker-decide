@@ -136,6 +136,14 @@ def describe(obj: Any, depth: int = 0) -> Any:
     return type(obj).__name__
 
 
+def blas_library(torch) -> str | None:
+    """What torch will use for GEMMs (did TORCH_BLAS_PREFER_CUBLASLT take?), None if unknown."""
+    try:
+        return str(torch.backends.cuda.preferred_blas_library())
+    except Exception:
+        return None
+
+
 def render(label: str, summary: dict[str, Any], diff: list[dict[str, Any]] | None) -> str:
     cols = (*SEGMENTS, "total")
     lines = [f"## Shape probe: {label}", "",
@@ -239,7 +247,7 @@ def main(argv: list[str] | None = None) -> None:
             {k: v[k] for k in ("k", "tokens")} | {"sibling": v["sibling"] is not None}
             for v in variants
         ],  # fmt: skip
-        "env": {k: os.environ.get(k) for k in ENV_KEYS},
+        "env": {k: os.environ.get(k) for k in ENV_KEYS} | {"preferred_blas": blas_library(torch)},
         "warmup": warm,
         "passes": passes,
         "summary": summary,

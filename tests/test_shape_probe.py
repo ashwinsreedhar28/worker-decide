@@ -198,6 +198,7 @@ def test_main_end_to_end_with_a_fake_engine_finds_the_per_shape_cost(tmp_path, m
     assert json.loads((out / "batch_structure.json").read_text())["input_ids"]["tensor"] == [1, 40]
     assert "| new - repeat |" in (out / "shape_probe.md").read_text()
     assert data["op_diff"] is None
+    assert data["env"]["preferred_blas"] is None  # the fake torch has no backends
 
 
 def test_main_trace_profiles_one_pair_and_keeps_it_out_of_the_medians(tmp_path, monkeypatch):
@@ -225,3 +226,10 @@ def test_main_refuses_a_record_whose_state_is_not_a_string(tmp_path, monkeypatch
                         lambda rid, line: {"id": rid, "state": {"a": 1}})  # fmt: skip
     with pytest.raises(SystemExit, match="not a string"):
         sp.main([str(tmp_path / "p")])
+
+
+def test_blas_library_reads_torch_or_says_unknown():
+    fake = SimpleNamespace(backends=SimpleNamespace(cuda=SimpleNamespace(
+        preferred_blas_library=lambda: "_BlasBackend.Cublaslt")))  # fmt: skip
+    assert sp.blas_library(fake) == "_BlasBackend.Cublaslt"
+    assert sp.blas_library(SimpleNamespace()) is None
