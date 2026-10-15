@@ -274,6 +274,40 @@ class Decision:
         return asdict(self)
 
 
+@dataclass
+class Prepared:
+    """A request after the CPU half of decide (hash, encode), waiting for a forward pass."""
+
+    rid: str
+    body: dict[str, Any]
+    encoded: Any
+    decision: Decision
+    t0: float  # perf_counter when preparation started; the total runs from here
+
+    @property
+    def tokens(self) -> int:
+        return len(self.encoded.input_ids)
+
+
+def split_per_record(flat: list[Any], counts: list[int]) -> list[list[Any]]:
+    """Cut the model's per-question outputs into one list per record.
+
+    Assumes the outputs come record by record, question by question, the order the single-
+    record path sees. For batches of more than one record this is UNVERIFIED until the shape
+    probe's batch preview (scripts/shape_probe.py) has run on a GPU: the model code ships with
+    the weights. A count mismatch raises instead of mis-assigning answers.
+    """
+    if sum(counts) != len(flat):
+        raise RuntimeError(
+            f"model returned {len(flat)} question outputs for {sum(counts)} questions"
+        )
+    out, i = [], 0
+    for c in counts:
+        out.append(flat[i : i + c])
+        i += c
+    return out
+
+
 class ClefEngine:
     def __init__(self, cfg: EngineConfig):
         from huggingface_hub import snapshot_download
@@ -448,6 +482,56 @@ class ClefEngine:
                     "usage": {"input_tokens": len(encoded.input_ids), "output_tokens": 0},
                 }
         d.timing_ms["total"] = round((time.perf_counter() - t0) * 1000, 2)
+        return d
+
+    # -- the batched request path (tier 1; WorkerCore with BATCH_MAX > 1) -------------------
+
+    def prepare(
+        self, body: dict[str, Any], images: list[Any] | None = None, rid: str = ""
+    ) -> Prepared:
+        """The CPU half of decide: hash and encode. Runs outside the lock, so request threads
+        encode in parallel while the GPU runs another batch. Raises the encoder's ValueError."""
+        d = Decision(request_sha=request_sha(body))
+        rec = {k: v for k, v in body.items() if k != "images"}
+        rec["id"] = rid
+        if images:
+            rec["images"] = images
+        t0 = time.perf_counter()
+        encoded = self.encode(rec)
+        d.encoding = encoding_block(encoded)
+        d.timing_ms["encode"] = round((time.perf_counter() - t0) * 1000, 2)
+        return Prepared(rid=rid, body=body, encoded=encoded, decision=d, t0=t0)
+
+    def forward_batch(self, encoded_list: list[Any]) -> list[list[tuple[list[float], list[float]]]]:
+        """One forward pass for several encoded records (the reference collate pads them to the
+        longest); (logits, probs) per question, one list per record. Holds the lock."""
+        torch = self.torch
+        with self.lock, torch.inference_mode():
+            batch = self.jsm.collate_records(
+                list(encoded_list), self.processor.tokenizer.pad_token_id, self.device
+            )
+            logits = self._forward(batch)
+            if self.device.type == "cuda":
+                torch.cuda.synchronize()
+        flat = []
+        for ql in logits:
+            lg = ql.float().cpu()
+            flat.append((lg.tolist(), lg.softmax(-1).tolist()))
+        return split_per_record(flat, [len(e.questions) for e in encoded_list])
+
+    def finish(self, p: Prepared, per_question: list[Any], forward_ms: float) -> Decision:
+        """Assemble the SystemOne answer for a prepared request from its forward outputs."""
+        d = p.decision
+        d.timing_ms["forward"] = round(forward_ms, 2)
+        d.questions, answers = assemble(
+            p.encoded.questions, per_question, p.body, self.jsm.systemone_answer
+        )
+        d.response = {
+            "model": self.cfg.model,
+            "answers": answers,
+            "usage": {"input_tokens": p.tokens, "output_tokens": 0},
+        }
+        d.timing_ms["total"] = round((time.perf_counter() - p.t0) * 1000, 2)
         return d
 
     def manifest(self) -> dict[str, Any]:

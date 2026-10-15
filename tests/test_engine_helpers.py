@@ -282,3 +282,13 @@ def test_gdn_kernels_fla_imported_without_a_probe_value_is_none(monkeypatch):
                        causal_conv1d_fn=None)  # fmt: skip
     monkeypatch.setitem(sys.modules, "fla.utils", types.ModuleType("fla.utils"))
     assert engine.gdn_kernels()["fla_device"] is None  # not the string "None"
+
+
+def test_split_per_record_cuts_by_question_counts_and_refuses_a_mismatch():
+    import pytest
+
+    flat = ["a1", "a2", "b1", "c1", "c2", "c3"]
+    assert engine.split_per_record(flat, [2, 1, 3]) == [["a1", "a2"], ["b1"], ["c1", "c2", "c3"]]
+    assert engine.split_per_record([], []) == []
+    with pytest.raises(RuntimeError, match="5 question outputs for 6 questions"):
+        engine.split_per_record(flat[:5], [2, 1, 3])
