@@ -233,3 +233,24 @@ def test_collect_sequential_by_default_and_the_flag_parses():
     assert peak[0] == 1
     assert ph.build_parser().parse_args(["http://x", "r", "--concurrency", "8"]).concurrency == 8
     assert ph.build_parser().parse_args(["http://x", "r"]).concurrency == 1
+
+
+def test_records_keep_the_batch_block_only_when_the_worker_sent_one():
+    line = {"id": "r", "request": BODY}
+    reply = {"model": "m", "answers": {}, "debug": {"encoding": None, "questions": [],
+             "batch": {"size": 3, "tokens": [1, 2, 3], "forward_ms": 5.0}}}  # fmt: skip
+    assert ph.record_from_reply(line, 200, reply)["batch"]["size"] == 3
+    plain = {"model": "m", "answers": {}, "debug": {"encoding": None, "questions": []}}
+    assert "batch" not in ph.record_from_reply(line, 200, plain)  # old records unchanged
+    assert "batch" not in ph.record_from_reply(line, 200, {**plain, "debug": {"batch": None}})
+
+
+def test_collect_with_concurrency_reraises_a_posters_exception(tmp_path):
+    import pytest
+
+    def poster(body):
+        raise ConnectionResetError("worker went away")
+
+    lines = [{"id": f"r{i}", "request": BODY} for i in range(3)]
+    with pytest.raises(ConnectionResetError):
+        ph.collect(lines, tmp_path / "run", poster, concurrency=2)

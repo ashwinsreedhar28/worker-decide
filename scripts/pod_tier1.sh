@@ -9,8 +9,11 @@
 #
 #   1. fla-core installed and on the GPU (as pod_shapes.sh step 1)
 #   2. worker, BATCH_MAX=$BATCH (default 8): correctness gate with --concurrency $BATCH (fp32
-#      truth, 87 records), order records, then the load test; batcher stats from GET /
-#   3. the same worker with BATCH_MAX=1 (tier 0) on this pod: load test, for a same-GPU baseline
+#      truth, 87 records), order records; batch_report.py checks that records really came out
+#      of batches of 2+ and that no batch failed and was retried alone (a PASS alone would not
+#      show that); then the load test
+#   3. the same worker with BATCH_MAX=1 (tier 0) on this pod: the gate sequentially, then
+#      batched vs single answers at the same-GPU bar (0.005 / 0.001), then the load test
 #   4. on a Runpod pod only: commit runs/ to m5/tier1-<gpu>-<date>-<hhmm> and push
 #
 # Run from the worker image: POD_SCRIPT=scripts/pod_tier1.sh (REPO_REF=<branch> until merged),
@@ -145,6 +148,9 @@ if start_worker "$BATCH" runs/worker-tier1.log; then
       || record parity_batched_order FAIL
   fi
   save_root "runs/worker-tier1-after-parity.json"
+  python3 scripts/batch_report.py "runs/http-batched-$SLUG" --root runs/worker-tier1-after-parity.json \
+    > "runs/batch_report_$SLUG.md" && record batching_effective PASS || record batching_effective FAIL
+  cat "runs/batch_report_$SLUG.md"
   if alive "load test" runs/worker-tier1.log; then
     python3 scripts/loadtest.py http://127.0.0.1:8000 "runs/load-ours-batched-$SLUG" \
       --label "ours-fla-batch$BATCH-$SLUG" && record load_batched ok || record load_batched FAIL
@@ -158,8 +164,19 @@ stop_worker
 # ---- 3. same pod, BATCH_MAX=1 ----------------------------------------------------------------
 step "3. worker with BATCH_MAX=1 (tier 0 baseline on this GPU)"
 if start_worker 1 runs/worker-tier1-single.log; then
-  python3 scripts/loadtest.py http://127.0.0.1:8000 "runs/load-ours-single-$SLUG" \
-    --label "ours-fla-single-$SLUG" && record load_single ok || record load_single FAIL
+  record worker_single ok
+  python3 scripts/parity_http.py http://127.0.0.1:8000 "runs/http-single-$SLUG" \
+    --json "runs/parity_single_$SLUG.json" > "runs/parity_single_$SLUG.md" \
+    && record parity_single PASS || record parity_single FAIL
+  # Batched against single on the same GPU and image: the regression bar, not fp32's.
+  python3 scripts/parity.py "runs/http-single-$SLUG" "runs/http-batched-$SLUG" \
+    --max-dp 0.005 --mean-dp 0.001 > "runs/batched_vs_single_$SLUG.md" \
+    && record batched_vs_single PASS || record batched_vs_single FAIL
+  head -16 "runs/batched_vs_single_$SLUG.md"
+  if alive "single load test" runs/worker-tier1-single.log; then
+    python3 scripts/loadtest.py http://127.0.0.1:8000 "runs/load-ours-single-$SLUG" \
+      --label "ours-fla-single-$SLUG" && record load_single ok || record load_single FAIL
+  fi
 else
   record worker_single FAIL; tail -n 40 runs/worker-tier1-single.log
 fi
@@ -176,6 +193,7 @@ else
   git config user.email "pod@worker-decide.invalid"
   git checkout -q -B "$BRANCH"
   for p in runs/pod_tier1* runs/tier1-* runs/worker-tier1* runs/http-batched-* runs/parity_batched* \
+           runs/batch_report_* runs/http-single-* runs/parity_single_* runs/batched_vs_single_* \
            runs/load-ours-batched-* runs/load-ours-single-*; do
     [ -e "$p" ] && git add -f "$p"
   done

@@ -82,6 +82,8 @@ def record_from_reply(line: dict[str, Any], status: int, reply: dict[str, Any]) 
     rec["questions"] = dbg.get("questions", [])
     rec["timing_ms"] = dbg.get("timing_ms", {})
     rec["response"] = {k: v for k, v in reply.items() if k != "debug"}
+    if dbg.get("batch") is not None:  # a batching worker: which batch answered this record
+        rec["batch"] = dbg["batch"]
     if dbg.get("request_sha") and dbg["request_sha"] != rec["request_sha"]:
         # Keep the worker's hash as the record's so parity's request gate reports the drift.
         rec["request_sha_local"] = rec["request_sha"]
