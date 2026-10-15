@@ -200,8 +200,10 @@ def apply(
     """Patch `model` in place. Returns {fusion: modules patched} (plus "skipped" reasons).
 
     `kernels`, `torch` and `modeling` default to fla's kernels, the real torch and
-    transformers' modeling_qwen3_5; the tests pass references. A model patched once is not
-    patched again (a module that already has _fused_orig_forward is left alone)."""
+    transformers' modeling_qwen3_5; the tests pass references. Nothing is patched twice: an
+    RMSNorm or MLP that already has _fused_orig_forward is left alone, and a GDN layer already
+    patched for some of gdn/conv gets only the ones it lacks (so fusions can be added one at a
+    time, as scripts/fusion_check.py's latency ladder does)."""
     report: dict[str, Any] = {f: 0 for f in fusions}
     if not fusions:
         return report
@@ -238,9 +240,25 @@ def apply(
             module_fusions = []
     gdn_set = {f for f in module_fusions if f in ("gdn", "conv")}
     for module in list(model.modules()):
+        name = _class(module)
+        if name == "Qwen3_5GatedDeltaNet" and gdn_set:
+            new = gdn_set - getattr(module, "_fused", set())
+            if not new:
+                continue
+            if module.activation not in ("silu", "swish") and "conv" in new:
+                skipped["conv"] = f"activation {module.activation!r} is not SiLU"
+                continue
+            if hasattr(module, "_fused"):  # patched for part of the set: add the rest
+                module._fused |= new
+                if "gdn" in new:
+                    module.chunk_gated_delta_rule = kernels.chunk_gated_delta_rule
+            else:
+                patch_gdn(module, new, kernels, torch, modeling)
+            for f in new:
+                report[f] += 1
+            continue
         if hasattr(module, "_fused_orig_forward"):
             continue
-        name = _class(module)
         if name == "Qwen3_5RMSNorm" and "rmsnorm" in module_fusions:
             patch_rmsnorm(module, kernels, torch)
             report["rmsnorm"] += 1
@@ -250,13 +268,6 @@ def apply(
                 continue
             patch_mlp(module, kernels, torch)
             report["mlp"] += 1
-        elif name == "Qwen3_5GatedDeltaNet" and gdn_set:
-            if module.activation not in ("silu", "swish") and "conv" in gdn_set:
-                skipped["conv"] = f"activation {module.activation!r} is not SiLU"
-                continue
-            patch_gdn(module, gdn_set, kernels, torch, modeling)
-            for f in gdn_set:
-                report[f] += 1
     if skipped:
         report["skipped"] = skipped
     return report

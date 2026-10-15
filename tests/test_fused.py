@@ -215,3 +215,31 @@ def test_nocache_turns_the_cache_off_and_changes_no_output():
         out = patched(input_ids=ids())
     assert out.past_key_values is None
     assert (run(base, ids()) - out.last_hidden_state).abs().max().item() < 1e-6
+
+
+def test_gdn_and_conv_added_one_at_a_time_equal_both_at_once():
+    base = tiny_model()
+    both, steps = copy.deepcopy(base), copy.deepcopy(base)
+    k, calls = ref_kernels()
+    fused.apply(both, ("gdn", "conv"), kernels=k, torch=torch, modeling=modeling)
+    first = fused.apply(steps, ("gdn",), kernels=k, torch=torch, modeling=modeling)
+    second = fused.apply(steps, ("conv",), kernels=k, torch=torch, modeling=modeling)
+    again = fused.apply(steps, ("gdn", "conv"), kernels=k, torch=torch, modeling=modeling)
+    assert first["gdn"] == second["conv"] == 3 and again == {"gdn": 0, "conv": 0}
+    gdns = [m for m in steps.modules() if type(m).__name__ == "Qwen3_5GatedDeltaNet"]
+    assert all(m._fused == {"gdn", "conv"} for m in gdns)
+    calls.clear()
+    want, got = run(base, ids()), run(steps, ids())
+    assert (want - got).abs().max().item() < 2e-5
+    assert calls.count("conv") == 3  # the conv added second is really on the path
+    assert (run(both, ids()) - got).abs().max().item() == 0
+
+
+def test_conv_then_gdn_puts_the_fla_recurrence_on_the_path():
+    model = tiny_model()
+    k, calls = ref_kernels()
+    fused.apply(model, ("conv",), kernels=k, torch=torch, modeling=modeling)
+    fused.apply(model, ("gdn",), kernels=k, torch=torch, modeling=modeling)
+    calls.clear()
+    run(model, ids())
+    assert calls.count(("chunk", 2, 4, True)) == 3
