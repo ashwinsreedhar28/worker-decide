@@ -243,6 +243,9 @@ def test_gdn_kernels_without_transformers_reports_installed_packages(monkeypatch
     import sys
 
     monkeypatch.setitem(sys.modules, "transformers", None)  # import fails
+    # ...and so does the submodule, which a cached entry would otherwise serve (test_fused.py
+    # imports it into the same process)
+    monkeypatch.setitem(sys.modules, "transformers.models.qwen3_5", None)
     real = importlib.util.find_spec
     monkeypatch.setattr(importlib.util, "find_spec",
                         lambda name, *a: object() if name == "fla" else (None if name ==
@@ -259,6 +262,7 @@ def test_gdn_kernels_find_spec_fallback_both_and_neither(monkeypatch):
     import sys
 
     monkeypatch.setitem(sys.modules, "transformers", None)
+    monkeypatch.setitem(sys.modules, "transformers.models.qwen3_5", None)
     real = importlib.util.find_spec
     for installed, want in (({"fla", "causal_conv1d"}, ("fla", "fla", "causal_conv1d")),
                             (set(), ("torch", "torch", "torch"))):  # fmt: skip
