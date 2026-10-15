@@ -107,6 +107,10 @@ def _load_dir(path: Path) -> dict[str, dict]:
         if p.name == "manifest.json":
             continue
         rec = json.loads(p.read_text())
+        if not isinstance(rec, dict) or "id" not in rec:
+            # Not a record (e.g. a findings file); Oct 15 audit: one crashed the order gates.
+            print(f"parity: ignoring {p.name}: not a record (no 'id')", file=sys.stderr)
+            continue
         out[rec["id"]] = rec
     return out
 
@@ -218,7 +222,13 @@ def compare(
     records = [compare_record(o, run.get(rid), max_dp, near_tie) for rid, o in oracle.items()]
     means = [r.mean_dp for r in records if r.mean_dp is not None]
     overall = sum(means) / len(means) if means else None
-    passed = all(r.status != "FAIL" for r in records) and (overall is None or overall <= mean_dp)
+    # Zero records compared is a failure, not a vacuous pass (Oct 15 audit: an oracle step that
+    # died after creating its output directory would otherwise gate as PASS).
+    passed = (
+        bool(records)
+        and all(r.status != "FAIL" for r in records)
+        and (overall is None or overall <= mean_dp)
+    )
     qmax = [q.max_dp for r in records for q in r.questions]
     return Report(
         oracle_dir=str(oracle_dir),

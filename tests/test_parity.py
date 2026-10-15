@@ -170,3 +170,22 @@ def test_render_has_table_and_sections(tmp_path):
     run[1]["questions"][0]["probs"] = [0.495, 0.505]
     text = parity.render(_run(tmp_path, run, mean_dp=0.01))
     assert "| result | PASS |" in text and "Near-ties" in text and "tie/q" in text
+
+
+def test_zero_records_compared_is_a_failure(tmp_path):
+    (tmp_path / "oracle").mkdir()
+    (tmp_path / "run").mkdir()
+    report = parity.compare(tmp_path / "oracle", tmp_path / "run")
+    assert report.records == [] and not report.passed
+
+
+def test_non_record_json_in_a_directory_is_ignored(tmp_path, capsys):
+    import shutil
+
+    src = Path(__file__).resolve().parents[1] / "fixtures/clef-flash/float32"
+    (tmp_path / "o").mkdir()
+    shutil.copy(src / "card_trio.json", tmp_path / "o" / "card_trio.json")
+    (tmp_path / "o" / "findings.json").write_text('{"unsorted_same_ids": true}')
+    report = parity.compare(tmp_path / "o", tmp_path / "o")
+    assert report.passed and len(report.records) == 1
+    assert "findings.json" in capsys.readouterr().err
