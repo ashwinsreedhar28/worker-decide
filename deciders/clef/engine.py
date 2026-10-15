@@ -308,6 +308,20 @@ def split_per_record(flat: list[Any], counts: list[int]) -> list[list[Any]]:
     return out
 
 
+def check_option_counts(per_record: list[list[Any]], encoded_list: list[Any]) -> None:
+    """Each question's output must have one value per option. A batched output padded to the
+    widest question, or records out of order with different option counts, raises
+    RuntimeError here, inside the forward, so the batcher retries each request alone instead
+    of the mismatch surfacing later as a 400 from assemble()."""
+    for r, (outs, e) in enumerate(zip(per_record, encoded_list, strict=True)):
+        for q, (logits, _probs) in zip(e.questions, outs, strict=True):
+            if len(logits) != len(q.option_ids):
+                raise RuntimeError(
+                    f"record {r} question {q.question_id!r}: {len(logits)} outputs for "
+                    f"{len(q.option_ids)} options"
+                )
+
+
 class ClefEngine:
     def __init__(self, cfg: EngineConfig):
         from huggingface_hub import snapshot_download
@@ -362,7 +376,11 @@ class ClefEngine:
         from transformers import AutoProcessor
 
         self.jsm, self.torch = jsm, torch
-        self.lock = threading.Lock()
+        self.lock = threading.Lock()  # one forward pass at a time
+        # The HF tokenizer is not safe to share across threads (transformers resets its
+        # truncation settings per call; concurrent calls can raise "Already borrowed" or encode
+        # under another call's settings), and prepare() encodes outside self.lock.
+        self.encode_lock = threading.Lock()
         self.timeline.mark("model_code_imported")
         t0 = time.perf_counter()
         if cfg.dry_run:
@@ -414,12 +432,13 @@ class ClefEngine:
     # -- pieces ----------------------------------------------------------------------------
 
     def encode(self, record: dict[str, Any]):
-        return self.jsm.encode_record(
-            self.processor.tokenizer,
-            record,
-            max_length=self.cfg.max_length,
-            processor=self.processor,
-        )
+        with self.encode_lock:
+            return self.jsm.encode_record(
+                self.processor.tokenizer,
+                record,
+                max_length=self.cfg.max_length,
+                processor=self.processor,
+            )
 
     def _forward(self, batch):
         if self._sdp_backends is None:
@@ -517,7 +536,9 @@ class ClefEngine:
         for ql in logits:
             lg = ql.float().cpu()
             flat.append((lg.tolist(), lg.softmax(-1).tolist()))
-        return split_per_record(flat, [len(e.questions) for e in encoded_list])
+        per_record = split_per_record(flat, [len(e.questions) for e in encoded_list])
+        check_option_counts(per_record, encoded_list)
+        return per_record
 
     def finish(self, p: Prepared, per_question: list[Any], forward_ms: float) -> Decision:
         """Assemble the SystemOne answer for a prepared request from its forward outputs."""
